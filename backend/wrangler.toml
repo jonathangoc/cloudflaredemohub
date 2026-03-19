@@ -1,0 +1,11 @@
+name = "cloudflare-demo-hub-backend"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[ai]
+binding = "AI"
+
+[env.production]
+name = "cloudflare-demo-hub-backend"
+route = { pattern = "demoai.jonathangoc.com/*", zone_name = "jonathangoc.com" }

@@ -1,0 +1,11 @@
+name = "cloudflare-demo-hub-frontend"
+main = "src/worker.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[site]
+bucket = "./dist"
+
+[env.production]
+name = "cloudflare-demo-hub-frontend"
+route = { pattern = "demo.jonathangoc.com/*", zone_name = "jonathangoc.com" }
