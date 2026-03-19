@@ -22,9 +22,10 @@ interface ToolPart {
   type: 'tool'
   toolCallId: string
   toolName: string
-  state: 'input-streaming' | 'input-available' | 'output-streaming' | 'output-available' | 'approval-required'
+  state: 'input-streaming' | 'input-available' | 'output-streaming' | 'output-available' | 'approval-requested' | 'approval-responded' | 'output-error'
   input?: Record<string, unknown>
   output?: unknown
+  approval?: { id: string; approved?: boolean; reason?: string }
 }
 type MsgPart = TextPart | ToolPart
 interface AgentMsg {
@@ -440,7 +441,7 @@ function ToolCallCard({
     part.state === 'input-available' ||
     part.state === 'output-streaming'
   const isDone = part.state === 'output-available'
-  const needsApproval = part.state === 'approval-required'
+  const needsApproval = part.state === 'approval-requested'
 
   const bg     = meta?.bg     ?? 'bg-gray-50'
   const border = meta?.border ?? 'border-gray-200'
@@ -488,13 +489,13 @@ function ToolCallCard({
       {needsApproval && (
         <div className="flex gap-2 px-3 py-2.5">
           <button
-            onClick={() => onApprove(part.toolCallId)}
+            onClick={() => onApprove(part.approval?.id ?? part.toolCallId)}
             className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
           >
             <CheckCircle className="w-3.5 h-3.5" /> Approve
           </button>
           <button
-            onClick={() => onReject(part.toolCallId)}
+            onClick={() => onReject(part.approval?.id ?? part.toolCallId)}
             className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
           >
             <XCircle className="w-3.5 h-3.5" /> Reject
