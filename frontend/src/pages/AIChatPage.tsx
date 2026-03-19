@@ -34,8 +34,6 @@ const CAP_COLORS: Record<string, string> = {
 }
 
 const MODELS = [
-  // Moonshot AI
-  { id: '@cf/moonshot/kimi-k2.5', label: 'Kimi K2.5', company: 'Moonshot AI', caps: ['Reasoning', 'Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // Meta
   { id: '@cf/meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout · 17B', company: 'Meta', caps: ['Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', label: 'Llama 3.3 · 70B FP8', company: 'Meta', caps: ['Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
@@ -68,6 +66,8 @@ const MODELS = [
   { id: '@cf/zhipuai/glm-4.7-flash', label: 'GLM-4.7 Flash', company: 'Zhipu AI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // AI Singapore
   { id: '@cf/aisingapore/gemma-sea-lion-v4-27b-it', label: 'SEA-LION v4 · 27B', company: 'AI Singapore', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  // Moonshot AI
+  { id: '@cf/moonshot/kimi-k2.5', label: 'Kimi K2.5', company: 'Moonshot AI', caps: ['Reasoning', 'Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
 ]
 
 const USE_CASES = [
@@ -180,7 +180,13 @@ export default function AIChatPage() {
       })
 
       if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`)
+        let errDetail = `Server error: ${res.status}`
+        try {
+          const errBody = await res.json() as { error?: string; details?: string }
+          if (errBody.error) errDetail = errBody.error
+          if (errBody.details) errDetail += ` — ${errBody.details}`
+        } catch { /* ignore parse failure */ }
+        throw new Error(errDetail)
       }
 
       const contentType = res.headers.get('content-type') || ''
@@ -597,7 +603,7 @@ export default function AIChatPage() {
           </p>
         </div>
         <p className="text-center text-[10px] text-gray-400 mt-2 leading-relaxed">
-          Use of the Workers AI LLM Playground is subject to the{' '}
+          The use of Workers AI is subject to the{' '}
           <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:text-orange-600 transition-colors">Cloudflare Website and Online Services Terms of Use</a>
           {' '}and{' '}
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:text-orange-600 transition-colors">Privacy Policy</a>.
