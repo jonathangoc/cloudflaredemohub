@@ -12,13 +12,22 @@ interface ChatMessage {
   content: string
 }
 
+interface ChatParams {
+  max_tokens?: number
+  temperature?: number
+  top_p?: number
+}
+
 interface ChatRequest {
   messages: ChatMessage[]
   model?: string
   stream?: boolean
+  params?: ChatParams
 }
 
 const ALLOWED_MODELS = new Set([
+  // Moonshot AI
+  '@cf/moonshot/kimi-k2.5',
   // Meta
   '@cf/meta/llama-4-scout-17b-16e-instruct',
   '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
@@ -109,7 +118,7 @@ app.post('/api/chat', async (c) => {
     return c.json({ error: 'Invalid JSON body' }, 400)
   }
 
-  const { messages, model: requestedModel, stream: useStream = true } = body
+  const { messages, model: requestedModel, stream: useStream = true, params } = body
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return c.json({ error: 'messages array is required and must not be empty' }, 400)
@@ -139,9 +148,9 @@ app.post('/api/chat', async (c) => {
       const aiStream = await c.env.AI.run(model as any, {
         messages: messagesWithSystem,
         stream: true,
-        max_tokens: 4096,
-        temperature: 0.6,
-        top_p: 0.95,
+        max_tokens: params?.max_tokens ?? 256,
+        temperature: params?.temperature ?? 0.6,
+        top_p: params?.top_p ?? 1,
       })
 
       return stream(c, async (s) => {
@@ -169,9 +178,9 @@ app.post('/api/chat', async (c) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await c.env.AI.run(model as any, {
         messages: messagesWithSystem,
-        max_tokens: 4096,
-        temperature: 0.6,
-        top_p: 0.95,
+        max_tokens: params?.max_tokens ?? 256,
+        temperature: params?.temperature ?? 0.6,
+        top_p: params?.top_p ?? 1,
       }) as { response: string }
 
       return c.json({

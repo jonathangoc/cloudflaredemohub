@@ -25,39 +25,49 @@ interface Message {
   duration?: number
 }
 
+const CAP_COLORS: Record<string, string> = {
+  'Reasoning':        'bg-purple-100 text-purple-700',
+  'Vision':           'bg-green-100 text-green-700',
+  'Function calling': 'bg-blue-100 text-blue-700',
+  'Batch':            'bg-gray-100 text-gray-600',
+  'LoRA':             'bg-amber-100 text-amber-700',
+}
+
 const MODELS = [
+  // Moonshot AI
+  { id: '@cf/moonshot/kimi-k2.5', label: 'Kimi K2.5', company: 'Moonshot AI', caps: ['Reasoning', 'Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // Meta
-  { id: '@cf/meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout · 17B', desc: 'Vision · Function calling', group: 'Meta' },
-  { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', label: 'Llama 3.3 · 70B FP8', desc: 'Fast · Function calling', group: 'Meta' },
-  { id: '@cf/meta/llama-3.2-11b-vision-instruct', label: 'Llama 3.2 · 11B Vision', desc: 'Vision · LoRA', group: 'Meta' },
-  { id: '@cf/meta/llama-3.2-3b-instruct', label: 'Llama 3.2 · 3B', desc: 'Fast & efficient', group: 'Meta' },
-  { id: '@cf/meta/llama-3.2-1b-instruct', label: 'Llama 3.2 · 1B', desc: 'Lightweight', group: 'Meta' },
-  { id: '@cf/meta/llama-3.1-8b-instruct-fast', label: 'Llama 3.1 · 8B Fast', desc: 'Optimized speed', group: 'Meta' },
-  { id: '@cf/meta/llama-3.1-8b-instruct', label: 'Llama 3.1 · 8B', desc: 'Balanced', group: 'Meta' },
-  { id: '@cf/meta/llama-3.1-8b-instruct-fp8', label: 'Llama 3.1 · 8B FP8', desc: 'FP8 quantized', group: 'Meta' },
-  { id: '@cf/meta/llama-3.1-8b-instruct-awq', label: 'Llama 3.1 · 8B AWQ', desc: 'INT4 quantized', group: 'Meta' },
-  { id: '@cf/meta/llama-3-8b-instruct', label: 'Llama 3 · 8B', desc: 'Strong reasoning', group: 'Meta' },
+  { id: '@cf/meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout · 17B', company: 'Meta', caps: ['Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', label: 'Llama 3.3 · 70B FP8', company: 'Meta', caps: ['Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.2-11b-vision-instruct', label: 'Llama 3.2 · 11B Vision', company: 'Meta', caps: ['Vision', 'LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.2-3b-instruct', label: 'Llama 3.2 · 3B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.2-1b-instruct', label: 'Llama 3.2 · 1B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.1-8b-instruct-fast', label: 'Llama 3.1 · 8B Fast', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.1-8b-instruct', label: 'Llama 3.1 · 8B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.1-8b-instruct-fp8', label: 'Llama 3.1 · 8B FP8', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3.1-8b-instruct-awq', label: 'Llama 3.1 · 8B AWQ', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-3-8b-instruct', label: 'Llama 3 · 8B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // OpenAI
-  { id: '@cf/openai/gpt-oss-120b', label: 'GPT OSS · 120B', desc: 'Reasoning · Function calling', group: 'OpenAI' },
-  { id: '@cf/openai/gpt-oss-20b', label: 'GPT OSS · 20B', desc: 'Reasoning · Low latency', group: 'OpenAI' },
+  { id: '@cf/openai/gpt-oss-120b', label: 'GPT OSS · 120B', company: 'OpenAI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/openai/gpt-oss-20b', label: 'GPT OSS · 20B', company: 'OpenAI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // Qwen
-  { id: '@cf/qwen/qwen3-30b-a3b-fp8', label: 'Qwen3 · 30B MoE', desc: 'Reasoning · Function calling', group: 'Qwen' },
-  { id: '@cf/qwen/qwq-32b', label: 'QwQ · 32B', desc: 'Deep reasoning', group: 'Qwen' },
-  { id: '@cf/qwen/qwen2.5-coder-32b-instruct', label: 'Qwen 2.5 Coder · 32B', desc: 'Code specialist', group: 'Qwen' },
+  { id: '@cf/qwen/qwen3-30b-a3b-fp8', label: 'Qwen3 · 30B MoE', company: 'Qwen', caps: ['Reasoning', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/qwen/qwq-32b', label: 'QwQ · 32B', company: 'Qwen', caps: ['Reasoning', 'LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/qwen/qwen2.5-coder-32b-instruct', label: 'Qwen 2.5 Coder · 32B', company: 'Qwen', caps: ['LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // Google
-  { id: '@cf/google/gemma-3-12b-it', label: 'Gemma 3 · 12B', desc: '128K context · Vision', group: 'Google' },
+  { id: '@cf/google/gemma-3-12b-it', label: 'Gemma 3 · 12B', company: 'Google', caps: ['LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // Mistral
-  { id: '@cf/mistral/mistral-small-3.1-24b-instruct', label: 'Mistral Small 3.1 · 24B', desc: 'Vision · 128K context', group: 'Mistral' },
+  { id: '@cf/mistral/mistral-small-3.1-24b-instruct', label: 'Mistral Small 3.1 · 24B', company: 'Mistral', caps: ['Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // NVIDIA
-  { id: '@cf/nvidia/nemotron-3-120b-a12b', label: 'Nemotron 3 · 120B', desc: 'Reasoning · Agentic', group: 'NVIDIA' },
+  { id: '@cf/nvidia/nemotron-3-120b-a12b', label: 'Nemotron 3 · 120B', company: 'NVIDIA', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // DeepSeek
-  { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', label: 'DeepSeek R1 · 32B', desc: 'Reasoning', group: 'DeepSeek' },
+  { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', label: 'DeepSeek R1 · 32B', company: 'DeepSeek', caps: ['Reasoning'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // IBM
-  { id: '@cf/ibm/granite-4.0-h-micro', label: 'Granite 4.0 · Micro', desc: 'Function calling · RAG', group: 'IBM' },
+  { id: '@cf/ibm/granite-4.0-h-micro', label: 'Granite 4.0 · Micro', company: 'IBM', caps: ['Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // Zhipu AI
-  { id: '@cf/zhipuai/glm-4.7-flash', label: 'GLM-4.7 Flash', desc: 'Multilingual · 131K ctx', group: 'Zhipu AI' },
+  { id: '@cf/zhipuai/glm-4.7-flash', label: 'GLM-4.7 Flash', company: 'Zhipu AI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
   // AI Singapore
-  { id: '@cf/aisingapore/gemma-sea-lion-v4-27b-it', label: 'SEA-LION v4 · 27B', desc: 'SE Asian languages', group: 'AI Singapore' },
+  { id: '@cf/aisingapore/gemma-sea-lion-v4-27b-it', label: 'SEA-LION v4 · 27B', company: 'AI Singapore', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
 ]
 
 const USE_CASES = [
@@ -165,7 +175,7 @@ export default function AIChatPage() {
       const res = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, model: selectedModel.id }),
+        body: JSON.stringify({ messages: history, model: selectedModel.id, params: selectedModel.defaults }),
         signal: abortRef.current.signal,
       })
 
@@ -221,7 +231,7 @@ export default function AIChatPage() {
           role: 'assistant',
           duration_ms: duration,
           timestamp: new Date().toISOString(),
-          parameters: { max_tokens: 4096, temperature: 0.6, top_p: 0.95, stream: true },
+          parameters: { ...selectedModel.defaults, stream: true },
           content: accumulated,
         })
       } else {
@@ -244,7 +254,7 @@ export default function AIChatPage() {
           role: 'assistant',
           duration_ms: duration,
           timestamp: new Date().toISOString(),
-          parameters: { max_tokens: 4096, temperature: 0.6, top_p: 0.95, stream: false },
+          parameters: { ...selectedModel.defaults, stream: false },
           content: assistantMsg.content,
         })
       }
@@ -386,10 +396,14 @@ export default function AIChatPage() {
               <Sparkles className="w-3.5 h-3.5" />
             </div>
             <div className="text-left min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 leading-none mb-0.5">{selectedModel.group}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 leading-none mb-0.5">{selectedModel.company}</div>
               <div className="text-sm font-semibold text-gray-900 leading-none">{selectedModel.label}</div>
             </div>
-            <span className="hidden sm:block text-xs text-gray-400 truncate">{selectedModel.desc}</span>
+            <div className="hidden sm:flex flex-wrap gap-1">
+              {selectedModel.caps.slice(0, 3).map((cap) => (
+                <span key={cap} className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CAP_COLORS[cap] ?? 'bg-gray-100 text-gray-500'}`}>{cap}</span>
+              ))}
+            </div>
           </div>
           <div className="flex items-center gap-1.5 flex-none">
             <span className="hidden sm:block text-xs text-gray-400 font-medium">Change model</span>
@@ -399,16 +413,16 @@ export default function AIChatPage() {
 
         {showModelDropdown && (() => {
           const groups = MODELS.reduce<Record<string, typeof MODELS>>((acc, m) => {
-            ;(acc[m.group] ??= []).push(m)
+            ;(acc[m.company] ??= []).push(m)
             return acc
           }, {})
           return (
             <div className="absolute left-4 right-4 top-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl shadow-gray-300/50 z-50 overflow-hidden animate-fade-in">
-              <div className="max-h-80 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-x divide-gray-100">
-                {Object.entries(groups).map(([group, models]) => (
-                  <div key={group}>
+              <div className="max-h-96 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-x divide-gray-100">
+                {Object.entries(groups).map(([company, models]) => (
+                  <div key={company}>
                     <div className="px-3 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 bg-gray-50 sticky top-0">
-                      {group}
+                      {company}
                     </div>
                     {models.map((m) => (
                       <button
@@ -422,7 +436,12 @@ export default function AIChatPage() {
                           <span className="truncate">{m.label}</span>
                           {m.id === selectedModel.id && <div className="w-1.5 h-1.5 bg-orange-500 rounded-full flex-none" />}
                         </div>
-                        <div className="text-[10px] text-gray-400 mt-0.5 truncate">{m.desc}</div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {m.caps.map((cap) => (
+                            <span key={cap} className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${CAP_COLORS[cap] ?? 'bg-gray-100 text-gray-500'}`}>{cap}</span>
+                          ))}
+                          {m.caps.length === 0 && <span className="text-[9px] text-gray-400">General</span>}
+                        </div>
                       </button>
                     ))}
                   </div>
