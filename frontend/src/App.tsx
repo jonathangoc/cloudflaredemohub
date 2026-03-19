@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import AIChatPage from './pages/AIChatPage'
@@ -9,7 +10,18 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/demo/ai-chat" element={<AIChatPage />} />
-        <Route path="/demo/ai-agent" element={<AIAgentPage />} />
+        <Route path="/demo/ai-agent" element={
+          <Suspense fallback={
+            <div className="h-screen flex items-center justify-center bg-gray-50">
+              <div className="flex items-center gap-2 text-gray-400">
+                <div className="w-5 h-5 border-2 border-violet-300 border-t-violet-500 rounded-full animate-spin" />
+                <span className="text-sm">Loading agent…</span>
+              </div>
+            </div>
+          }>
+            <AIAgentPage />
+          </Suspense>
+        } />
       </Routes>
     </BrowserRouter>
   )

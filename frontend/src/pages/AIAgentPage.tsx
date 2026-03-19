@@ -110,6 +110,19 @@ export default function AIAgentPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useAgentChat({
     agent,
+    // Catch network errors (e.g. agent backend not yet deployed) so use()
+    // never sees a rejected promise and the Suspense boundary can resolve.
+    getInitialMessages: async ({ url }: { url: string }) => {
+      try {
+        const res = await fetch(`${url}/get-messages`)
+        if (!res.ok) return []
+        const text = await res.text()
+        if (!text.trim()) return []
+        return JSON.parse(text)
+      } catch {
+        return []
+      }
+    },
     onToolCall: async ({ toolCall, addToolOutput }: {
       toolCall: { toolName: string; toolCallId: string }
       addToolOutput: (opts: { toolCallId: string; output: unknown }) => void
