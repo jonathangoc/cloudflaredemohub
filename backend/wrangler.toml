@@ -8,4 +8,7 @@ binding = "AI"
 
 [env.production]
 name = "cloudflare-demo-hub-backend"
-route = { pattern = "demoai.jonathangoc.com/*", zone_name = "jonathangoc.com" }
+
+[[env.production.routes]]
+pattern = "demoai.jonathangoc.com"
+custom_domain = true

@@ -39,10 +39,8 @@ const ALLOWED_MODELS = new Set([
   '@cf/qwen/qwen2.5-coder-32b-instruct',
   // Google
   '@cf/google/gemma-3-12b-it',
-  '@cf/google/gemma-7b-it',
   // Mistral
   '@cf/mistral/mistral-small-3.1-24b-instruct',
-  '@hf/mistralai/mistral-7b-instruct-v0.2',
   // NVIDIA
   '@cf/nvidia/nemotron-3-120b-a12b',
   // DeepSeek
@@ -51,10 +49,6 @@ const ALLOWED_MODELS = new Set([
   '@cf/ibm/granite-4.0-h-micro',
   // Zhipu AI
   '@cf/zhipuai/glm-4.7-flash',
-  // Nous Research
-  '@hf/nousresearch/hermes-2-pro-mistral-7b',
-  // Microsoft
-  '@cf/microsoft/phi-2',
   // AI Singapore
   '@cf/aisingapore/gemma-sea-lion-v4-27b-it',
 ])
@@ -63,7 +57,7 @@ const DEFAULT_MODEL = '@cf/meta/llama-3.2-3b-instruct'
 
 const SYSTEM_PROMPT = `You are a helpful, knowledgeable AI assistant running on Cloudflare Workers AI at the edge. 
 You are part of the Cloudflare Demo Hub — an interactive platform showcasing Cloudflare Developer Platform capabilities.
-Be concise, accurate, and friendly. Format code with markdown code blocks. Use clear structure with headers when helpful.`
+Be thorough, accurate, and friendly. Provide complete and detailed answers — do not truncate or cut off your response. Format code with markdown code blocks. Use clear structure with headers when helpful.`
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -145,6 +139,9 @@ app.post('/api/chat', async (c) => {
       const aiStream = await c.env.AI.run(model as any, {
         messages: messagesWithSystem,
         stream: true,
+        max_tokens: 4096,
+        temperature: 0.6,
+        top_p: 0.95,
       })
 
       return stream(c, async (s) => {
@@ -172,6 +169,9 @@ app.post('/api/chat', async (c) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await c.env.AI.run(model as any, {
         messages: messagesWithSystem,
+        max_tokens: 4096,
+        temperature: 0.6,
+        top_p: 0.95,
       }) as { response: string }
 
       return c.json({

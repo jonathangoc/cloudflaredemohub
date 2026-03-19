@@ -46,10 +46,8 @@ const MODELS = [
   { id: '@cf/qwen/qwen2.5-coder-32b-instruct', label: 'Qwen 2.5 Coder · 32B', desc: 'Code specialist', group: 'Qwen' },
   // Google
   { id: '@cf/google/gemma-3-12b-it', label: 'Gemma 3 · 12B', desc: '128K context · Vision', group: 'Google' },
-  { id: '@cf/google/gemma-7b-it', label: 'Gemma · 7B', desc: 'Lightweight', group: 'Google' },
   // Mistral
   { id: '@cf/mistral/mistral-small-3.1-24b-instruct', label: 'Mistral Small 3.1 · 24B', desc: 'Vision · 128K context', group: 'Mistral' },
-  { id: '@hf/mistralai/mistral-7b-instruct-v0.2', label: 'Mistral · 7B v0.2', desc: '32K context window', group: 'Mistral' },
   // NVIDIA
   { id: '@cf/nvidia/nemotron-3-120b-a12b', label: 'Nemotron 3 · 120B', desc: 'Reasoning · Agentic', group: 'NVIDIA' },
   // DeepSeek
@@ -58,10 +56,6 @@ const MODELS = [
   { id: '@cf/ibm/granite-4.0-h-micro', label: 'Granite 4.0 · Micro', desc: 'Function calling · RAG', group: 'IBM' },
   // Zhipu AI
   { id: '@cf/zhipuai/glm-4.7-flash', label: 'GLM-4.7 Flash', desc: 'Multilingual · 131K ctx', group: 'Zhipu AI' },
-  // Nous Research
-  { id: '@hf/nousresearch/hermes-2-pro-mistral-7b', label: 'Hermes 2 Pro · 7B', desc: 'Function calling', group: 'Nous Research' },
-  // Microsoft
-  { id: '@cf/microsoft/phi-2', label: 'Phi-2 · 2.7B', desc: 'Compact & capable', group: 'Microsoft' },
   // AI Singapore
   { id: '@cf/aisingapore/gemma-sea-lion-v4-27b-it', label: 'SEA-LION v4 · 27B', desc: 'SE Asian languages', group: 'AI Singapore' },
 ]
@@ -127,6 +121,7 @@ export default function AIChatPage() {
   const [openCategory, setOpenCategory] = useState<string | null>(null)
   const [streamingContent, setStreamingContent] = useState('')
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [lastResponseJson, setLastResponseJson] = useState<object | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -220,6 +215,15 @@ export default function AIChatPage() {
           duration,
         }
         setMessages((prev) => [...prev, assistantMsg])
+        setLastResponseJson({
+          object: 'chat.completion',
+          model: selectedModel.id,
+          role: 'assistant',
+          duration_ms: duration,
+          timestamp: new Date().toISOString(),
+          parameters: { max_tokens: 4096, temperature: 0.6, top_p: 0.95, stream: true },
+          content: accumulated,
+        })
       } else {
         // JSON response fallback
         const data = await res.json() as { response?: string; result?: { response?: string }; usage?: { total_tokens?: number } }
@@ -234,6 +238,15 @@ export default function AIChatPage() {
           tokens: data.usage?.total_tokens,
         }
         setMessages((prev) => [...prev, assistantMsg])
+        setLastResponseJson({
+          object: 'chat.completion',
+          model: selectedModel.id,
+          role: 'assistant',
+          duration_ms: duration,
+          timestamp: new Date().toISOString(),
+          parameters: { max_tokens: 4096, temperature: 0.6, top_p: 0.95, stream: false },
+          content: assistantMsg.content,
+        })
       }
     } catch (err: unknown) {
       if (err instanceof Error && err.name === 'AbortError') return
@@ -420,7 +433,7 @@ export default function AIChatPage() {
         })()}
       </div>
 
-      {/* Body: sidebar + chat */}
+      {/* Body: sidebar + chat + terminal */}
       <div className="flex flex-1 overflow-hidden">
 
         {/* Left sidebar */}
@@ -564,9 +577,68 @@ export default function AIChatPage() {
             Powered by Cloudflare Workers AI
           </p>
         </div>
+        <p className="text-center text-[10px] text-gray-400 mt-2 leading-relaxed">
+          Use of the Workers AI LLM Playground is subject to the{' '}
+          <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:text-orange-600 transition-colors">Cloudflare Website and Online Services Terms of Use</a>
+          {' '}and{' '}
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:text-orange-600 transition-colors">Privacy Policy</a>.
+          {' '}This site uses only strictly necessary cookies pursuant to our{' '}
+          <a href="https://www.cloudflare.com/cookie-policy/" target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:text-orange-600 transition-colors">Cookie Policy</a>.
+          {' '}The models featured in the Workers AI LLM Playground may be subject to additional third-party license terms and restrictions, as further detailed in the{' '}
+          <a href="https://developers.cloudflare.com/workers-ai/" target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:text-orange-600 transition-colors">developer documentation</a>.
+          {' '}The output generated by the Workers AI LLM Playground has not been verified by Cloudflare for accuracy and does not represent Cloudflare&apos;s views.
+        </p>
       </div>
 
         </div> {/* end chat column */}
+
+        {/* Right terminal panel */}
+        <aside className="hidden xl:flex flex-col w-80 flex-none border-l border-gray-200 bg-gray-950 overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 flex-none">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+            </div>
+            <span className="text-[11px] font-medium text-gray-400 ml-2 tracking-wide">API Response</span>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            {lastResponseJson ? (
+              <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-all">
+                {JSON.stringify(lastResponseJson, null, 2)
+                  .split('\n')
+                  .map((line, i) => {
+                    const keyMatch = line.match(/^(\s*)("[^"]+")(: )(.*)$/)
+                    if (keyMatch) {
+                      const [, indent, key, colon, val] = keyMatch
+                      const isString = val.startsWith('"')
+                      const isNumber = /^-?\d/.test(val)
+                      const isBool = val === 'true' || val === 'false'
+                      const valColor = isString ? 'text-green-400' : isNumber ? 'text-orange-400' : isBool ? 'text-blue-400' : 'text-gray-300'
+                      return (
+                        <span key={i} className="block">
+                          <span className="text-gray-500">{indent}</span>
+                          <span className="text-sky-400">{key}</span>
+                          <span className="text-gray-500">{colon}</span>
+                          <span className={valColor}>{val}</span>
+                        </span>
+                      )
+                    }
+                    return <span key={i} className="block text-gray-500">{line}</span>
+                  })
+                }
+              </pre>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                <div className="w-8 h-8 rounded-full border border-gray-700 flex items-center justify-center">
+                  <span className="text-gray-600 text-lg">&#x7B;&#x7D;</span>
+                </div>
+                <p className="text-[11px] text-gray-600 font-mono">Send a message to see<br />the raw API response</p>
+              </div>
+            )}
+          </div>
+        </aside>
+
       </div> {/* end body row */}
     </div>
   )

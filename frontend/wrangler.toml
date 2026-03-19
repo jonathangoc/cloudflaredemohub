@@ -8,4 +8,7 @@ bucket = "./dist"
 
 [env.production]
 name = "cloudflare-demo-hub-frontend"
-route = { pattern = "demo.jonathangoc.com/*", zone_name = "jonathangoc.com" }
+
+[[env.production.routes]]
+pattern = "demo.jonathangoc.com"
+custom_domain = true
