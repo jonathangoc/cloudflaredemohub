@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 
 const PRODUCTS_COLUMNS = [
@@ -84,6 +84,16 @@ const RESOURCES_GROUPS = [
 
 export default function NavBar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleDemosClick = () => {
+    if (location.pathname === '/') {
+      document.getElementById('demo-environments')?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate('/', { state: { scrollToDemos: true } })
+    }
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200/50">
@@ -225,6 +235,14 @@ export default function NavBar() {
               </div>
             )}
           </div>
+
+          {/* Demos */}
+          <button
+            onClick={handleDemosClick}
+            className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
+          >
+            Demos
+          </button>
 
           {/* About */}
           <Link

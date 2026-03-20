@@ -174,45 +174,64 @@ export default function GlobeSection() {
   const pointerMovementRef = useRef(0)
 
   useEffect(() => {
-    if (!canvasRef.current) return
     const canvas = canvasRef.current
-    let width = canvas.offsetWidth
-    let rafId: number
+    if (!canvas) return
 
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: Math.min(window.devicePixelRatio, 2),
-      width: width * 2,
-      height: width * 2,
-      phi: phiRef.current,
-      theta: 0.25,
-      dark: 1,
-      diffuse: 2.2,
-      mapSamples: 20000,
-      mapBrightness: 5,
-      baseColor: [0.08, 0.08, 0.14] as [number, number, number],
-      markerColor: [0.97, 0.51, 0.12] as [number, number, number],
-      glowColor: [0.25, 0.13, 0.04] as [number, number, number],
-      markers: CF_LOCATIONS,
-    })
+    let globe: ReturnType<typeof createGlobe> | null = null
+    let rafId = 0
+    let initialized = false
 
-    const animate = () => {
-      if (pointerInteracting.current === null) {
-        phiRef.current += 0.004
+    const startGlobe = () => {
+      if (initialized) return
+      const w = canvas.offsetWidth
+      if (w === 0) return
+      initialized = true
+
+      globe = createGlobe(canvas, {
+        devicePixelRatio: Math.min(window.devicePixelRatio, 2),
+        width: w * 2,
+        height: w * 2,
+        phi: phiRef.current,
+        theta: 0.25,
+        dark: 1,
+        diffuse: 2.2,
+        mapSamples: 20000,
+        mapBrightness: 5,
+        baseColor: [0.08, 0.08, 0.14] as [number, number, number],
+        markerColor: [0.97, 0.51, 0.12] as [number, number, number],
+        glowColor: [0.25, 0.13, 0.04] as [number, number, number],
+        markers: CF_LOCATIONS,
+      })
+
+      const animate = () => {
+        if (pointerInteracting.current === null) {
+          phiRef.current += 0.004
+        }
+        const width = canvas.offsetWidth
+        globe!.update({ phi: phiRef.current, width: width * 2, height: width * 2 })
+        rafId = requestAnimationFrame(animate)
       }
-      width = canvas.offsetWidth
-      globe.update({ phi: phiRef.current, width: width * 2, height: width * 2 })
-      rafId = requestAnimationFrame(animate)
+      animate()
+      canvas.style.opacity = '1'
     }
-    animate()
-    canvas.style.opacity = '1'
 
-    const onResize = () => { width = canvas.offsetWidth }
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) startGlobe() },
+      { threshold: 0.1 }
+    )
+    observer.observe(canvas)
+
+    const onResize = () => {
+      const w = canvas.offsetWidth
+      if (globe && w > 0) globe.update({ phi: phiRef.current, width: w * 2, height: w * 2 })
+    }
     window.addEventListener('resize', onResize)
 
     return () => {
-      globe.destroy()
-      cancelAnimationFrame(rafId)
+      observer.disconnect()
       window.removeEventListener('resize', onResize)
+      if (globe) globe.destroy()
+      cancelAnimationFrame(rafId)
     }
   }, [])
 
@@ -302,7 +321,27 @@ export default function GlobeSection() {
           </div>
         </div>
 
-        {/* ── Slide 1: Region Earth globe ──────────────────────────────── */}
+        {/* ── Slides 1-3: Core Principles ──────────────────────────── */}
+        {[
+          PRINCIPLE_ROWS.slice(2),
+          PRINCIPLE_ROWS.slice(1),
+          PRINCIPLE_ROWS,
+        ].map((rows, idx) => (
+          <div key={idx} className="w-full flex-none h-full bg-white flex flex-col px-6 pt-16 md:pt-20 pb-[20vh]">
+            <div className="max-w-4xl mx-auto w-full">
+              <h2 className="text-2xl md:text-3xl font-normal text-gray-900">
+                <span className="font-bold">Core principles</span> of the Cloudflare Connectivity Cloud
+              </h2>
+            </div>
+            <div className="max-w-4xl mx-auto w-full mt-auto space-y-4">
+              {rows.map((row) => (
+                <CorePrincipleCard key={row.label} row={row} />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* ── Slide 4: Region Earth globe ───────────────────────────── */}
         <div className="w-full flex-none h-full bg-gray-950 overflow-y-auto flex flex-col justify-center px-6">
           <div className="max-w-7xl mx-auto w-full py-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -378,26 +417,6 @@ export default function GlobeSection() {
             </div>
           </div>
         </div>
-
-        {/* ── Slides 2-4: Core Principles ──────────────────────────── */}
-        {[
-          PRINCIPLE_ROWS.slice(2),
-          PRINCIPLE_ROWS.slice(1),
-          PRINCIPLE_ROWS,
-        ].map((rows, idx) => (
-          <div key={idx} className="w-full flex-none h-full bg-white flex flex-col px-6 pt-16 md:pt-20 pb-[20vh]">
-            <div className="max-w-4xl mx-auto w-full">
-              <h2 className="text-2xl md:text-3xl font-normal text-gray-900">
-                <span className="font-bold">Core principles</span> of the Cloudflare Connectivity Cloud
-              </h2>
-            </div>
-            <div className="max-w-4xl mx-auto w-full mt-auto space-y-4">
-              {rows.map((row) => (
-                <CorePrincipleCard key={row.label} row={row} />
-              ))}
-            </div>
-          </div>
-        ))}
 
       </div>
 

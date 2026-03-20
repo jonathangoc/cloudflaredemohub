@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { ArrowRight, Shield, Globe, Cpu, Database, Cloud } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
@@ -95,13 +96,22 @@ const demos: DemoCard[] = [
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.state?.scrollToDemos) {
+      setTimeout(() => {
+        document.getElementById('demo-environments')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  }, [])
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-[#FAFAFA]">
       <NavBar />
 
       {/* Hero */}
-      <section className="overflow-hidden bg-[#FAFAFA] h-screen pt-20 flex items-center">
+      <section className="overflow-hidden bg-[#FAFAFA] h-screen pt-20 flex items-center snap-start snap-always">
         <div className="max-w-7xl mx-auto px-6 w-full h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8">
 
           {/* Left — text */}
@@ -126,10 +136,12 @@ export default function HomePage() {
       </section>
 
       {/* Region: Earth Globe */}
-      <GlobeSection />
+      <div className="snap-start snap-always h-screen">
+        <GlobeSection />
+      </div>
 
       {/* Demo Grid */}
-      <section id="demo-environments" className="py-20 px-6">
+      <section id="demo-environments" className="py-20 px-6 snap-start">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Demo Environments</h2>
