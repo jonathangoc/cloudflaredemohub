@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@cloudflare/ai-chat": "latest",
-    "agents": "latest",
     "@cloudflare/kv-asset-handler": "^0.3.4",
+    "@lottiefiles/react-lottie-player": "^3.6.0",
+    "agents": "latest",
     "cobe": "^2.0.1",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.462.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

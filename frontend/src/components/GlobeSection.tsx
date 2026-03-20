@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import createGlobe from 'cobe'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import SASEDiagram from './SASEDiagram'
 
 const CF_LOCATIONS = [
   // North America
@@ -97,7 +99,20 @@ const STATS = [
   { value: '449 Tbps', label: 'Network capacity' },
 ]
 
+const PHRASES = [
+  'protect everything you connect to the Internet',
+  'connect your users, apps, clouds, and networks',
+  'build and scale applications',
+]
+
+const TOTAL_SLIDES = 2
+
 export default function GlobeSection() {
+  const [slide, setSlide] = useState(0)
+  const [phraseIdx, setPhraseIdx] = useState(0)
+  const [phraseVisible, setPhraseVisible] = useState(true)
+  const touchStartX = useRef(0)
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const phiRef = useRef(0.5)
   const pointerInteracting = useRef<number | null>(null)
@@ -146,101 +161,203 @@ export default function GlobeSection() {
     }
   }, [])
 
+  useEffect(() => {
+    const id = setInterval(() => {
+      setPhraseVisible(false)
+      setTimeout(() => {
+        setPhraseIdx((i) => (i + 1) % PHRASES.length)
+        setPhraseVisible(true)
+      }, 400)
+    }, 3500)
+    return () => clearInterval(id)
+  }, [])
+
+  const goTo = (idx: number) => setSlide(Math.max(0, Math.min(TOTAL_SLIDES - 1, idx)))
+
+  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const delta = e.changedTouches[0].clientX - touchStartX.current
+    if (delta < -50) goTo(slide + 1)
+    else if (delta > 50) goTo(slide - 1)
+  }
+
   return (
-    <section id="home-region-earth" className="bg-gray-950 py-24 px-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section
+      id="home-region-earth"
+      className="relative overflow-hidden h-screen"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Slide track */}
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{ transform: `translateX(-${slide * 100}%)` }}
+      >
 
-          {/* Left — text */}
-          <div className="order-2 lg:order-1">
-            <p className="text-xs font-semibold tracking-widest text-orange-500 uppercase mb-4">
-              Region: Earth
-            </p>
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-5">
-              Our smart network positions your data and apps{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
-                optimally
-              </span>
-            </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-10">
-              Close to users, close to data. Run code in{' '}
-              <span className="text-white font-semibold">330+ cities</span> around the world,
-              within <span className="text-white font-semibold">50ms</span> of 95% of the
-              world&apos;s population.
-            </p>
+        {/* ── Slide 0: Connectivity Cloud / SASE ─────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col justify-center px-6">
+          <div className="max-w-7xl mx-auto w-full py-10">
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-              {STATS.map((s) => (
-                <div
-                  key={s.label}
-                  className="bg-gray-900 border border-gray-800 rounded-2xl p-5 hover:border-orange-500/40 transition-colors"
-                >
-                  <div className="text-2xl font-bold text-white mb-1">{s.value}</div>
-                  <div className="text-xs text-gray-400 leading-snug">{s.label}</div>
+            {/* Top header — full width */}
+            <div className="text-center mb-12 max-w-5xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2">
+                Our connectivity cloud is the best place to
+              </h2>
+              <h2
+                className="text-3xl md:text-4xl font-bold leading-tight mb-5 text-transparent bg-clip-text bg-gradient-to-r from-[#F6821F] to-amber-400 whitespace-nowrap"
+                style={{
+                  transition: 'opacity 0.4s ease, transform 0.4s ease',
+                  opacity: phraseVisible ? 1 : 0,
+                  transform: phraseVisible ? 'translateY(0)' : 'translateY(10px)',
+                }}
+              >
+                {PHRASES[phraseIdx]}
+              </h2>
+              <p className="text-sm text-gray-500 max-w-xl mx-auto leading-relaxed">
+                Over 60 cloud services on one unified platform, uniquely powered by a global cloud network. We call it the connectivity cloud.
+              </p>
+            </div>
+
+            {/* Two-column body */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+              {/* Left — text */}
+              <div>
+                <div className="space-y-5">
+                  {[
+                    'Protect and accelerate websites and AI-enabled apps',
+                    'Connect your workforce, AI agents, apps, and infrastructure',
+                    'Build and secure AI agents',
+                  ].map((title) => (
+                    <h3 key={title} className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
+                      {title}
+                    </h3>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
 
-            {/* Feature bullets */}
-            <ul className="space-y-4">
-              {[
-                {
-                  title: 'Run everywhere',
-                  desc: 'Code runs in 330+ cities, within 50ms of 95% of the world\'s population.',
-                },
-                {
-                  title: 'Run anywhere',
-                  desc: 'Near the user, database, or your APIs — our smart network picks the optimal location.',
-                },
-                {
-                  title: 'Run at massive scale',
-                  desc: 'Supporting 449 Tbps of capacity, serving over 81M HTTP requests per second.',
-                },
-              ].map((item) => (
-                <li key={item.title} className="flex items-start gap-3">
-                  <div>
-                    <span className="text-white text-sm font-semibold">{item.title} — </span>
-                    <span className="text-gray-400 text-sm">{item.desc}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Right — globe */}
-          <div className="order-1 lg:order-2 flex items-center justify-center">
-            <div className="relative w-full max-w-[560px] aspect-square">
-              {/* Radial glow behind globe */}
-              <div className="absolute inset-0 rounded-full bg-orange-500/10 blur-3xl scale-90 pointer-events-none" />
-
-              <canvas
-                ref={canvasRef}
-                className="w-full h-full opacity-0 transition-opacity duration-700 cursor-grab active:cursor-grabbing"
-                style={{ borderRadius: '50%' }}
-                onPointerDown={(e) => {
-                  pointerInteracting.current = e.clientX - pointerMovementRef.current
-                }}
-                onPointerUp={() => {
-                  pointerInteracting.current = null
-                }}
-                onPointerOut={() => {
-                  pointerInteracting.current = null
-                }}
-                onMouseMove={(e) => {
-                  if (pointerInteracting.current !== null) {
-                    const delta = e.clientX - pointerInteracting.current
-                    pointerMovementRef.current = delta
-                    phiRef.current = delta / 150
-                  }
-                }}
-              />
+              {/* Right — SASE diagram */}
+              <div className="flex items-center justify-center">
+                <div className="relative w-full max-w-[460px] aspect-square">
+                  <SASEDiagram />
+                </div>
+              </div>
 
             </div>
           </div>
-
         </div>
+
+        {/* ── Slide 1: Region Earth globe ──────────────────────────────── */}
+        <div className="w-full flex-none h-full bg-gray-950 overflow-y-auto flex flex-col justify-center px-6">
+          <div className="max-w-7xl mx-auto w-full py-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+              {/* Left — text */}
+              <div className="order-2 lg:order-1">
+                <p className="text-xs font-semibold tracking-widest text-orange-500 uppercase mb-4">
+                  Region: Earth
+                </p>
+                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-5">
+                  Our smart network positions your data and apps{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+                    optimally
+                  </span>
+                </h2>
+                <p className="text-gray-400 text-lg leading-relaxed mb-10">
+                  Close to users, close to data. Run code in{' '}
+                  <span className="text-white font-semibold">330+ cities</span> around the world,
+                  within <span className="text-white font-semibold">50ms</span> of 95% of the
+                  world&apos;s population.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+                  {STATS.map((s) => (
+                    <div
+                      key={s.label}
+                      className="bg-gray-900 border border-gray-800 rounded-2xl p-5 hover:border-orange-500/40 transition-colors"
+                    >
+                      <div className="text-2xl font-bold text-white mb-1">{s.value}</div>
+                      <div className="text-xs text-gray-400 leading-snug">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <ul className="space-y-4">
+                  {[
+                    { title: 'Run everywhere', desc: "Code runs in 330+ cities, within 50ms of 95% of the world's population." },
+                    { title: 'Run anywhere', desc: 'Near the user, database, or your APIs — our smart network picks the optimal location.' },
+                    { title: 'Run at massive scale', desc: 'Supporting 449 Tbps of capacity, serving over 81M HTTP requests per second.' },
+                  ].map((item) => (
+                    <li key={item.title} className="flex items-start gap-3">
+                      <div>
+                        <span className="text-white text-sm font-semibold">{item.title} — </span>
+                        <span className="text-gray-400 text-sm">{item.desc}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Right — globe */}
+              <div className="order-1 lg:order-2 flex items-center justify-center">
+                <div className="relative w-full max-w-[560px] aspect-square">
+                  <div className="absolute inset-0 rounded-full bg-orange-500/10 blur-3xl scale-90 pointer-events-none" />
+                  <canvas
+                    ref={canvasRef}
+                    className="w-full h-full opacity-0 transition-opacity duration-700 cursor-grab active:cursor-grabbing"
+                    style={{ borderRadius: '50%' }}
+                    onPointerDown={(e) => { pointerInteracting.current = e.clientX - pointerMovementRef.current }}
+                    onPointerUp={() => { pointerInteracting.current = null }}
+                    onPointerOut={() => { pointerInteracting.current = null }}
+                    onMouseMove={(e) => {
+                      if (pointerInteracting.current !== null) {
+                        const delta = e.clientX - pointerInteracting.current
+                        pointerMovementRef.current = delta
+                        phiRef.current = delta / 150
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      {/* ── Navigation arrows ───────────────────────────────────────── */}
+      <button
+        onClick={() => goTo(slide - 1)}
+        disabled={slide === 0}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md border border-gray-200 hover:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Previous slide"
+      >
+        <ChevronLeft className="w-5 h-5 text-gray-700" />
+      </button>
+      <button
+        onClick={() => goTo(slide + 1)}
+        disabled={slide === TOTAL_SLIDES - 1}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 shadow-md border border-gray-200 hover:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Next slide"
+      >
+        <ChevronRight className="w-5 h-5 text-gray-700" />
+      </button>
+
+      {/* ── Dot indicators ──────────────────────────────────────────── */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
+        {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            className={`transition-all duration-300 rounded-full ${
+              i === slide ? 'w-6 h-2 bg-[#F6821F]' : 'w-2 h-2 bg-gray-400 hover:bg-gray-600'
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+
     </section>
   )
 }

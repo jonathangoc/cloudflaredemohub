@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowRight, Shield, Globe, Cpu, Database, Cloud } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
+import HeroGlobe from '../components/HeroGlobe'
 
 interface DemoCard {
   id: string
@@ -100,24 +101,27 @@ export default function HomePage() {
       <NavBar />
 
       {/* Hero */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center animate-fade-in">
-          <h1 className="text-6xl md:text-7xl font-bold text-gray-900 tracking-tight leading-none mb-6">
-            Cloudflare{' '}
-            <span className="text-gradient-orange">Demo Hub</span>
-          </h1>
+      <section className="overflow-hidden bg-[#FAFAFA] h-screen pt-20 flex items-center">
+        <div className="max-w-7xl mx-auto px-6 w-full h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8">
 
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed mb-10">
-            Explore interactive demos showcasing the full power of the Cloudflare Platform — from AI inference at the edge to secure apps and SASE environments.
-          </p>
+          {/* Left — text */}
+          <div className="flex flex-col justify-center py-8 lg:py-0">
+            <h1 className="text-4xl sm:text-5xl md:text-[3.75rem] font-bold text-gray-900 tracking-tight leading-tight mb-6">
+              Connect, protect, and<br />
+              build <span className="text-[#F6821F]">everywhere</span>
+            </h1>
+            <p className="text-base text-gray-500 max-w-md leading-relaxed">
+              We make websites, apps, AI agents, and networks faster and more secure. Our agile SASE platform accelerates safe AI adoption, and our developer platform is the best place to build and run AI apps.
+            </p>
+          </div>
 
-          <button
-            onClick={() => document.getElementById('demo-environments')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3.5 rounded-full text-sm font-medium hover:bg-gray-700 transition-all duration-200 shadow-lg shadow-gray-900/20"
-          >
-            Start Exploring
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          {/* Right — globe, overflows off right edge (desktop only) */}
+          <div className="relative self-stretch hidden lg:block">
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 w-[600px] h-[600px] translate-x-[60px]">
+              <HeroGlobe />
+            </div>
+          </div>
+
         </div>
       </section>
 
