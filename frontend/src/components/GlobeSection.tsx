@@ -145,13 +145,13 @@ function CorePrincipleCard({ row }: { row: PrincipleRowData }) {
         <Icon className="w-8 h-8 text-white mb-3" strokeWidth={1.5} />
         <span className="text-white text-sm font-bold text-center leading-tight">{label}</span>
       </div>
-      <div className="flex-1 flex items-center px-6 md:px-10 py-5 gap-4">
-        <div className="flex-1 text-right">
+      <div className="flex-1 grid items-center px-6 md:px-10 py-5 gap-4" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+        <div className="text-right min-w-0">
           <p className="font-bold text-lg md:text-xl mb-1" style={{ color }}>{left.title}</p>
           <p className="text-gray-500 text-xs md:text-sm whitespace-nowrap">{left.desc}</p>
         </div>
-        <span className="font-bold text-5xl md:text-6xl flex-none" style={{ color }}>&amp;</span>
-        <div className="flex-1 text-left">
+        <span className="font-bold text-5xl md:text-6xl" style={{ color }}>&amp;</span>
+        <div className="text-left min-w-0">
           <p className="font-bold text-lg md:text-xl mb-1" style={{ color }}>{right.title}</p>
           <p className="text-gray-500 text-xs md:text-sm whitespace-nowrap">{right.desc}</p>
         </div>
@@ -269,11 +269,11 @@ export default function GlobeSection() {
       >
 
         {/* ── Slide 0: Connectivity Cloud / SASE ─────────────────────── */}
-        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col justify-center px-6">
-          <div className="max-w-7xl mx-auto w-full py-10">
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full pb-10">
 
             {/* Top header — full width */}
-            <div className="text-center mb-12 max-w-5xl mx-auto">
+            <div className="text-center mb-12 max-w-5xl mx-auto mt-8">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2">
                 Our connectivity cloud is the best place to
               </h2>
@@ -329,7 +329,7 @@ export default function GlobeSection() {
         ].map((rows, idx) => (
           <div key={idx} className="w-full flex-none h-full bg-white flex flex-col px-6 pt-16 md:pt-20 pb-[20vh]">
             <div className="max-w-4xl mx-auto w-full">
-              <h2 className="text-2xl md:text-3xl font-normal text-gray-900">
+              <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8">
                 <span className="font-bold">Core principles</span> of the Cloudflare Connectivity Cloud
               </h2>
             </div>
