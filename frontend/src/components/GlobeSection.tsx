@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import createGlobe from 'cobe'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Database, Network, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import SASEDiagram from './SASEDiagram'
 
 const CF_LOCATIONS = [
@@ -105,7 +105,62 @@ const PHRASES = [
   'build and scale applications',
 ]
 
-const TOTAL_SLIDES = 2
+type PrincipleRowData = {
+  Icon: LucideIcon
+  label: string
+  color: string
+  left: { title: string; desc: string }
+  right: { title: string; desc: string }
+}
+
+const PRINCIPLE_ROWS: PrincipleRowData[] = [
+  {
+    Icon: SlidersHorizontal,
+    label: 'Control Plane',
+    color: '#fbad41',
+    left: { title: 'Single user interface & API', desc: 'for configuration and management' },
+    right: { title: 'End-to-end visibility', desc: 'for every traffic flow' },
+  },
+  {
+    Icon: Database,
+    label: 'Data Plane',
+    color: '#f6821f',
+    left: { title: 'Comprehensive on-ramps', desc: 'for devices, branches, data centers, and clouds' },
+    right: { title: 'Consistent security controls', desc: "across everything that's connected" },
+  },
+  {
+    Icon: Network,
+    label: 'Infrastructure',
+    color: '#ff6633',
+    left: { title: 'Be everywhere', desc: 'because users, applications, and data are too' },
+    right: { title: 'Be interconnected', desc: "so traffic gets where it's going quickly and reliably" },
+  },
+]
+
+function CorePrincipleCard({ row }: { row: PrincipleRowData }) {
+  const { Icon, label, color, left, right } = row
+  return (
+    <div className="flex rounded-2xl overflow-hidden shadow-sm border-2" style={{ borderColor: color }}>
+      <div className="flex flex-col items-center justify-center p-5 min-w-[110px] w-[110px]" style={{ backgroundColor: color }}>
+        <Icon className="w-8 h-8 text-white mb-3" strokeWidth={1.5} />
+        <span className="text-white text-sm font-bold text-center leading-tight">{label}</span>
+      </div>
+      <div className="flex-1 flex items-center px-6 md:px-10 py-5 gap-4">
+        <div className="flex-1 text-right">
+          <p className="font-bold text-lg md:text-xl mb-1" style={{ color }}>{left.title}</p>
+          <p className="text-gray-500 text-xs md:text-sm whitespace-nowrap">{left.desc}</p>
+        </div>
+        <span className="font-bold text-5xl md:text-6xl flex-none" style={{ color }}>&amp;</span>
+        <div className="flex-1 text-left">
+          <p className="font-bold text-lg md:text-xl mb-1" style={{ color }}>{right.title}</p>
+          <p className="text-gray-500 text-xs md:text-sm whitespace-nowrap">{right.desc}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const TOTAL_SLIDES = 5
 
 export default function GlobeSection() {
   const [slide, setSlide] = useState(0)
@@ -323,6 +378,26 @@ export default function GlobeSection() {
             </div>
           </div>
         </div>
+
+        {/* ── Slides 2-4: Core Principles ──────────────────────────── */}
+        {[
+          PRINCIPLE_ROWS.slice(2),
+          PRINCIPLE_ROWS.slice(1),
+          PRINCIPLE_ROWS,
+        ].map((rows, idx) => (
+          <div key={idx} className="w-full flex-none h-full bg-white flex flex-col px-6 pt-16 md:pt-20 pb-[20vh]">
+            <div className="max-w-4xl mx-auto w-full">
+              <h2 className="text-2xl md:text-3xl font-normal text-gray-900">
+                <span className="font-bold">Core principles</span> of the Cloudflare Connectivity Cloud
+              </h2>
+            </div>
+            <div className="max-w-4xl mx-auto w-full mt-auto space-y-4">
+              {rows.map((row) => (
+                <CorePrincipleCard key={row.label} row={row} />
+              ))}
+            </div>
+          </div>
+        ))}
 
       </div>
 
