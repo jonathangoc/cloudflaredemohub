@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import AIChatPage from './pages/AIChatPage'
 import AIAgentPage from './pages/AIAgentPage'
+import AboutPage from './pages/AboutPage'
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/demo/ai-chat" element={<AIChatPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/demo/ai-agent" element={
           <Suspense fallback={
             <div className="h-screen flex items-center justify-center bg-gray-50">

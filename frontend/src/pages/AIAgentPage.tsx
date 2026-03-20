@@ -19,7 +19,7 @@ interface TextPart {
   text: string
 }
 interface ToolPart {
-  type: 'tool'
+  type: `tool-${string}`
   toolCallId: string
   toolName: string
   state: 'input-streaming' | 'input-available' | 'output-streaming' | 'output-available' | 'approval-requested' | 'approval-responded' | 'output-error'
@@ -404,10 +404,10 @@ function MessageRow({
               </div>
             )
           }
-          if (part.type === 'tool') {
+          if (part.type !== 'text') {
             return (
               <ToolCallCard
-                key={part.toolCallId}
+                key={(part as ToolPart).toolCallId}
                 part={part as ToolPart}
                 onApprove={onApprove}
                 onReject={onReject}

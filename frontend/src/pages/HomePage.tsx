@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Shield, Globe, Cpu, Database, Cloud, ChevronRight } from 'lucide-react'
+import { ArrowRight, Shield, Globe, Cpu, Database, Cloud } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
+import NavBar from '../components/NavBar'
 
 interface DemoCard {
   id: string
@@ -96,33 +97,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CloudflareIcon className="w-8 h-8" />
-            <span className="font-semibold text-gray-900 text-sm tracking-tight">Cloudflare Demo Hub</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a
-              href="https://developers.cloudflare.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1"
-            >
-              Docs <ChevronRight className="w-3 h-3" />
-            </a>
-            <a
-              href="https://dash.cloudflare.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm bg-[#F6821F] text-white px-4 py-1.5 rounded-full hover:bg-[#E07010] transition-colors font-medium"
-            >
-              Dashboard
-            </a>
-          </div>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* Hero */}
       <section className="pt-32 pb-20 px-6">
@@ -198,9 +173,13 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-10 px-6 border-t border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <CloudflareIcon className="w-5 h-5" />
-            <span className="text-sm text-gray-500">Cloudflare Demo Hub</span>
+          <div className="flex items-center">
+            <img
+              src="https://cf-assets.www.cloudflare.com/dzlvafdwdttg/69wNwfiY5mFmgpd9eQFW6j/d5131c08085a977aa70f19e7aada3fa9/1pixel-down__1_.svg"
+              alt="Cloudflare"
+              width={239}
+              className="h-5 w-auto opacity-70"
+            />
           </div>
           <p className="text-xs text-gray-400">
             Built with Cloudflare Workers, React 18, and Tailwind CSS
@@ -284,21 +263,5 @@ function DemoCard({
         )}
       </div>
     </div>
-  )
-}
-
-function CloudflareIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M42.5 38.5c0.8-2.8-0.1-5.8-2.3-7.5-1.9-1.5-4.4-2-6.7-1.3l-0.4 0.1-0.2-0.4c-1-2.3-3.1-3.9-5.7-4.1-3.7-0.4-7 2.3-7.4 6l-0.1 0.6-0.6-0.1c-2.7-0.5-5.3 1.3-5.8 4-0.5 2.7 1.3 5.3 4 5.8 0.3 0.1 0.6 0.1 0.9 0.1h22.5c2 0 3.8-1.4 4.3-3.4l0.1-0.3-.6.5z"
-        fill="#F6821F"
-      />
-      <path
-        d="M50.5 33c-0.3 0-0.6 0-0.9 0.1l-0.5 0.1-0.2-0.5c-1.3-3.3-4.5-5.5-8.1-5.5-0.9 0-1.8 0.1-2.6 0.4l-0.5 0.2-0.3-0.5c-1.7-2.9-4.8-4.7-8.2-4.7-5.3 0-9.6 4.3-9.6 9.6 0 0.3 0 0.7 0.1 1l0.1 0.7-0.7 0.1c-2.8 0.6-4.8 3.1-4.8 6 0 3.3 2.7 6 6 6h30.2c3.3 0 6-2.7 6-6 0-3.3-2.7-6-6-6l0.1-1z"
-        fill="#FBAD41"
-        opacity="0.6"
-      />
-    </svg>
   )
 }
