@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import createGlobe from 'cobe'
-import { ChevronLeft, ChevronRight, Database, Network, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Database, Network, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import SASEDiagram from './SASEDiagram'
 
 const CF_LOCATIONS = [
@@ -46,7 +46,7 @@ const CF_LOCATIONS = [
   { location: [25.0480, -77.3554] as [number, number], size: 0.03 },
   // South America
   { location: [23.5505, -46.6333] as [number, number], size: 0.07 },
-  { location: [34.6037, -58.3816] as [number, number], size: 0.06 },
+  { location: [-34.6037, -58.3816] as [number, number], size: 0.06 },
   { location: [22.9068, -43.1729] as [number, number], size: 0.06 },
   { location: [33.4489, -70.6693] as [number, number], size: 0.05 },
   { location: [4.711, -74.0721] as [number, number], size: 0.05 },
@@ -192,7 +192,7 @@ const CF_ARCS = [
   { from: [37.3382, -121.8863] as [number,number], to: [22.3193, 114.1694] as [number,number], arcAlt: 0.3 },
   // US East <-> South America
   { from: [40.7128, -74.006] as [number,number], to: [23.5505, -46.6333] as [number,number], arcAlt: 0.2 },
-  { from: [40.7128, -74.006] as [number,number], to: [34.6037, -58.3816] as [number,number], arcAlt: 0.22 },
+  { from: [40.7128, -74.006] as [number,number], to: [-34.6037, -58.3816] as [number,number], arcAlt: 0.22 },
   { from: [25.7617, -80.1918] as [number,number], to: [23.5505, -46.6333] as [number,number], arcAlt: 0.18 },
   // US <-> US (internal)
   { from: [40.7128, -74.006] as [number,number], to: [37.3382, -121.8863] as [number,number], arcAlt: 0.15 },
@@ -234,8 +234,12 @@ const CF_ARCS = [
   // Europe <-> Asia
   { from: [50.1109, 8.6821] as [number,number], to: [25.2048, 55.2708] as [number,number], arcAlt: 0.2 },
   { from: [51.5074, -0.1278] as [number,number], to: [1.3521, 103.8198] as [number,number], arcAlt: 0.35 },
+  // East North America <-> Brazil
+  { from: [33.749, -84.388] as [number,number], to: [23.5505, -46.6333] as [number,number], arcAlt: 0.22 },
+  { from: [25.7617, -80.1918] as [number,number], to: [22.9068, -43.1729] as [number,number], arcAlt: 0.2 },
+  { from: [38.9072, -77.0369] as [number,number], to: [-15.7942, -47.8822] as [number,number], arcAlt: 0.25 },
   // South America internal
-  { from: [23.5505, -46.6333] as [number,number], to: [34.6037, -58.3816] as [number,number], arcAlt: 0.1 },
+  { from: [23.5505, -46.6333] as [number,number], to: [-34.6037, -58.3816] as [number,number], arcAlt: 0.1 },
   { from: [23.5505, -46.6333] as [number,number], to: [33.4489, -70.6693] as [number,number], arcAlt: 0.12 },
   { from: [23.5505, -46.6333] as [number,number], to: [4.711, -74.0721] as [number,number], arcAlt: 0.12 },
 ]
@@ -302,7 +306,7 @@ function CorePrincipleCard({ row }: { row: PrincipleRowData }) {
   )
 }
 
-const TOTAL_SLIDES = 5
+const TOTAL_SLIDES = 7
 
 export default function GlobeSection() {
   const [slide, setSlide] = useState(0)
@@ -339,7 +343,7 @@ export default function GlobeSection() {
         dark: 1,
         diffuse: 2.2,
         mapSamples: 20000,
-        mapBrightness: 1,
+        mapBrightness: 2.5,
         baseColor: [0.1, 0.18, 0.8] as [number, number, number],
         markerColor: [0.97, 0.51, 0.12] as [number, number, number],
         glowColor: [0.25, 0.13, 0.04] as [number, number, number],
@@ -565,6 +569,426 @@ export default function GlobeSection() {
                 </p>
               </div>
 
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 5: Anycast Routing ───────────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-10">
+              <span className="font-bold">Anycast routing</span> to secure close to the source and accelerate to the destination
+            </h2>
+
+            <div className="flex-1 flex items-center pb-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+
+              {/* Left – Other Vendors (purple) */}
+              <div className="border-2 border-purple-400 rounded-2xl overflow-hidden flex flex-col">
+                <div className="py-3 px-4 text-center text-xl font-bold text-gray-800 border-b border-purple-200">
+                  Other Vendors
+                </div>
+                <div className="h-56 p-4 flex items-center justify-center">
+                  <svg viewBox="0 0 520 260" className="w-full" style={{ maxHeight: '200px' }}>
+                    <defs>
+                      <marker id="arr-p" markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
+                        <polygon points="0 0, 5 2, 0 4" fill="#1a1a1a" />
+                      </marker>
+                      <radialGradient id="grd-p" cx="35%" cy="30%" r="70%">
+                        <stop offset="0%" stopColor="#f3e8ff" />
+                        <stop offset="45%" stopColor="#d8b4fe" />
+                        <stop offset="100%" stopColor="#a855f7" />
+                      </radialGradient>
+                      <clipPath id="gc">
+                        <circle cx="260" cy="125" r="95" />
+                      </clipPath>
+                    </defs>
+                    {/* Globe – centered at cx=260 */}
+                    <circle cx="260" cy="125" r="95" fill="url(#grd-p)" stroke="#a855f7" strokeWidth="2" />
+                    <ellipse cx="260" cy="125" rx="95" ry="22" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.5" clipPath="url(#gc)" />
+                    <ellipse cx="260" cy="125" rx="95" ry="55" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.4" clipPath="url(#gc)" />
+                    <line x1="165" y1="125" x2="355" y2="125" stroke="#a855f7" strokeWidth="0.8" opacity="0.5" />
+                    <ellipse cx="260" cy="125" rx="22" ry="95" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.5" clipPath="url(#gc)" />
+                    <ellipse cx="260" cy="125" rx="55" ry="95" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.4" clipPath="url(#gc)" />
+                    <line x1="260" y1="30" x2="260" y2="220" stroke="#a855f7" strokeWidth="0.8" opacity="0.5" clipPath="url(#gc)" />
+                    <ellipse cx="273" cy="138" rx="26" ry="36" fill="#9333ea" opacity="0.45" clipPath="url(#gc)" />
+                    {/* Server card centered on globe */}
+                    <rect x="205" y="83" width="110" height="96" rx="4" fill="white" stroke="#a855f7" strokeWidth="1.5" />
+                    <text x="260" y="97" textAnchor="middle" fontSize="12" fill="#6d28d9" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="260" y="117" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#6d28d9">10.0.1.54</text>
+                    <rect x="229" y="123" width="58" height="17" rx="3" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1" />
+                    <circle cx="238" cy="131.5" r="2.5" fill="#7c3aed" />
+                    <circle cx="245" cy="131.5" r="2.5" fill="#7c3aed" />
+                    <circle cx="252" cy="131.5" r="2.5" fill="#7c3aed" />
+                    <circle cx="259" cy="131.5" r="2.5" fill="#7c3aed" />
+                    <circle cx="266" cy="131.5" r="2.5" fill="#7c3aed" />
+                    <circle cx="278" cy="131.5" r="3.5" fill="#6d28d9" />
+                    <ellipse cx="260" cy="154" rx="17" ry="5" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1" />
+                    <rect x="243" y="154" width="34" height="10" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1" />
+                    <ellipse cx="260" cy="164" rx="17" ry="5" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1" />
+                    <rect x="243" y="164" width="34" height="7" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1" />
+                    <ellipse cx="260" cy="171" rx="17" ry="5" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1" />
+                    {/* Destination text box – below + left of globe */}
+                    <rect x="300" y="230" width="102" height="36" rx="5" fill="white" stroke="none" />
+                    <path d="M312,240 C309,240 306,243 306,246 C306,251 312,257 312,257 C312,257 318,251 318,246 C318,243 315,240 312,240 Z" fill="#6b7280" />
+                    <circle cx="312" cy="246" r="3" fill="white" />
+                    <text x="323" y="242" fontSize="12" fill="#374151" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="323" y="254" fontSize="12" fill="#374151" fontFamily="sans-serif">104.18.29.74</text>
+                    {/* Left users – symmetric around x=260 */}
+                    <circle cx="43" cy="42" r="22" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="43" cy="36" r="7" fill="#3b82f6" />
+                    <path d="M31,55 C31,47 55,47 55,55" fill="#3b82f6" />
+                    <circle cx="22" cy="125" r="22" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="22" cy="119" r="7" fill="#3b82f6" />
+                    <path d="M10,138 C10,130 34,130 34,138" fill="#3b82f6" />
+                    <circle cx="43" cy="210" r="22" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="43" cy="204" r="7" fill="#3b82f6" />
+                    <path d="M31,223 C31,215 55,215 55,223" fill="#3b82f6" />
+                    {/* Right users – mirror of left users */}
+                    <circle cx="477" cy="42" r="22" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="477" cy="36" r="7" fill="#3b82f6" />
+                    <path d="M465,55 C465,47 489,47 489,55" fill="#3b82f6" />
+                    <circle cx="498" cy="125" r="22" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="498" cy="119" r="7" fill="#3b82f6" />
+                    <path d="M486,138 C486,130 510,130 510,138" fill="#3b82f6" />
+                    <circle cx="477" cy="210" r="22" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="477" cy="204" r="7" fill="#3b82f6" />
+                    <path d="M465,223 C465,215 489,215 489,223" fill="#3b82f6" />
+                    {/* Left arrows – start at circle right-edge centre, arrive horizontally at box left edge */}
+                    <path d="M 65,42 C 90,255 277,236 299,236" stroke="#1a1a1a" strokeWidth="2.5" fill="none" markerEnd="url(#arr-p)" />
+                    <path d="M 44,125 C 90,265 277,248 299,248" stroke="#1a1a1a" strokeWidth="2.5" fill="none" markerEnd="url(#arr-p)" />
+                    <path d="M 65,210 C 160,268 277,258 299,258" stroke="#1a1a1a" strokeWidth="2.5" fill="none" markerEnd="url(#arr-p)" />
+                    {/* Right arrows – start at circle left-edge centre; top two arrive at box top, bottom at right edge */}
+                    <path d="M 455,42 C 420,185 370,205 370,230" stroke="#1a1a1a" strokeWidth="2.5" fill="none" markerEnd="url(#arr-p)" />
+                    <path d="M 476,125 C 460,188 390,205 390,230" stroke="#1a1a1a" strokeWidth="2.5" fill="none" markerEnd="url(#arr-p)" />
+                    <path d="M 455,210 C 455,252 406,258 401,258" stroke="#1a1a1a" strokeWidth="2.5" fill="none" markerEnd="url(#arr-p)" />
+                  </svg>
+                </div>
+                <div className="bg-purple-100 px-5 py-4">
+                  <p className="text-purple-900 text-base font-bold leading-relaxed">
+                    Unicast routing, in which a single IP address is associated with a single server, data center, and/or application, means requests to access that application may have very different routing experiences
+                  </p>
+                </div>
+              </div>
+
+              {/* Right – Cloudflare (orange) */}
+              <div className="border-2 border-orange-400 rounded-2xl overflow-hidden flex flex-col">
+                <div className="py-3 px-4 text-center text-xl font-bold text-gray-800 border-b border-orange-200 flex items-center justify-center gap-2">
+                  Cloudflare
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border-2 border-orange-400">
+                    <Check className="w-3 h-3 text-orange-500" />
+                  </span>
+                </div>
+                <div className="h-56 p-4 flex items-center justify-center">
+                  <svg viewBox="0 0 640 260" className="w-full" style={{ maxHeight: '200px' }}>
+                    <defs>
+                      <marker id="arr-cf" markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
+                        <polygon points="0 0, 5 2, 0 4" fill="#1a1a1a" />
+                      </marker>
+                      <radialGradient id="grd-cf" cx="38%" cy="30%" r="70%">
+                        <stop offset="0%" stopColor="#fff7ed" />
+                        <stop offset="45%" stopColor="#fed7aa" />
+                        <stop offset="100%" stopColor="#f97316" />
+                      </radialGradient>
+                      <clipPath id="gc-cf">
+                        <circle cx="320" cy="120" r="95" />
+                      </clipPath>
+                    </defs>
+                    {/* Globe – centered at cx=320 */}
+                    <circle cx="320" cy="120" r="95" fill="url(#grd-cf)" stroke="#f97316" strokeWidth="2" />
+                    <ellipse cx="320" cy="120" rx="95" ry="22" fill="none" stroke="#ea580c" strokeWidth="0.8" opacity="0.5" clipPath="url(#gc-cf)" />
+                    <ellipse cx="320" cy="120" rx="95" ry="55" fill="none" stroke="#ea580c" strokeWidth="0.8" opacity="0.4" clipPath="url(#gc-cf)" />
+                    <line x1="225" y1="120" x2="415" y2="120" stroke="#ea580c" strokeWidth="0.8" opacity="0.5" />
+                    <ellipse cx="320" cy="120" rx="22" ry="95" fill="none" stroke="#ea580c" strokeWidth="0.8" opacity="0.5" clipPath="url(#gc-cf)" />
+                    <ellipse cx="320" cy="120" rx="55" ry="95" fill="none" stroke="#ea580c" strokeWidth="0.8" opacity="0.4" clipPath="url(#gc-cf)" />
+                    <line x1="320" y1="25" x2="320" y2="215" stroke="#ea580c" strokeWidth="0.8" opacity="0.5" clipPath="url(#gc-cf)" />
+                    <ellipse cx="335" cy="133" rx="28" ry="38" fill="#ea580c" opacity="0.35" clipPath="url(#gc-cf)" />
+                    {/* Server card centered on globe */}
+                    <rect x="265" y="80" width="110" height="98" rx="4" fill="white" stroke="#f97316" strokeWidth="1.5" />
+                    <text x="320" y="94" textAnchor="middle" fontSize="12" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="320" y="114" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#c2410c">10.0.1.54</text>
+                    <rect x="291" y="120" width="58" height="17" rx="3" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                    <circle cx="298" cy="128.5" r="2.5" fill="#f97316" />
+                    <circle cx="305" cy="128.5" r="2.5" fill="#f97316" />
+                    <circle cx="312" cy="128.5" r="2.5" fill="#f97316" />
+                    <circle cx="319" cy="128.5" r="2.5" fill="#f97316" />
+                    <circle cx="326" cy="128.5" r="2.5" fill="#f97316" />
+                    <circle cx="338" cy="128.5" r="3.5" fill="#ea580c" />
+                    <ellipse cx="320" cy="151" rx="17" ry="5" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                    <rect x="303" y="151" width="34" height="10" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                    <ellipse cx="320" cy="161" rx="17" ry="5" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                    <rect x="303" y="161" width="34" height="7" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                    <ellipse cx="320" cy="168" rx="17" ry="5" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                    {/* Left users */}
+                    <circle cx="43" cy="42" r="20" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="43" cy="36" r="7" fill="#3b82f6" />
+                    <path d="M32,54 C32,47 54,47 54,54" fill="#3b82f6" />
+                    <circle cx="22" cy="122" r="20" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="22" cy="116" r="7" fill="#3b82f6" />
+                    <path d="M11,134 C11,127 33,127 33,134" fill="#3b82f6" />
+                    <circle cx="43" cy="205" r="20" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="43" cy="199" r="7" fill="#3b82f6" />
+                    <path d="M32,217 C32,210 54,210 54,217" fill="#3b82f6" />
+                    {/* Right users – mirror around cx=320 (640 − left cx) */}
+                    <circle cx="597" cy="42" r="20" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="597" cy="36" r="7" fill="#3b82f6" />
+                    <path d="M586,54 C586,47 608,47 608,54" fill="#3b82f6" />
+                    <circle cx="618" cy="122" r="20" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="618" cy="116" r="7" fill="#3b82f6" />
+                    <path d="M607,134 C607,127 629,127 629,134" fill="#3b82f6" />
+                    <circle cx="597" cy="205" r="20" fill="#dbeafe" stroke="#60a5fa" strokeWidth="1.5" />
+                    <circle cx="597" cy="199" r="7" fill="#3b82f6" />
+                    <path d="M586,217 C586,210 608,210 608,217" fill="#3b82f6" />
+                    {/* Left arrows → pins → text */}
+                    <line x1="64" y1="42" x2="84" y2="42" stroke="#1a1a1a" strokeWidth="2" markerEnd="url(#arr-cf)" />
+                    <path d="M88,36 C85,36 82,39 82,42 C82,47 88,53 88,53 C88,53 94,47 94,42 C94,39 91,36 88,36 Z" fill="#F6821F" />
+                    <circle cx="88" cy="42" r="2.5" fill="white" />
+                    <text x="98" y="38" fontSize="16" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="98" y="56" fontSize="16" fill="#c2410c" fontFamily="sans-serif">104.18.1.23</text>
+                    <line x1="43" y1="122" x2="63" y2="122" stroke="#1a1a1a" strokeWidth="2" markerEnd="url(#arr-cf)" />
+                    <path d="M67,116 C64,116 61,119 61,122 C61,127 67,133 67,133 C67,133 73,127 73,122 C73,119 70,116 67,116 Z" fill="#F6821F" />
+                    <circle cx="67" cy="122" r="2.5" fill="white" />
+                    <text x="77" y="118" fontSize="16" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="77" y="136" fontSize="16" fill="#c2410c" fontFamily="sans-serif">104.18.1.23</text>
+                    <line x1="64" y1="205" x2="84" y2="205" stroke="#1a1a1a" strokeWidth="2" markerEnd="url(#arr-cf)" />
+                    <path d="M88,199 C85,199 82,202 82,205 C82,210 88,216 88,216 C88,216 94,210 94,205 C94,202 91,199 88,199 Z" fill="#F6821F" />
+                    <circle cx="88" cy="205" r="2.5" fill="white" />
+                    <text x="98" y="201" fontSize="16" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="98" y="219" fontSize="16" fill="#c2410c" fontFamily="sans-serif">104.18.1.23</text>
+                    {/* Right arrows ← pins ← text (mirror: 640 − left) */}
+                    <line x1="576" y1="42" x2="556" y2="42" stroke="#1a1a1a" strokeWidth="2" markerEnd="url(#arr-cf)" />
+                    <path d="M552,36 C549,36 546,39 546,42 C546,47 552,53 552,53 C552,53 558,47 558,42 C558,39 555,36 552,36 Z" fill="#F6821F" />
+                    <circle cx="552" cy="42" r="2.5" fill="white" />
+                    <text x="542" y="38" textAnchor="end" fontSize="16" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="542" y="56" textAnchor="end" fontSize="16" fill="#c2410c" fontFamily="sans-serif">104.18.1.23</text>
+                    <line x1="597" y1="122" x2="577" y2="122" stroke="#1a1a1a" strokeWidth="2" markerEnd="url(#arr-cf)" />
+                    <path d="M573,116 C570,116 567,119 567,122 C567,127 573,133 573,133 C573,133 579,127 579,122 C579,119 576,116 573,116 Z" fill="#F6821F" />
+                    <circle cx="573" cy="122" r="2.5" fill="white" />
+                    <text x="563" y="118" textAnchor="end" fontSize="16" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="563" y="136" textAnchor="end" fontSize="16" fill="#c2410c" fontFamily="sans-serif">104.18.1.23</text>
+                    <line x1="576" y1="205" x2="556" y2="205" stroke="#1a1a1a" strokeWidth="2" markerEnd="url(#arr-cf)" />
+                    <path d="M552,199 C549,199 546,202 546,205 C546,210 552,216 552,216 C552,216 558,210 558,205 C558,202 555,199 552,199 Z" fill="#F6821F" />
+                    <circle cx="552" cy="205" r="2.5" fill="white" />
+                    <text x="542" y="201" textAnchor="end" fontSize="16" fill="#c2410c" fontFamily="sans-serif">app.domain.com</text>
+                    <text x="542" y="219" textAnchor="end" fontSize="16" fill="#c2410c" fontFamily="sans-serif">104.18.1.23</text>
+                    {/* Data centers label – bottom centre */}
+                    <path d="M255,250 C251,246 249,243 249,240 C249,236 252,234 255,234 C258,234 261,236 261,240 C261,243 259,246 255,250 Z" fill="#F6821F" />
+                    <circle cx="255" cy="240" r="2.5" fill="white" />
+                    <text x="267" y="244" fontSize="14" fill="#ea580c" fontWeight="600" fontFamily="sans-serif">Data centers in 300+ cities</text>
+                  </svg>
+                </div>
+                <div className="bg-orange-100 px-5 py-4">
+                  <p className="text-orange-900 text-base font-bold leading-relaxed">
+                    Anycast enables Cloudflare to announce the IP addresses of our services from every data center worldwide. Traffic is routed to the closest data center — with no backhauling or performance tradeoffs
+                  </p>
+                </div>
+              </div>
+
+            </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 6: Comprehensive On-Ramps ───────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-10">
+              <span className="font-bold">Comprehensive on-ramps</span> to connect and protect people, branches, clouds, data centers, applications, and/or IoT to any resource
+            </h2>
+            <div className="flex-1 flex items-center pb-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center w-full">
+              {/* Left – text */}
+              <div>
+                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+                  Connecting <span className="font-bold text-orange-500">&ldquo;any-to-any&rdquo;</span> is not enough
+                </p>
+                <p className="text-gray-800 text-lg leading-relaxed">
+                  The future of networking is one{' '}
+                  <span className="font-bold text-orange-500">&ldquo;end-to-end&rdquo;</span>{' '}
+                  architecture &ndash; connecting{' '}
+                  <span className="italic text-orange-500">any</span> source to{' '}
+                  <span className="italic text-orange-500">any</span> destination from{' '}
+                  <span className="italic text-orange-500">anywhere</span> with commodity Internet as the underlay
+                </p>
+              </div>
+              {/* Right – diagram */}
+              <div className="flex items-start justify-center">
+                <svg viewBox="0 0 840 488" className="w-full" style={{ maxHeight: '400px' }}>
+                  <defs>
+                    <marker id="arr-on" markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
+                      <polygon points="0 0, 5 2, 0 4" fill="#f97316" />
+                    </marker>
+                    <marker id="arr-on-r" markerWidth="5" markerHeight="4" refX="1" refY="2" orient="auto">
+                      <polygon points="5 0, 0 2, 5 4" fill="#f97316" />
+                    </marker>
+                  </defs>
+
+                  {/* Internet cloud */}
+                  <path d="M355,14 C355,6 365,1 377,4 C380,0 390,0 400,3 C402,0 414,0 421,4 C432,1 444,8 442,15 C448,13 454,18 454,23 C454,28 449,30 444,30 L367,30 C360,30 355,26 355,14 Z" fill="white" stroke="#93c5fd" strokeWidth="1.5" />
+                  <text x="474" y="24" fontSize="13" fill="#374151" fontFamily="sans-serif" fontWeight="700">Internet</text>
+
+                  {/* CF Anycast Network outer box */}
+                  <rect x="48" y="36" width="668" height="184" rx="6" fill="#fff7ed" stroke="#f97316" strokeWidth="1.5" strokeDasharray="5,3" />
+                  <text x="95" y="54" fontSize="13" fill="#1a1a1a" fontFamily="sans-serif" fontWeight="700">Cloudflare Anycast Network</text>
+                  <text x="95" y="67" fontSize="9" fill="#6b7280" fontFamily="sans-serif">Every service, on every server</text>
+
+                  {/* Internal section */}
+                  <rect x="58" y="73" width="228" height="140" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" strokeDasharray="4,2" />
+                  <text x="172" y="87" textAnchor="middle" fontSize="11" fill="#ea580c" fontFamily="sans-serif" fontWeight="700">Internal</text>
+                  <rect x="65" y="93" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="115" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">SWG</text>
+                  <rect x="173" y="93" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="226" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">ZTNA</text>
+                  <rect x="65" y="116" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="115" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">CES</text>
+                  <rect x="173" y="116" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="226" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DLP</text>
+                  <rect x="65" y="139" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="115" y="151" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DEM</text>
+                  <rect x="173" y="139" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="226" y="151" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">CASB</text>
+                  <rect x="65" y="162" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="115" y="174" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">RBI</text>
+                  <rect x="173" y="162" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="226" y="174" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">WAN</text>
+
+                  {/* Both section */}
+                  <rect x="296" y="73" width="148" height="140" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" strokeDasharray="4,2" />
+                  <text x="370" y="87" textAnchor="middle" fontSize="11" fill="#ea580c" fontFamily="sans-serif" fontWeight="700">Both</text>
+                  <rect x="304" y="93" width="132" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="370" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Firewall</text>
+                  <rect x="304" y="120" width="132" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="370" y="132" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DNS</text>
+                  <rect x="304" y="147" width="132" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="370" y="159" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Load Balancing</text>
+
+                  {/* External section */}
+                  <rect x="454" y="73" width="252" height="140" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" strokeDasharray="4,2" />
+                  <text x="580" y="87" textAnchor="middle" fontSize="11" fill="#ea580c" fontFamily="sans-serif" fontWeight="700">External</text>
+                  <rect x="461" y="93" width="112" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="517" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">CDN</text>
+                  <rect x="581" y="93" width="118" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="640" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">WAF</text>
+                  <rect x="461" y="116" width="112" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="517" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">API Gateway</text>
+                  <rect x="581" y="116" width="118" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="640" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Bot Management</text>
+                  <rect x="520" y="139" width="118" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
+                  <text x="579" y="151" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DDoS</text>
+
+                  {/* Dashboard + API (outside CF box, right) */}
+                  <rect x="724" y="90" width="90" height="22" rx="3" fill="white" stroke="#9ca3af" strokeWidth="1.2" />
+                  <text x="769" y="104" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Dashboard</text>
+                  <rect x="724" y="122" width="90" height="22" rx="3" fill="white" stroke="#9ca3af" strokeWidth="1.2" />
+                  <text x="769" y="136" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">API</text>
+
+                  {/* Horizontal connecting line */}
+                  <line x1="48" y1="232" x2="716" y2="232" stroke="#93c5fd" strokeWidth="1.5" />
+
+                  {/* 7 bidirectional vertical arrows  x: 90 195 310 382 472 582 693 */}
+                  <line x1="90"  y1="220" x2="90"  y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+                  <line x1="195" y1="220" x2="195" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+                  <line x1="310" y1="220" x2="310" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+                  <line x1="382" y1="220" x2="382" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+                  <line x1="472" y1="220" x2="472" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+                  <line x1="582" y1="220" x2="582" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+                  <line x1="693" y1="220" x2="693" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
+
+                  {/* Tunnel labels (rotated -30°) */}
+                  <text x="90"  y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,90,287)">IPsec tunnel</text>
+                  <text x="195" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,195,287)">IPsec tunnel</text>
+                  <text x="310" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,310,287)">Cloudflare Tunnel</text>
+                  <text x="382" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,382,287)">WARP Client</text>
+                  <text x="472" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,472,287)">WARP Client</text>
+                  <text x="582" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,582,287)">IPsec tunnel</text>
+                  <text x="693" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,693,287)">Network Interconnect</text>
+
+                  {/* ── Endpoint groups in dashed blue boxes ── */}
+
+                  {/* Box 1 – Branch office  col x=90 */}
+                  <rect x="48"  y="308" width="88"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
+                  <rect x="68"  y="316" width="16"  height="22"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <rect x="68"  y="328" width="6"   height="10"  fill="#3b82f6" />
+                  <rect x="88"  y="316" width="16"  height="22"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <text x="92"  y="349" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Branch office</text>
+                  <circle cx="72" cy="370" r="9" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <circle cx="72" cy="366" r="3.5" fill="#3b82f6" />
+                  <path d="M64,380 C64,374 80,374 80,380" fill="#3b82f6" />
+                  <text x="72"  y="395" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Office user</text>
+                  <rect x="84"  y="362" width="20"  height="14"  rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <rect x="87"  y="365" width="14"  height="3"   fill="#3b82f6" />
+                  <rect x="87"  y="370" width="14"  height="3"   fill="#3b82f6" />
+                  <text x="95"  y="395" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Devices</text>
+
+                  {/* Box 2 – Headquarters  cols x=195 x=310 */}
+                  <rect x="148" y="308" width="204" height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
+                  <rect x="164" y="316" width="22"  height="30"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <rect x="190" y="324" width="16"  height="12"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <text x="216" y="357" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Headquarters</text>
+                  <rect x="156" y="366" width="66"  height="18"  rx="2" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <rect x="160" y="369" width="10"  height="5"   fill="#3b82f6" />
+                  <rect x="174" y="369" width="10"  height="5"   fill="#3b82f6" />
+                  <rect x="188" y="369" width="10"  height="5"   fill="#3b82f6" />
+                  <text x="189" y="399" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Data Center</text>
+                  <rect x="258" y="312" width="82"  height="17"  rx="3" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                  <text x="299" y="323" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">WARP Connector</text>
+                  <circle cx="280" cy="352" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <circle cx="280" cy="348" r="3.5" fill="#3b82f6" />
+                  <path d="M272,362 C272,356 288,356 288,362" fill="#3b82f6" />
+                  <circle cx="306" cy="352" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <circle cx="306" cy="348" r="3.5" fill="#3b82f6" />
+                  <path d="M298,362 C298,356 314,356 314,362" fill="#3b82f6" />
+                  <text x="295" y="380" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Office users</text>
+
+                  {/* Box 3 – Home  col x=382 */}
+                  <rect x="354" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
+                  <path d="M395,313 L377,328 L383,328 L383,344 L407,344 L407,328 L413,328 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <rect x="387" y="331" width="8"   height="13"  fill="#3b82f6" />
+                  <text x="395" y="357" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Home</text>
+                  <circle cx="395" cy="376" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <circle cx="395" cy="372" r="3.5" fill="#3b82f6" />
+                  <path d="M387,386 C387,380 403,380 403,386" fill="#3b82f6" />
+                  <text x="395" y="403" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Remote user</text>
+
+                  {/* Box 4 – Airport  col x=472 */}
+                  <rect x="444" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
+                  <path d="M485,310 C474,313 469,320 473,327 L479,325 L474,338 L481,336 L485,344 L489,336 L496,338 L491,325 L497,327 C501,320 496,313 485,310 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.9" />
+                  <text x="485" y="357" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Airport</text>
+                  <rect x="456" y="363" width="58"  height="16"  rx="2" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                  <text x="485" y="374" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">Device Agent</text>
+                  <circle cx="485" cy="393" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <circle cx="485" cy="389" r="3.5" fill="#3b82f6" />
+                  <path d="M477,403 C477,397 493,397 493,403" fill="#3b82f6" />
+                  <text x="485" y="420" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Remote user</text>
+
+                  {/* Box 5 – Partner office  col x=582 */}
+                  <rect x="554" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
+                  <rect x="562" y="314" width="14"  height="18"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <rect x="580" y="314" width="14"  height="18"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <text x="595" y="343" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Partner office</text>
+                  <rect x="557" y="350" width="74"  height="16"  rx="2" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                  <text x="594" y="361" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">WAN Connector</text>
+                  <rect x="557" y="372" width="74"  height="16"  rx="2" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                  <text x="594" y="383" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">Device Agent</text>
+                  <circle cx="595" cy="403" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <circle cx="595" cy="399" r="3.5" fill="#3b82f6" />
+                  <path d="M587,413 C587,407 603,407 603,413" fill="#3b82f6" />
+                  <text x="595" y="430" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Partner user</text>
+
+                  {/* Box 6 – Equinix  col x=693 */}
+                  <rect x="660" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
+                  <rect x="672" y="314" width="50"  height="7"   rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.5" />
+                  <rect x="672" y="324" width="50"  height="7"   rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.5" />
+                  <rect x="672" y="334" width="50"  height="7"   rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.5" />
+                  <text x="701" y="355" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Equinix</text>
+                  <rect x="668" y="364" width="66"  height="18"  rx="2" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
+                  <rect x="672" y="367" width="10"  height="5"   fill="#3b82f6" />
+                  <rect x="686" y="367" width="10"  height="5"   fill="#3b82f6" />
+                  <rect x="700" y="367" width="10"  height="5"   fill="#3b82f6" />
+                  <text x="701" y="397" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Data Center</text>
+                </svg>
+              </div>
+            </div>
             </div>
           </div>
         </div>
