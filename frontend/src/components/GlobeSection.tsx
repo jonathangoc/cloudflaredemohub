@@ -306,7 +306,7 @@ function CorePrincipleCard({ row }: { row: PrincipleRowData }) {
   )
 }
 
-const TOTAL_SLIDES = 7
+const TOTAL_SLIDES = 9
 
 export default function GlobeSection() {
   const [slide, setSlide] = useState(0)
@@ -807,11 +807,11 @@ export default function GlobeSection() {
             <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mb-10">
               <span className="font-bold">Comprehensive on-ramps</span> to connect and protect people, branches, clouds, data centers, applications, and/or IoT to any resource
             </h2>
-            <div className="flex-1 flex items-center pb-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center w-full">
+            <div className="flex-1 flex items-center pb-6">
+            <div className="grid items-center w-full gap-8" style={{ gridTemplateColumns: '1fr 2fr' }}>
               {/* Left – text */}
-              <div>
-                <p className="text-gray-800 text-lg leading-relaxed mb-6">
+              <div className="w-fit">
+                <p className="text-gray-800 text-lg leading-relaxed mb-6 whitespace-nowrap">
                   Connecting <span className="font-bold text-orange-500">&ldquo;any-to-any&rdquo;</span> is not enough
                 </p>
                 <p className="text-gray-800 text-lg leading-relaxed">
@@ -824,16 +824,174 @@ export default function GlobeSection() {
                 </p>
               </div>
               {/* Right – diagram */}
-              <div className="flex items-start justify-center">
+              <div className="flex items-center justify-center">
                 {/* SVG replaced by R2-hosted image */}
                 <img
                   src="/r2/Cloudflare_onramps.png"
                   alt="Comprehensive on-ramps diagram"
-                  className="w-full"
-                  style={{ maxHeight: '400px', objectFit: 'contain' }}
+                  className="w-full h-auto"
+                  style={{ maxHeight: '520px', objectFit: 'contain' }}
                 />
               </div>
             </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 7: Every service on every server ───────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <div className="inline-flex mt-8 mb-5">
+              <span className="px-4 py-1.5 text-xs font-bold text-white uppercase tracking-widest" style={{ backgroundColor: '#F6821F', borderRadius: '4px 0 0 4px' }}>Data Plane</span>
+              <span className="px-4 py-1.5 text-xs font-semibold border border-l-0" style={{ color: '#F6821F', borderColor: '#F6821F', borderRadius: '0 20px 20px 0' }}>Comprehensive on-ramps &nbsp;&amp;&nbsp; Consistent security controls</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mb-10">
+              <span className="font-bold">Every service built to run on every server</span> in every data center
+            </h2>
+            <div className="flex-1 flex items-center pb-6">
+              <div className="flex justify-center w-full">
+                <img
+                  src="/r2/Cloudflare_services.png"
+                  alt="Every service on every server diagram"
+                  className="h-auto"
+                  style={{ maxHeight: '494px', maxWidth: '95%', objectFit: 'contain' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 8: Unified Control Plane ──────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <div className="inline-flex mt-8 mb-5">
+              <span className="px-4 py-1.5 text-xs font-bold text-white uppercase tracking-widest" style={{ backgroundColor: 'rgb(251, 173, 65)', borderRadius: '4px 0 0 4px' }}>Control Plane</span>
+              <span className="px-4 py-1.5 text-xs font-semibold border border-l-0" style={{ color: 'rgb(251, 173, 65)', borderColor: 'rgb(251, 173, 65)', borderRadius: '0 20px 20px 0' }}>Single user interface &amp; API &nbsp;&amp;&nbsp; End-to-end visibility</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mb-4">
+              <span className="font-bold">A unified control plane</span> minimizes complexity, lowers IT overhead, and improves performance
+            </h2>
+            <div className="flex-1 flex items-center justify-center pb-4">
+              {/* Diagram replaced by R2-hosted image */}
+              <img
+                src="/r2/Cloudflare_controlplane.png"
+                alt="Unified control plane diagram"
+                className="h-auto"
+                style={{ maxHeight: '480px', maxWidth: '95%', objectFit: 'contain' }}
+              />
+              <svg viewBox="0 0 0 0" style={{ display: 'none' }}>
+                <defs>
+                  <marker id="cp-arr" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0,6 2,0 4" fill="#374151" /></marker>
+                </defs>
+                {/* LEFT: Other Vendors */}
+                <text x="225" y="13" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1f2937" fontFamily="sans-serif">Other Vendors</text>
+                <rect x="35" y="18" width="380" height="235" rx="5" fill="white" stroke="#9333ea" strokeWidth="1.5" />
+                <text x="8" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Traffic</text>
+                <text x="8" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">sources</text>
+                <rect x="10" y="53" width="18" height="18" rx="2" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <circle cx="19" cy="106" r="10" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <polygon points="19,130 29,145 19,160 9,145" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <polygon points="19,172 27,177 27,189 19,194 11,189 11,177" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <line x1="28" y1="62" x2="44" y2="62" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="28" y1="62" x2="44" y2="118" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="28" y1="106" x2="44" y2="62" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="28" y1="106" x2="44" y2="118" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="28" y1="145" x2="44" y2="118" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="28" y1="145" x2="44" y2="175" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="28" y1="183" x2="44" y2="200" stroke="#1a1a1a" strokeWidth="0.8" />
+                <rect x="44" y="47" width="58" height="30" rx="3" fill="#7c3aed" />
+                <text x="73" y="60" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Control</text>
+                <text x="73" y="70" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Plane 1</text>
+                <rect x="44" y="103" width="58" height="30" rx="3" fill="#7c3aed" />
+                <text x="73" y="116" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Control</text>
+                <text x="73" y="126" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Plane 2</text>
+                <rect x="44" y="163" width="58" height="24" rx="3" fill="#7c3aed" opacity="0.75" />
+                <text x="73" y="173" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Control</text>
+                <text x="73" y="182" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Plane 3</text>
+                <rect x="44" y="192" width="58" height="24" rx="3" fill="#7c3aed" opacity="0.75" />
+                <text x="73" y="202" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Control</text>
+                <text x="73" y="211" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Plane 4</text>
+                <rect x="110" y="24" width="295" height="74" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
+                <text x="257" y="39" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 1</text>
+                <circle cx="165" cy="68" r="13" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
+                <text x="165" y="89" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service A</text>
+                <rect x="243" y="55" width="26" height="26" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
+                <text x="256" y="89" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service B</text>
+                <polygon points="335,54 339,64 349,64 341,71 344,81 335,75 326,81 329,71 321,64 331,64" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
+                <text x="335" y="89" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service C</text>
+                <rect x="110" y="103" width="295" height="74" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
+                <text x="257" y="118" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 2</text>
+                <polygon points="165,124 178,150 152,150" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
+                <text x="165" y="161" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service D</text>
+                <polygon points="256,121 266,128 262,141 250,141 246,128" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
+                <text x="256" y="161" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service E</text>
+                <polygon points="335,120 345,125 345,137 335,142 325,137 325,125" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
+                <text x="335" y="161" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service F</text>
+                <rect x="110" y="183" width="295" height="24" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
+                <text x="257" y="199" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 3</text>
+                <rect x="110" y="212" width="295" height="24" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
+                <text x="257" y="228" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 4</text>
+                <line x1="405" y1="61" x2="418" y2="61" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="405" y1="106" x2="418" y2="106" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="405" y1="145" x2="418" y2="145" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="405" y1="183" x2="418" y2="183" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <text x="424" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Resource</text>
+                <text x="424" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">destinations</text>
+                <rect x="422" y="53" width="18" height="18" rx="2" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <circle cx="431" cy="106" r="10" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <polygon points="431,130 441,145 431,160 421,145" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <polygon points="431,170 439,175 439,187 431,192 423,187 423,175" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <rect x="35" y="262" width="380" height="70" rx="5" fill="#f3e8ff" stroke="#9333ea" strokeWidth="1" />
+                <text x="45" y="281" fontSize="9" fontWeight="700" fill="#7c3aed" fontFamily="sans-serif">Locations only run a subset of services – leading to</text>
+                <text x="45" y="295" fontSize="9" fontWeight="700" fill="#7c3aed" fontFamily="sans-serif">management and integration complexity while also</text>
+                <text x="45" y="309" fontSize="9" fontWeight="700" fill="#7c3aed" fontFamily="sans-serif">constraining performance</text>
+
+                {/* RIGHT: Cloudflare */}
+                <text x="645" y="13" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1f2937" fontFamily="sans-serif">Cloudflare</text>
+                <rect x="465" y="18" width="360" height="235" rx="5" fill="white" stroke="#f97316" strokeWidth="1.5" />
+                <text x="438" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Traffic</text>
+                <text x="438" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">sources</text>
+                <rect x="440" y="53" width="18" height="18" rx="2" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <circle cx="449" cy="106" r="10" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <polygon points="449,130 459,145 449,160 439,145" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <polygon points="449,170 457,175 457,187 449,192 441,187 441,175" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
+                <line x1="458" y1="62" x2="474" y2="120" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="458" y1="106" x2="474" y2="126" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="458" y1="145" x2="474" y2="132" stroke="#1a1a1a" strokeWidth="0.8" />
+                <line x1="458" y1="181" x2="474" y2="140" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <rect x="472" y="103" width="65" height="58" rx="4" fill="#fed7aa" stroke="#f97316" strokeWidth="1.5" />
+                <text x="504" y="126" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif">Control</text>
+                <text x="504" y="139" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif">Plane</text>
+                <line x1="537" y1="120" x2="553" y2="100" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="537" y1="138" x2="553" y2="162" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <rect x="550" y="28" width="265" height="215" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
+                <circle cx="598" cy="88" r="14" fill="#f97316" />
+                <text x="598" y="111" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service A</text>
+                <rect x="657" y="74" width="28" height="28" fill="#f97316" />
+                <text x="671" y="111" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service B</text>
+                <polygon points="740,72 744,83 755,83 746,90 749,101 740,95 731,101 734,90 725,83 736,83" fill="#f97316" />
+                <text x="740" y="111" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service C</text>
+                <polygon points="598,138 612,163 584,163" fill="#f97316" />
+                <text x="598" y="174" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service D</text>
+                <polygon points="671,136 681,143 677,156 665,156 661,143" fill="#f97316" />
+                <text x="671" y="174" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service E</text>
+                <polygon points="740,136 750,141 750,153 740,158 730,153 730,141" fill="#f97316" />
+                <text x="740" y="174" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service F</text>
+                <line x1="815" y1="98" x2="832" y2="62" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="815" y1="112" x2="832" y2="106" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="815" y1="148" x2="832" y2="145" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <line x1="815" y1="162" x2="832" y2="181" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
+                <text x="836" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Resource</text>
+                <text x="836" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">destinations</text>
+                <rect x="834" y="53" width="18" height="18" rx="2" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <circle cx="843" cy="106" r="10" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <polygon points="843,130 853,145 843,160 833,145" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <polygon points="843,170 851,175 851,187 843,192 835,187 835,175" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
+                <rect x="465" y="262" width="360" height="70" rx="5" fill="#fff7ed" stroke="#f97316" strokeWidth="1" />
+                <text x="475" y="281" fontSize="9" fontWeight="700" fill="#ea580c" fontFamily="sans-serif">Single control plane with single-pass inspection</text>
+                <text x="475" y="295" fontSize="9" fontWeight="700" fill="#ea580c" fontFamily="sans-serif">simplifies management and integration while also</text>
+                <text x="475" y="309" fontSize="9" fontWeight="700" fill="#ea580c" fontFamily="sans-serif">minimizing any impact to performance</text>
+              </svg>
             </div>
           </div>
         </div>
