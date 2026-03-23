@@ -6,8 +6,16 @@ compatibility_flags = ["nodejs_compat"]
 [site]
 bucket = "./dist"
 
+[[r2_buckets]]
+binding = "DemoR2Bucket"
+bucket_name = "demoassets"
+
 [env.production]
 name = "cloudflare-demo-hub-frontend"
+
+[[env.production.r2_buckets]]
+binding = "DemoR2Bucket"
+bucket_name = "demoassets"
 
 [[env.production.routes]]
 pattern = "demo.jonathangoc.com"

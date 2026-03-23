@@ -5,10 +5,23 @@ const assetManifest = JSON.parse(manifestJSON)
 
 export interface Env {
   __STATIC_CONTENT: KVNamespace
+  DemoR2Bucket: R2Bucket
 }
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(request.url)
+
+    if (url.pathname.startsWith('/r2/')) {
+      const key = url.pathname.replace('/r2/', '')
+      const object = await env.DemoR2Bucket.get(key)
+      if (!object) return new Response('Not Found', { status: 404 })
+      const headers = new Headers()
+      object.writeHttpMetadata(headers)
+      headers.set('Cache-Control', 'public, max-age=86400')
+      return new Response(object.body, { headers })
+    }
+
     try {
       return await getAssetFromKV(
         { request, waitUntil: ctx.waitUntil.bind(ctx) },

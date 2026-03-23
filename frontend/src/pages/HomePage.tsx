@@ -161,55 +161,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Architecture Section */}
-      <section className="py-20 px-6 bg-gray-900">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Built on Cloudflare's Edge Network</h2>
-          <p className="text-gray-400 mb-12 max-w-2xl mx-auto">
-            Every demo runs on Cloudflare's global network — sub-millisecond compute, globally distributed storage, and AI inference closer to your users.
-          </p>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: '⚡', title: 'Workers', desc: 'Serverless compute at 330+ locations' },
-              { icon: '🧠', title: 'Workers AI', desc: 'ML inference at the edge with GPU' },
-              { icon: '🗄️', title: 'D1 + R2', desc: 'Edge-native databases and storage' },
-              { icon: '🔑', title: 'Workers KV', desc: 'Globally distributed key-value store' },
-            ].map((item) => (
-              <div key={item.title} className="bg-gray-800 rounded-2xl p-6 text-left">
-                <div className="text-2xl mb-3">{item.icon}</div>
-                <div className="text-white font-semibold text-sm mb-1">{item.title}</div>
-                <div className="text-gray-400 text-xs leading-relaxed">{item.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-10 px-6 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center">
-            <img
-              src="https://cf-assets.www.cloudflare.com/dzlvafdwdttg/69wNwfiY5mFmgpd9eQFW6j/d5131c08085a977aa70f19e7aada3fa9/1pixel-down__1_.svg"
-              alt="Cloudflare"
-              width={239}
-              className="h-5 w-auto opacity-70"
-            />
-          </div>
-          <p className="text-xs text-gray-400">
-            Built with Cloudflare Workers, React 18, and Tailwind CSS
-          </p>
-          <a
-            href="https://developers.cloudflare.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            developers.cloudflare.com →
-          </a>
-        </div>
-      </footer>
     </div>
   )
 }

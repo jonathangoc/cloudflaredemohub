@@ -498,6 +498,10 @@ export default function GlobeSection() {
 
               {/* Left — text */}
               <div className="order-2 lg:order-1">
+                <div className="inline-flex mb-5">
+                  <span className="px-4 py-1.5 text-xs font-bold text-white uppercase tracking-widest" style={{ backgroundColor: '#FF6633', borderRadius: '4px 0 0 4px' }}>Infrastructure</span>
+                  <span className="px-4 py-1.5 text-xs font-semibold border border-l-0" style={{ color: '#FF6633', borderColor: '#FF6633', borderRadius: '0 20px 20px 0' }}>Be everywhere &nbsp;&amp;&nbsp; Be interconnected</span>
+                </div>
                 <h2 className="text-2xl md:text-3xl font-normal text-white leading-tight mb-5">
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F6821F] to-amber-400">
                     A single network
@@ -576,7 +580,11 @@ export default function GlobeSection() {
         {/* ── Slide 5: Anycast Routing ───────────────────────────── */}
         <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
           <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
-            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-10">
+            <div className="inline-flex mt-8 mb-5">
+              <span className="px-4 py-1.5 text-xs font-bold text-white uppercase tracking-widest" style={{ backgroundColor: '#FF6633', borderRadius: '4px 0 0 4px' }}>Infrastructure</span>
+              <span className="px-4 py-1.5 text-xs font-semibold border border-l-0" style={{ color: '#FF6633', borderColor: '#FF6633', borderRadius: '0 20px 20px 0' }}>Be everywhere &nbsp;&amp;&nbsp; Be interconnected</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mb-10">
               <span className="font-bold">Anycast routing</span> to secure close to the source and accelerate to the destination
             </h2>
 
@@ -792,7 +800,11 @@ export default function GlobeSection() {
         {/* ── Slide 6: Comprehensive On-Ramps ───────────────────────── */}
         <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
           <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
-            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-10">
+            <div className="inline-flex mt-8 mb-5">
+              <span className="px-4 py-1.5 text-xs font-bold text-white uppercase tracking-widest" style={{ backgroundColor: '#F6821F', borderRadius: '4px 0 0 4px' }}>Data Plane</span>
+              <span className="px-4 py-1.5 text-xs font-semibold border border-l-0" style={{ color: '#F6821F', borderColor: '#F6821F', borderRadius: '0 20px 20px 0' }}>Comprehensive on-ramps &nbsp;&amp;&nbsp; Consistent security controls</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mb-10">
               <span className="font-bold">Comprehensive on-ramps</span> to connect and protect people, branches, clouds, data centers, applications, and/or IoT to any resource
             </h2>
             <div className="flex-1 flex items-center pb-10">
@@ -813,180 +825,13 @@ export default function GlobeSection() {
               </div>
               {/* Right – diagram */}
               <div className="flex items-start justify-center">
-                <svg viewBox="0 0 840 488" className="w-full" style={{ maxHeight: '400px' }}>
-                  <defs>
-                    <marker id="arr-on" markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
-                      <polygon points="0 0, 5 2, 0 4" fill="#f97316" />
-                    </marker>
-                    <marker id="arr-on-r" markerWidth="5" markerHeight="4" refX="1" refY="2" orient="auto">
-                      <polygon points="5 0, 0 2, 5 4" fill="#f97316" />
-                    </marker>
-                  </defs>
-
-                  {/* Internet cloud */}
-                  <path d="M355,14 C355,6 365,1 377,4 C380,0 390,0 400,3 C402,0 414,0 421,4 C432,1 444,8 442,15 C448,13 454,18 454,23 C454,28 449,30 444,30 L367,30 C360,30 355,26 355,14 Z" fill="white" stroke="#93c5fd" strokeWidth="1.5" />
-                  <text x="474" y="24" fontSize="13" fill="#374151" fontFamily="sans-serif" fontWeight="700">Internet</text>
-
-                  {/* CF Anycast Network outer box */}
-                  <rect x="48" y="36" width="668" height="184" rx="6" fill="#fff7ed" stroke="#f97316" strokeWidth="1.5" strokeDasharray="5,3" />
-                  <text x="95" y="54" fontSize="13" fill="#1a1a1a" fontFamily="sans-serif" fontWeight="700">Cloudflare Anycast Network</text>
-                  <text x="95" y="67" fontSize="9" fill="#6b7280" fontFamily="sans-serif">Every service, on every server</text>
-
-                  {/* Internal section */}
-                  <rect x="58" y="73" width="228" height="140" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" strokeDasharray="4,2" />
-                  <text x="172" y="87" textAnchor="middle" fontSize="11" fill="#ea580c" fontFamily="sans-serif" fontWeight="700">Internal</text>
-                  <rect x="65" y="93" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="115" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">SWG</text>
-                  <rect x="173" y="93" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="226" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">ZTNA</text>
-                  <rect x="65" y="116" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="115" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">CES</text>
-                  <rect x="173" y="116" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="226" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DLP</text>
-                  <rect x="65" y="139" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="115" y="151" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DEM</text>
-                  <rect x="173" y="139" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="226" y="151" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">CASB</text>
-                  <rect x="65" y="162" width="100" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="115" y="174" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">RBI</text>
-                  <rect x="173" y="162" width="106" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="226" y="174" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">WAN</text>
-
-                  {/* Both section */}
-                  <rect x="296" y="73" width="148" height="140" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" strokeDasharray="4,2" />
-                  <text x="370" y="87" textAnchor="middle" fontSize="11" fill="#ea580c" fontFamily="sans-serif" fontWeight="700">Both</text>
-                  <rect x="304" y="93" width="132" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="370" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Firewall</text>
-                  <rect x="304" y="120" width="132" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="370" y="132" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DNS</text>
-                  <rect x="304" y="147" width="132" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="370" y="159" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Load Balancing</text>
-
-                  {/* External section */}
-                  <rect x="454" y="73" width="252" height="140" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" strokeDasharray="4,2" />
-                  <text x="580" y="87" textAnchor="middle" fontSize="11" fill="#ea580c" fontFamily="sans-serif" fontWeight="700">External</text>
-                  <rect x="461" y="93" width="112" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="517" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">CDN</text>
-                  <rect x="581" y="93" width="118" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="640" y="105" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">WAF</text>
-                  <rect x="461" y="116" width="112" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="517" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">API Gateway</text>
-                  <rect x="581" y="116" width="118" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="640" y="128" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Bot Management</text>
-                  <rect x="520" y="139" width="118" height="18" rx="2" fill="white" stroke="#f97316" strokeWidth="0.8" />
-                  <text x="579" y="151" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">DDoS</text>
-
-                  {/* Dashboard + API (outside CF box, right) */}
-                  <rect x="724" y="90" width="90" height="22" rx="3" fill="white" stroke="#9ca3af" strokeWidth="1.2" />
-                  <text x="769" y="104" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">Dashboard</text>
-                  <rect x="724" y="122" width="90" height="22" rx="3" fill="white" stroke="#9ca3af" strokeWidth="1.2" />
-                  <text x="769" y="136" textAnchor="middle" fontSize="10" fill="#374151" fontFamily="sans-serif">API</text>
-
-                  {/* Horizontal connecting line */}
-                  <line x1="48" y1="232" x2="716" y2="232" stroke="#93c5fd" strokeWidth="1.5" />
-
-                  {/* 7 bidirectional vertical arrows  x: 90 195 310 382 472 582 693 */}
-                  <line x1="90"  y1="220" x2="90"  y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-                  <line x1="195" y1="220" x2="195" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-                  <line x1="310" y1="220" x2="310" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-                  <line x1="382" y1="220" x2="382" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-                  <line x1="472" y1="220" x2="472" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-                  <line x1="582" y1="220" x2="582" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-                  <line x1="693" y1="220" x2="693" y2="274" stroke="#f97316" strokeWidth="2.2" markerEnd="url(#arr-on)" markerStart="url(#arr-on-r)" />
-
-                  {/* Tunnel labels (rotated -30°) */}
-                  <text x="90"  y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,90,287)">IPsec tunnel</text>
-                  <text x="195" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,195,287)">IPsec tunnel</text>
-                  <text x="310" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,310,287)">Cloudflare Tunnel</text>
-                  <text x="382" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,382,287)">WARP Client</text>
-                  <text x="472" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,472,287)">WARP Client</text>
-                  <text x="582" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,582,287)">IPsec tunnel</text>
-                  <text x="693" y="287" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif" transform="rotate(-30,693,287)">Network Interconnect</text>
-
-                  {/* ── Endpoint groups in dashed blue boxes ── */}
-
-                  {/* Box 1 – Branch office  col x=90 */}
-                  <rect x="48"  y="308" width="88"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
-                  <rect x="68"  y="316" width="16"  height="22"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <rect x="68"  y="328" width="6"   height="10"  fill="#3b82f6" />
-                  <rect x="88"  y="316" width="16"  height="22"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <text x="92"  y="349" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Branch office</text>
-                  <circle cx="72" cy="370" r="9" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <circle cx="72" cy="366" r="3.5" fill="#3b82f6" />
-                  <path d="M64,380 C64,374 80,374 80,380" fill="#3b82f6" />
-                  <text x="72"  y="395" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Office user</text>
-                  <rect x="84"  y="362" width="20"  height="14"  rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <rect x="87"  y="365" width="14"  height="3"   fill="#3b82f6" />
-                  <rect x="87"  y="370" width="14"  height="3"   fill="#3b82f6" />
-                  <text x="95"  y="395" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Devices</text>
-
-                  {/* Box 2 – Headquarters  cols x=195 x=310 */}
-                  <rect x="148" y="308" width="204" height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
-                  <rect x="164" y="316" width="22"  height="30"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <rect x="190" y="324" width="16"  height="12"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <text x="216" y="357" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Headquarters</text>
-                  <rect x="156" y="366" width="66"  height="18"  rx="2" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <rect x="160" y="369" width="10"  height="5"   fill="#3b82f6" />
-                  <rect x="174" y="369" width="10"  height="5"   fill="#3b82f6" />
-                  <rect x="188" y="369" width="10"  height="5"   fill="#3b82f6" />
-                  <text x="189" y="399" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Data Center</text>
-                  <rect x="258" y="312" width="82"  height="17"  rx="3" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
-                  <text x="299" y="323" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">WARP Connector</text>
-                  <circle cx="280" cy="352" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <circle cx="280" cy="348" r="3.5" fill="#3b82f6" />
-                  <path d="M272,362 C272,356 288,356 288,362" fill="#3b82f6" />
-                  <circle cx="306" cy="352" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <circle cx="306" cy="348" r="3.5" fill="#3b82f6" />
-                  <path d="M298,362 C298,356 314,356 314,362" fill="#3b82f6" />
-                  <text x="295" y="380" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Office users</text>
-
-                  {/* Box 3 – Home  col x=382 */}
-                  <rect x="354" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
-                  <path d="M395,313 L377,328 L383,328 L383,344 L407,344 L407,328 L413,328 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <rect x="387" y="331" width="8"   height="13"  fill="#3b82f6" />
-                  <text x="395" y="357" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Home</text>
-                  <circle cx="395" cy="376" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <circle cx="395" cy="372" r="3.5" fill="#3b82f6" />
-                  <path d="M387,386 C387,380 403,380 403,386" fill="#3b82f6" />
-                  <text x="395" y="403" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Remote user</text>
-
-                  {/* Box 4 – Airport  col x=472 */}
-                  <rect x="444" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
-                  <path d="M485,310 C474,313 469,320 473,327 L479,325 L474,338 L481,336 L485,344 L489,336 L496,338 L491,325 L497,327 C501,320 496,313 485,310 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.9" />
-                  <text x="485" y="357" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Airport</text>
-                  <rect x="456" y="363" width="58"  height="16"  rx="2" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
-                  <text x="485" y="374" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">Device Agent</text>
-                  <circle cx="485" cy="393" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <circle cx="485" cy="389" r="3.5" fill="#3b82f6" />
-                  <path d="M477,403 C477,397 493,397 493,403" fill="#3b82f6" />
-                  <text x="485" y="420" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Remote user</text>
-
-                  {/* Box 5 – Partner office  col x=582 */}
-                  <rect x="554" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
-                  <rect x="562" y="314" width="14"  height="18"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <rect x="580" y="314" width="14"  height="18"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
-                  <text x="595" y="343" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Partner office</text>
-                  <rect x="557" y="350" width="74"  height="16"  rx="2" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
-                  <text x="594" y="361" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">WAN Connector</text>
-                  <rect x="557" y="372" width="74"  height="16"  rx="2" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
-                  <text x="594" y="383" textAnchor="middle" fontSize="7.5" fill="#c2410c" fontFamily="sans-serif">Device Agent</text>
-                  <circle cx="595" cy="403" r="9"  fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <circle cx="595" cy="399" r="3.5" fill="#3b82f6" />
-                  <path d="M587,413 C587,407 603,407 603,413" fill="#3b82f6" />
-                  <text x="595" y="430" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Partner user</text>
-
-                  {/* Box 6 – Equinix  col x=693 */}
-                  <rect x="660" y="308" width="82"  height="172" rx="4" fill="white" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="4,2" />
-                  <rect x="672" y="314" width="50"  height="7"   rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.5" />
-                  <rect x="672" y="324" width="50"  height="7"   rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.5" />
-                  <rect x="672" y="334" width="50"  height="7"   rx="1" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.5" />
-                  <text x="701" y="355" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif" fontWeight="600">Equinix</text>
-                  <rect x="668" y="364" width="66"  height="18"  rx="2" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
-                  <rect x="672" y="367" width="10"  height="5"   fill="#3b82f6" />
-                  <rect x="686" y="367" width="10"  height="5"   fill="#3b82f6" />
-                  <rect x="700" y="367" width="10"  height="5"   fill="#3b82f6" />
-                  <text x="701" y="397" textAnchor="middle" fontSize="8" fill="#6b7280" fontFamily="sans-serif">Data Center</text>
-                </svg>
+                {/* SVG replaced by R2-hosted image */}
+                <img
+                  src="/r2/Cloudflare_onramps.png"
+                  alt="Comprehensive on-ramps diagram"
+                  className="w-full"
+                  style={{ maxHeight: '400px', objectFit: 'contain' }}
+                />
               </div>
             </div>
             </div>
