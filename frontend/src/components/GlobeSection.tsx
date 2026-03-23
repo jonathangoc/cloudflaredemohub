@@ -306,7 +306,7 @@ function CorePrincipleCard({ row }: { row: PrincipleRowData }) {
   )
 }
 
-const TOTAL_SLIDES = 9
+const TOTAL_SLIDES = 15
 
 export default function GlobeSection() {
   const [slide, setSlide] = useState(0)
@@ -879,119 +879,376 @@ export default function GlobeSection() {
                 className="h-auto"
                 style={{ maxHeight: '480px', maxWidth: '95%', objectFit: 'contain' }}
               />
-              <svg viewBox="0 0 0 0" style={{ display: 'none' }}>
-                <defs>
-                  <marker id="cp-arr" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0 0,6 2,0 4" fill="#374151" /></marker>
-                </defs>
-                {/* LEFT: Other Vendors */}
-                <text x="225" y="13" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1f2937" fontFamily="sans-serif">Other Vendors</text>
-                <rect x="35" y="18" width="380" height="235" rx="5" fill="white" stroke="#9333ea" strokeWidth="1.5" />
-                <text x="8" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Traffic</text>
-                <text x="8" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">sources</text>
-                <rect x="10" y="53" width="18" height="18" rx="2" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <circle cx="19" cy="106" r="10" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <polygon points="19,130 29,145 19,160 9,145" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <polygon points="19,172 27,177 27,189 19,194 11,189 11,177" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <line x1="28" y1="62" x2="44" y2="62" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="28" y1="62" x2="44" y2="118" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="28" y1="106" x2="44" y2="62" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="28" y1="106" x2="44" y2="118" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="28" y1="145" x2="44" y2="118" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="28" y1="145" x2="44" y2="175" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="28" y1="183" x2="44" y2="200" stroke="#1a1a1a" strokeWidth="0.8" />
-                <rect x="44" y="47" width="58" height="30" rx="3" fill="#7c3aed" />
-                <text x="73" y="60" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Control</text>
-                <text x="73" y="70" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Plane 1</text>
-                <rect x="44" y="103" width="58" height="30" rx="3" fill="#7c3aed" />
-                <text x="73" y="116" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Control</text>
-                <text x="73" y="126" textAnchor="middle" fontSize="7.5" fill="white" fontFamily="sans-serif">Plane 2</text>
-                <rect x="44" y="163" width="58" height="24" rx="3" fill="#7c3aed" opacity="0.75" />
-                <text x="73" y="173" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Control</text>
-                <text x="73" y="182" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Plane 3</text>
-                <rect x="44" y="192" width="58" height="24" rx="3" fill="#7c3aed" opacity="0.75" />
-                <text x="73" y="202" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Control</text>
-                <text x="73" y="211" textAnchor="middle" fontSize="7" fill="white" fontFamily="sans-serif">Plane 4</text>
-                <rect x="110" y="24" width="295" height="74" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
-                <text x="257" y="39" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 1</text>
-                <circle cx="165" cy="68" r="13" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
-                <text x="165" y="89" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service A</text>
-                <rect x="243" y="55" width="26" height="26" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
-                <text x="256" y="89" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service B</text>
-                <polygon points="335,54 339,64 349,64 341,71 344,81 335,75 326,81 329,71 321,64 331,64" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
-                <text x="335" y="89" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service C</text>
-                <rect x="110" y="103" width="295" height="74" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
-                <text x="257" y="118" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 2</text>
-                <polygon points="165,124 178,150 152,150" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
-                <text x="165" y="161" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service D</text>
-                <polygon points="256,121 266,128 262,141 250,141 246,128" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
-                <text x="256" y="161" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service E</text>
-                <polygon points="335,120 345,125 345,137 335,142 325,137 325,125" fill="white" stroke="#7c3aed" strokeWidth="1.2" />
-                <text x="335" y="161" textAnchor="middle" fontSize="7" fill="#374151" fontFamily="sans-serif">Service F</text>
-                <rect x="110" y="183" width="295" height="24" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
-                <text x="257" y="199" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 3</text>
-                <rect x="110" y="212" width="295" height="24" rx="3" fill="#f5f3ff" stroke="#7c3aed" strokeWidth="1" />
-                <text x="257" y="228" textAnchor="middle" fontSize="8.5" fill="#374151" fontFamily="sans-serif">Network 4</text>
-                <line x1="405" y1="61" x2="418" y2="61" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="405" y1="106" x2="418" y2="106" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="405" y1="145" x2="418" y2="145" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="405" y1="183" x2="418" y2="183" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <text x="424" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Resource</text>
-                <text x="424" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">destinations</text>
-                <rect x="422" y="53" width="18" height="18" rx="2" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <circle cx="431" cy="106" r="10" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <polygon points="431,130 441,145 431,160 421,145" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <polygon points="431,170 439,175 439,187 431,192 423,187 423,175" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <rect x="35" y="262" width="380" height="70" rx="5" fill="#f3e8ff" stroke="#9333ea" strokeWidth="1" />
-                <text x="45" y="281" fontSize="9" fontWeight="700" fill="#7c3aed" fontFamily="sans-serif">Locations only run a subset of services – leading to</text>
-                <text x="45" y="295" fontSize="9" fontWeight="700" fill="#7c3aed" fontFamily="sans-serif">management and integration complexity while also</text>
-                <text x="45" y="309" fontSize="9" fontWeight="700" fill="#7c3aed" fontFamily="sans-serif">constraining performance</text>
+            </div>
+          </div>
+        </div>
 
-                {/* RIGHT: Cloudflare */}
-                <text x="645" y="13" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1f2937" fontFamily="sans-serif">Cloudflare</text>
-                <rect x="465" y="18" width="360" height="235" rx="5" fill="white" stroke="#f97316" strokeWidth="1.5" />
-                <text x="438" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Traffic</text>
-                <text x="438" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">sources</text>
-                <rect x="440" y="53" width="18" height="18" rx="2" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <circle cx="449" cy="106" r="10" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <polygon points="449,130 459,145 449,160 439,145" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <polygon points="449,170 457,175 457,187 449,192 441,187 441,175" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.2" />
-                <line x1="458" y1="62" x2="474" y2="120" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="458" y1="106" x2="474" y2="126" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="458" y1="145" x2="474" y2="132" stroke="#1a1a1a" strokeWidth="0.8" />
-                <line x1="458" y1="181" x2="474" y2="140" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <rect x="472" y="103" width="65" height="58" rx="4" fill="#fed7aa" stroke="#f97316" strokeWidth="1.5" />
-                <text x="504" y="126" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif">Control</text>
-                <text x="504" y="139" textAnchor="middle" fontSize="9" fill="#374151" fontFamily="sans-serif">Plane</text>
-                <line x1="537" y1="120" x2="553" y2="100" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="537" y1="138" x2="553" y2="162" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <rect x="550" y="28" width="265" height="215" rx="4" fill="#ffedd5" stroke="#f97316" strokeWidth="1" />
-                <circle cx="598" cy="88" r="14" fill="#f97316" />
-                <text x="598" y="111" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service A</text>
-                <rect x="657" y="74" width="28" height="28" fill="#f97316" />
-                <text x="671" y="111" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service B</text>
-                <polygon points="740,72 744,83 755,83 746,90 749,101 740,95 731,101 734,90 725,83 736,83" fill="#f97316" />
-                <text x="740" y="111" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service C</text>
-                <polygon points="598,138 612,163 584,163" fill="#f97316" />
-                <text x="598" y="174" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service D</text>
-                <polygon points="671,136 681,143 677,156 665,156 661,143" fill="#f97316" />
-                <text x="671" y="174" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service E</text>
-                <polygon points="740,136 750,141 750,153 740,158 730,153 730,141" fill="#f97316" />
-                <text x="740" y="174" textAnchor="middle" fontSize="7.5" fill="#374151" fontFamily="sans-serif">Service F</text>
-                <line x1="815" y1="98" x2="832" y2="62" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="815" y1="112" x2="832" y2="106" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="815" y1="148" x2="832" y2="145" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <line x1="815" y1="162" x2="832" y2="181" stroke="#1a1a1a" strokeWidth="0.8" markerEnd="url(#cp-arr)" />
-                <text x="836" y="37" fontSize="8" fill="#374151" fontFamily="sans-serif">Resource</text>
-                <text x="836" y="47" fontSize="8" fill="#374151" fontFamily="sans-serif">destinations</text>
-                <rect x="834" y="53" width="18" height="18" rx="2" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <circle cx="843" cy="106" r="10" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <polygon points="843,130 853,145 843,160 833,145" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <polygon points="843,170 851,175 851,187 843,192 835,187 835,175" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.2" />
-                <rect x="465" y="262" width="360" height="70" rx="5" fill="#fff7ed" stroke="#f97316" strokeWidth="1" />
-                <text x="475" y="281" fontSize="9" fontWeight="700" fill="#ea580c" fontFamily="sans-serif">Single control plane with single-pass inspection</text>
-                <text x="475" y="295" fontSize="9" fontWeight="700" fill="#ea580c" fontFamily="sans-serif">simplifies management and integration while also</text>
-                <text x="475" y="309" fontSize="9" fontWeight="700" fill="#ea580c" fontFamily="sans-serif">minimizing any impact to performance</text>
+        {/* ── Slide 9: Question ──────────────────────────────────────── */}
+        <div className="w-full flex-none h-full bg-white flex items-center justify-center px-6">
+          <p className="text-2xl md:text-3xl font-normal text-gray-900 text-center whitespace-nowrap">
+            So <span className="font-bold">what</span> have we built on top of our <span className="font-bold">connectivity cloud</span>?
+          </p>
+        </div>
+
+        {/* ── Slide 10: Protect and accelerate ──────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-6">
+              <span className="font-bold">Protect</span> and <span className="font-bold">accelerate</span> websites and AI-enabled apps
+            </h2>
+            <div className="flex-1 flex items-center justify-center pb-6">
+              <svg viewBox="0 0 640 380" className="w-full" style={{ maxHeight: '370px', maxWidth: '440px' }}>
+                {/* Outer border */}
+                <rect x="1" y="1" width="638" height="378" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                {/* Header — rounded top corners only */}
+                <path d="M8,1 H632 Q639,1 639,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(246,130,31)" />
+                {/* Network icon — 4-node diamond */}
+                <line x1="32" y1="16" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                <line x1="50" y1="34" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                <line x1="32" y1="52" x2="14" y2="34" stroke="white" strokeWidth="1.8" />
+                <line x1="14" y1="34" x2="32" y2="16" stroke="white" strokeWidth="1.8" />
+                <line x1="32" y1="16" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                <line x1="14" y1="34" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                <circle cx="32" cy="16" r="4" fill="white" />
+                <circle cx="50" cy="34" r="4" fill="white" />
+                <circle cx="32" cy="52" r="4" fill="white" />
+                <circle cx="14" cy="34" r="4" fill="white" />
+                {/* Header title */}
+                <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">App Security &amp; Perf Services</text>
+                {/* Service list */}
+                <text x="320" y="103" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">WAF with Rate Limiting</text>
+                <text x="320" y="138" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">Firewall for AI</text>
+                <text x="320" y="173" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">API Protection</text>
+                <text x="320" y="208" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">Load Balancing</text>
+                <text x="320" y="243" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">Bot Management (with AI Crawl Control)</text>
+                <text x="320" y="278" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">L7 DDoS Protection</text>
+                <text x="320" y="313" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">CDN and DNS</text>
+                <text x="320" y="348" textAnchor="middle" fontSize="26" fill="#1f2937" fontFamily="sans-serif">Origin Shield</text>
               </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 11: App Security + Developer Services ───────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-6">
+              <span className="font-bold">Protect</span> and <span className="font-bold">accelerate</span> websites and AI-enabled apps
+            </h2>
+            <div className="flex-1 flex items-center justify-center gap-8 pb-6">
+              {/* App Security & Perf Services card */}
+              <svg viewBox="0 0 600 380" style={{ maxHeight: '370px', maxWidth: '480px', width: '100%' }}>
+                <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(246,130,31)" />
+                <line x1="32" y1="16" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                <line x1="50" y1="34" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                <line x1="32" y1="52" x2="14" y2="34" stroke="white" strokeWidth="1.8" />
+                <line x1="14" y1="34" x2="32" y2="16" stroke="white" strokeWidth="1.8" />
+                <line x1="32" y1="16" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                <line x1="14" y1="34" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                <circle cx="32" cy="16" r="4" fill="white" />
+                <circle cx="50" cy="34" r="4" fill="white" />
+                <circle cx="32" cy="52" r="4" fill="white" />
+                <circle cx="14" cy="34" r="4" fill="white" />
+                <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">App Security &amp; Perf Services</text>
+                <text x="300" y="103" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">WAF with Rate Limiting</text>
+                <text x="300" y="138" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Firewall for AI</text>
+                <text x="300" y="173" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">API Protection</text>
+                <text x="300" y="208" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Load Balancing</text>
+                <text x="300" y="243" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Bot Management (with AI Crawl Control)</text>
+                <text x="300" y="278" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">L7 DDoS Protection</text>
+                <text x="300" y="313" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">CDN and DNS</text>
+                <text x="300" y="348" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Origin Shield</text>
+              </svg>
+              {/* Developer Services card */}
+              <svg viewBox="0 0 600 380" style={{ maxHeight: '370px', maxWidth: '480px', width: '100%' }}>
+                <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(251,173,65)" strokeWidth="2" />
+                <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(251,173,65)" />
+                <polyline points="22,16 10,34 22,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="42,16 54,34 42,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">Developer Services</text>
+                <text x="300" y="103" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Serverless compute</text>
+                <text x="300" y="138" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">AI inference</text>
+                <text x="300" y="173" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Full stack applications</text>
+                <text x="300" y="208" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Object &amp; key-value storage</text>
+                <text x="300" y="243" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">SQL database</text>
+                <text x="300" y="278" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Media optimization and delivery</text>
+                <text x="300" y="313" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">Agentic SDK and Workflows</text>
+                <text x="300" y="348" textAnchor="middle" fontSize="24" fill="#1f2937" fontFamily="sans-serif">AI Gateway</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 12: Three cards ─────────────────────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-6">
+              <span className="font-bold">Protect</span> and <span className="font-bold">accelerate</span> websites and AI-enabled apps
+            </h2>
+            <div className="flex-1 flex items-center justify-center gap-6 pb-6">
+              {/* SASE & Workspace Security card */}
+              <svg viewBox="0 0 600 380" style={{ maxHeight: '370px', maxWidth: '400px', width: '100%' }}>
+                <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(255,102,51)" strokeWidth="2" />
+                <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(255,102,51)" />
+                <path d="M32,13 L50,19 L50,33 C50,44 41,52 32,56 C23,52 14,44 14,33 L14,19 Z" fill="none" stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
+                <rect x="22" y="25" width="20" height="14" rx="2" fill="none" stroke="white" strokeWidth="1.8" />
+                <line x1="22" y1="30" x2="42" y2="30" stroke="white" strokeWidth="1.5" />
+                <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">SASE &amp; Workspace Security</text>
+                <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">ZTNA (with MCP Server Portals)</text>
+                <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">SWG (with AI Usage Controls)</text>
+                <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">CASB (with AI Posture Management)</text>
+                <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Email Security</text>
+                <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Data Loss Prevention</text>
+                <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Remote Browser Isolation</text>
+                <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Digital Experience Monitoring</text>
+              </svg>
+              {/* App Security & Perf Services card */}
+              <svg viewBox="0 0 600 380" style={{ maxHeight: '370px', maxWidth: '400px', width: '100%' }}>
+                <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(246,130,31)" />
+                <line x1="32" y1="16" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                <line x1="50" y1="34" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                <line x1="32" y1="52" x2="14" y2="34" stroke="white" strokeWidth="1.8" />
+                <line x1="14" y1="34" x2="32" y2="16" stroke="white" strokeWidth="1.8" />
+                <line x1="32" y1="16" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                <line x1="14" y1="34" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                <circle cx="32" cy="16" r="4" fill="white" />
+                <circle cx="50" cy="34" r="4" fill="white" />
+                <circle cx="32" cy="52" r="4" fill="white" />
+                <circle cx="14" cy="34" r="4" fill="white" />
+                <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">App Security &amp; Perf Services</text>
+                <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">WAF with Rate Limiting</text>
+                <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Firewall for AI</text>
+                <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">API Protection</text>
+                <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Load Balancing</text>
+                <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Bot Management (with AI Crawl Control)</text>
+                <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">L7 DDoS Protection</text>
+                <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">CDN and DNS</text>
+                <text x="300" y="348" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Origin Shield</text>
+              </svg>
+              {/* Developer Services card */}
+              <svg viewBox="0 0 600 380" style={{ maxHeight: '370px', maxWidth: '400px', width: '100%' }}>
+                <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(251,173,65)" strokeWidth="2" />
+                <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(251,173,65)" />
+                <polyline points="22,16 10,34 22,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="42,16 54,34 42,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">Developer Services</text>
+                <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Serverless compute</text>
+                <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">AI inference</text>
+                <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Full stack applications</text>
+                <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Object &amp; key-value storage</text>
+                <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">SQL database</text>
+                <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Media optimization and delivery</text>
+                <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Agentic SDK and Workflows</text>
+                <text x="300" y="348" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">AI Gateway</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 13: Copy of Slide 12 ────────────────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-6">
+              <span className="font-bold">Protect</span> and <span className="font-bold">accelerate</span> websites and AI-enabled apps
+            </h2>
+            <div className="flex-1 flex flex-col items-center justify-center pb-4 gap-4">
+              {/* Three cards row */}
+              <div className="flex items-start justify-center gap-6 w-full">
+                {/* SASE & Workspace Security card */}
+                <svg viewBox="0 0 600 380" style={{ maxHeight: '330px', maxWidth: '400px', width: '100%' }}>
+                  <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(255,102,51)" strokeWidth="2" />
+                  <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(255,102,51)" />
+                  <path d="M32,13 L50,19 L50,33 C50,44 41,52 32,56 C23,52 14,44 14,33 L14,19 Z" fill="none" stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
+                  <rect x="22" y="25" width="20" height="14" rx="2" fill="none" stroke="white" strokeWidth="1.8" />
+                  <line x1="22" y1="30" x2="42" y2="30" stroke="white" strokeWidth="1.5" />
+                  <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">SASE &amp; Workspace Security</text>
+                  <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">ZTNA (with MCP Server Portals)</text>
+                  <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">SWG (with AI Usage Controls)</text>
+                  <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">CASB (with AI Posture Management)</text>
+                  <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Email Security</text>
+                  <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Data Loss Prevention</text>
+                  <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Remote Browser Isolation</text>
+                  <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Digital Experience Monitoring</text>
+                </svg>
+                {/* App Security & Perf Services card */}
+                <svg viewBox="0 0 600 380" style={{ maxHeight: '330px', maxWidth: '400px', width: '100%' }}>
+                  <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                  <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(246,130,31)" />
+                  <line x1="32" y1="16" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                  <line x1="50" y1="34" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                  <line x1="32" y1="52" x2="14" y2="34" stroke="white" strokeWidth="1.8" />
+                  <line x1="14" y1="34" x2="32" y2="16" stroke="white" strokeWidth="1.8" />
+                  <line x1="32" y1="16" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                  <line x1="14" y1="34" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                  <circle cx="32" cy="16" r="4" fill="white" />
+                  <circle cx="50" cy="34" r="4" fill="white" />
+                  <circle cx="32" cy="52" r="4" fill="white" />
+                  <circle cx="14" cy="34" r="4" fill="white" />
+                  <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">App Security &amp; Perf Services</text>
+                  <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">WAF with Rate Limiting</text>
+                  <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Firewall for AI</text>
+                  <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">API Protection</text>
+                  <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Load Balancing</text>
+                  <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Bot Management (with AI Crawl Control)</text>
+                  <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">L7 DDoS Protection</text>
+                  <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">CDN and DNS</text>
+                  <text x="300" y="348" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Origin Shield</text>
+                </svg>
+                {/* Developer Services card */}
+                <svg viewBox="0 0 600 380" style={{ maxHeight: '330px', maxWidth: '400px', width: '100%' }}>
+                  <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(251,173,65)" strokeWidth="2" />
+                  <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(251,173,65)" />
+                  <polyline points="22,16 10,34 22,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  <polyline points="42,16 54,34 42,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">Developer Services</text>
+                  <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Serverless compute</text>
+                  <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">AI inference</text>
+                  <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Full stack applications</text>
+                  <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Object &amp; key-value storage</text>
+                  <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">SQL database</text>
+                  <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Media optimization and delivery</text>
+                  <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Agentic SDK and Workflows</text>
+                  <text x="300" y="348" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">AI Gateway</text>
+                </svg>
+              </div>
+              {/* Network Services wide card */}
+              <svg viewBox="0 0 2000 140" style={{ width: '100%', maxWidth: '1248px', maxHeight: '88px' }}>
+                <defs>
+                  <linearGradient id="netServGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#C8102E" />
+                    <stop offset="100%" stopColor="rgb(246,130,31)" />
+                  </linearGradient>
+                </defs>
+                {/* Outer border */}
+                <rect x="1" y="1" width="1998" height="138" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                {/* Gradient header */}
+                <path d="M8,1 H1992 Q1999,1 1999,8 V68 H1 V8 Q1,1 8,1 Z" fill="url(#netServGrad)" />
+                {/* Globe icon */}
+                <circle cx="915" cy="34" r="20" fill="none" stroke="white" strokeWidth="2" />
+                <ellipse cx="915" cy="34" rx="20" ry="8" fill="none" stroke="white" strokeWidth="1.5" />
+                <ellipse cx="915" cy="34" rx="8" ry="20" fill="none" stroke="white" strokeWidth="1.5" />
+                <line x1="895" y1="34" x2="935" y2="34" stroke="white" strokeWidth="1.5" />
+                {/* Header title */}
+                <text x="950" y="43" fontSize="26" fontWeight="700" fill="white" fontFamily="sans-serif">Network Services</text>
+                {/* Service items */}
+                <text x="167" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Network-as-a-Service</text>
+                <text x="500" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Firewall-as-a-Service</text>
+                <text x="833" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">L3 &amp; L4 DDoS Protection</text>
+                <text x="1167" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Network Interconnect</text>
+                <text x="1500" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Smart Routing</text>
+                <text x="1833" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">IDS/IPS</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 14: Copy of Slide 13 ────────────────────────────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-6">
+              <span className="font-bold">Protect</span> and <span className="font-bold">accelerate</span> websites and AI-enabled apps
+            </h2>
+            <div className="flex-1 flex flex-col items-center justify-center pb-4 gap-4">
+              {/* Bordered box containing all cards + compliance footer */}
+              <div style={{ border: '2px solid rgb(246,130,31)', borderRadius: '12px', padding: '16px', width: '100%', maxWidth: '1248px', boxSizing: 'border-box' }}>
+                {/* Three cards row */}
+                <div className="flex items-start justify-center gap-6 w-full">
+                  {/* SASE & Workspace Security card */}
+                  <svg viewBox="0 0 600 380" style={{ maxHeight: '330px', maxWidth: '400px', width: '100%' }}>
+                    <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(255,102,51)" strokeWidth="2" />
+                    <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(255,102,51)" />
+                    <path d="M32,13 L50,19 L50,33 C50,44 41,52 32,56 C23,52 14,44 14,33 L14,19 Z" fill="none" stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
+                    <rect x="22" y="25" width="20" height="14" rx="2" fill="none" stroke="white" strokeWidth="1.8" />
+                    <line x1="22" y1="30" x2="42" y2="30" stroke="white" strokeWidth="1.5" />
+                    <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">SASE &amp; Workspace Security</text>
+                    <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">ZTNA (with MCP Server Portals)</text>
+                    <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">SWG (with AI Usage Controls)</text>
+                    <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">CASB (with AI Posture Management)</text>
+                    <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Email Security</text>
+                    <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Data Loss Prevention</text>
+                    <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Remote Browser Isolation</text>
+                    <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Digital Experience Monitoring</text>
+                  </svg>
+                  {/* App Security & Perf Services card */}
+                  <svg viewBox="0 0 600 380" style={{ maxHeight: '330px', maxWidth: '400px', width: '100%' }}>
+                    <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                    <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(246,130,31)" />
+                    <line x1="32" y1="16" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                    <line x1="50" y1="34" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                    <line x1="32" y1="52" x2="14" y2="34" stroke="white" strokeWidth="1.8" />
+                    <line x1="14" y1="34" x2="32" y2="16" stroke="white" strokeWidth="1.8" />
+                    <line x1="32" y1="16" x2="32" y2="52" stroke="white" strokeWidth="1.8" />
+                    <line x1="14" y1="34" x2="50" y2="34" stroke="white" strokeWidth="1.8" />
+                    <circle cx="32" cy="16" r="4" fill="white" />
+                    <circle cx="50" cy="34" r="4" fill="white" />
+                    <circle cx="32" cy="52" r="4" fill="white" />
+                    <circle cx="14" cy="34" r="4" fill="white" />
+                    <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">App Security &amp; Perf Services</text>
+                    <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">WAF with Rate Limiting</text>
+                    <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Firewall for AI</text>
+                    <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">API Protection</text>
+                    <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Load Balancing</text>
+                    <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Bot Management (with AI Crawl Control)</text>
+                    <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">L7 DDoS Protection</text>
+                    <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">CDN and DNS</text>
+                    <text x="300" y="348" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Origin Shield</text>
+                  </svg>
+                  {/* Developer Services card */}
+                  <svg viewBox="0 0 600 380" style={{ maxHeight: '330px', maxWidth: '400px', width: '100%' }}>
+                    <rect x="1" y="1" width="598" height="378" rx="8" fill="#FFF7ED" stroke="rgb(251,173,65)" strokeWidth="2" />
+                    <path d="M8,1 H592 Q599,1 599,8 V68 H1 V8 Q1,1 8,1 Z" fill="rgb(251,173,65)" />
+                    <polyline points="22,16 10,34 22,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <polyline points="42,16 54,34 42,52" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <text x="68" y="46" fontSize="28" fontWeight="700" fill="white" fontFamily="sans-serif">Developer Services</text>
+                    <text x="300" y="103" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Serverless compute</text>
+                    <text x="300" y="138" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">AI inference</text>
+                    <text x="300" y="173" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Full stack applications</text>
+                    <text x="300" y="208" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Object &amp; key-value storage</text>
+                    <text x="300" y="243" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">SQL database</text>
+                    <text x="300" y="278" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Media optimization and delivery</text>
+                    <text x="300" y="313" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">Agentic SDK and Workflows</text>
+                    <text x="300" y="348" textAnchor="middle" fontSize="25" fill="#1f2937" fontFamily="sans-serif">AI Gateway</text>
+                  </svg>
+                </div>
+                {/* Network Services wide card */}
+                <svg viewBox="0 0 2000 140" style={{ width: '100%', maxHeight: '88px', marginTop: '12px' }}>
+                  <defs>
+                    <linearGradient id="netServGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#C8102E" />
+                      <stop offset="100%" stopColor="rgb(246,130,31)" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="1" y="1" width="1998" height="138" rx="8" fill="#FFF7ED" stroke="rgb(246,130,31)" strokeWidth="2" />
+                  <path d="M8,1 H1992 Q1999,1 1999,8 V68 H1 V8 Q1,1 8,1 Z" fill="url(#netServGrad2)" />
+                  <circle cx="915" cy="34" r="20" fill="none" stroke="white" strokeWidth="2" />
+                  <ellipse cx="915" cy="34" rx="20" ry="8" fill="none" stroke="white" strokeWidth="1.5" />
+                  <ellipse cx="915" cy="34" rx="8" ry="20" fill="none" stroke="white" strokeWidth="1.5" />
+                  <line x1="895" y1="34" x2="935" y2="34" stroke="white" strokeWidth="1.5" />
+                  <text x="950" y="43" fontSize="26" fontWeight="700" fill="white" fontFamily="sans-serif">Network Services</text>
+                  <text x="167" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Network-as-a-Service</text>
+                  <text x="500" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Firewall-as-a-Service</text>
+                  <text x="833" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">L3 &amp; L4 DDoS Protection</text>
+                  <text x="1167" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Network Interconnect</text>
+                  <text x="1500" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">Smart Routing</text>
+                  <text x="1833" y="110" textAnchor="middle" fontSize="22" fontWeight="600" fill="#1f2937" fontFamily="sans-serif">IDS/IPS</text>
+                </svg>
+                {/* Compliance / Privacy footer */}
+                <div className="mt-3 pt-3 border-t border-orange-200 text-center">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-gray-900">Compliance/Privacy:</span> FedRAMP, ISO, SOC, PCI, GDPR compliant, Logs &amp; Analytics, Data Localization Suite.{' '}
+                    <a
+                      href="https://www.cloudflare.com/en-gb/trust-hub/compliance-resources/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-orange-600 underline hover:text-orange-800 font-medium"
+                    >
+                      Learn more about compliance
+                    </a>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
