@@ -306,7 +306,7 @@ function CorePrincipleCard({ row }: { row: PrincipleRowData }) {
   )
 }
 
-const TOTAL_SLIDES = 15
+const TOTAL_SLIDES = 17
 
 export default function GlobeSection() {
   const [slide, setSlide] = useState(0)
@@ -397,6 +397,15 @@ export default function GlobeSection() {
   }, [])
 
   const goTo = (idx: number) => setSlide(Math.max(0, Math.min(TOTAL_SLIDES - 1, idx)))
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') goTo(slide + 1)
+      else if (e.key === 'ArrowLeft') goTo(slide - 1)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [slide])
 
   const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX }
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -1251,6 +1260,29 @@ export default function GlobeSection() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* ── Slide 15: Cloudflare is built for what's next ─────────── */}
+        <div className="w-full flex-none h-full bg-white overflow-y-auto flex flex-col px-6 pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+            <h2 className="text-2xl md:text-3xl font-normal text-gray-900 mt-8 mb-6">
+              Cloudflare is <span className="font-bold">built for what's next</span>
+            </h2>
+            <div className="flex-1 flex items-center justify-center pb-6">
+              <img
+                src="/r2/Cloudflare_summarydiagram.png"
+                alt="Cloudflare Summary Diagram"
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Slide 16: Call to action ────────────────────────────────── */}
+        <div className="w-full flex-none h-full bg-white flex items-center justify-center px-6">
+          <p className="text-2xl md:text-3xl font-normal text-gray-900 text-center whitespace-nowrap">
+            Are you ready to explore some <span className="font-bold">use-cases</span> and see some <span className="font-bold">demos</span>?
+          </p>
         </div>
 
       </div>
