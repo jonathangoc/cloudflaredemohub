@@ -8,7 +8,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "hono": "^4.6.9"
+    "ai": "^6.0.137",
+    "hono": "^4.6.9",
+    "workers-ai-provider": "^3.1.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241106.0",

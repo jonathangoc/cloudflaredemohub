@@ -1,6 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
+import type { UIMessage } from 'ai'
 import {
   ArrowLeft,
   Send,
@@ -14,15 +17,6 @@ import {
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://demoaichatbot.jonathangoc.com'
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-  model?: string
-  tokens?: number
-  duration?: number
-}
 
 const CAP_COLORS: Record<string, string> = {
   'Reasoning':        'bg-purple-100 text-purple-700',
@@ -34,39 +28,39 @@ const CAP_COLORS: Record<string, string> = {
 
 const MODELS = [
   // Meta
-  { id: '@cf/meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout · 17B', company: 'Meta', caps: ['Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', label: 'Llama 3.3 · 70B FP8', company: 'Meta', caps: ['Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.2-11b-vision-instruct', label: 'Llama 3.2 · 11B Vision', company: 'Meta', caps: ['Vision', 'LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.2-3b-instruct', label: 'Llama 3.2 · 3B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.2-1b-instruct', label: 'Llama 3.2 · 1B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.1-8b-instruct-fast', label: 'Llama 3.1 · 8B Fast', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.1-8b-instruct', label: 'Llama 3.1 · 8B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.1-8b-instruct-fp8', label: 'Llama 3.1 · 8B FP8', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3.1-8b-instruct-awq', label: 'Llama 3.1 · 8B AWQ', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/meta/llama-3-8b-instruct', label: 'Llama 3 · 8B', company: 'Meta', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout · 17B', company: 'Meta', caps: ['Vision', 'Function calling', 'Batch'] },
+  { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', label: 'Llama 3.3 · 70B FP8', company: 'Meta', caps: ['Function calling', 'Batch'] },
+  { id: '@cf/meta/llama-3.2-11b-vision-instruct', label: 'Llama 3.2 · 11B Vision', company: 'Meta', caps: ['Vision', 'LoRA'] },
+  { id: '@cf/meta/llama-3.2-3b-instruct', label: 'Llama 3.2 · 3B', company: 'Meta', caps: [] },
+  { id: '@cf/meta/llama-3.2-1b-instruct', label: 'Llama 3.2 · 1B', company: 'Meta', caps: [] },
+  { id: '@cf/meta/llama-3.1-8b-instruct-fast', label: 'Llama 3.1 · 8B Fast', company: 'Meta', caps: [] },
+  { id: '@cf/meta/llama-3.1-8b-instruct', label: 'Llama 3.1 · 8B', company: 'Meta', caps: [] },
+  { id: '@cf/meta/llama-3.1-8b-instruct-fp8', label: 'Llama 3.1 · 8B FP8', company: 'Meta', caps: [] },
+  { id: '@cf/meta/llama-3.1-8b-instruct-awq', label: 'Llama 3.1 · 8B AWQ', company: 'Meta', caps: [] },
+  { id: '@cf/meta/llama-3-8b-instruct', label: 'Llama 3 · 8B', company: 'Meta', caps: [] },
   // OpenAI
-  { id: '@cf/openai/gpt-oss-120b', label: 'GPT OSS · 120B', company: 'OpenAI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/openai/gpt-oss-20b', label: 'GPT OSS · 20B', company: 'OpenAI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/openai/gpt-oss-120b', label: 'GPT OSS · 120B', company: 'OpenAI', caps: ['Reasoning', 'Function calling'] },
+  { id: '@cf/openai/gpt-oss-20b', label: 'GPT OSS · 20B', company: 'OpenAI', caps: ['Reasoning', 'Function calling'] },
   // Qwen
-  { id: '@cf/qwen/qwen3-30b-a3b-fp8', label: 'Qwen3 · 30B MoE', company: 'Qwen', caps: ['Reasoning', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/qwen/qwq-32b', label: 'QwQ · 32B', company: 'Qwen', caps: ['Reasoning', 'LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
-  { id: '@cf/qwen/qwen2.5-coder-32b-instruct', label: 'Qwen 2.5 Coder · 32B', company: 'Qwen', caps: ['LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/qwen/qwen3-30b-a3b-fp8', label: 'Qwen3 · 30B MoE', company: 'Qwen', caps: ['Reasoning', 'Function calling', 'Batch'] },
+  { id: '@cf/qwen/qwq-32b', label: 'QwQ · 32B', company: 'Qwen', caps: ['Reasoning', 'LoRA'] },
+  { id: '@cf/qwen/qwen2.5-coder-32b-instruct', label: 'Qwen 2.5 Coder · 32B', company: 'Qwen', caps: ['LoRA'] },
   // Google
-  { id: '@cf/google/gemma-3-12b-it', label: 'Gemma 3 · 12B', company: 'Google', caps: ['LoRA'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/google/gemma-3-12b-it', label: 'Gemma 3 · 12B', company: 'Google', caps: ['LoRA'] },
   // Mistral
-  { id: '@cf/mistral/mistral-small-3.1-24b-instruct', label: 'Mistral Small 3.1 · 24B', company: 'Mistral', caps: ['Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/mistral/mistral-small-3.1-24b-instruct', label: 'Mistral Small 3.1 · 24B', company: 'Mistral', caps: ['Function calling'] },
   // NVIDIA
-  { id: '@cf/nvidia/nemotron-3-120b-a12b', label: 'Nemotron 3 · 120B', company: 'NVIDIA', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/nvidia/nemotron-3-120b-a12b', label: 'Nemotron 3 · 120B', company: 'NVIDIA', caps: ['Reasoning', 'Function calling'] },
   // DeepSeek
-  { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', label: 'DeepSeek R1 · 32B', company: 'DeepSeek', caps: ['Reasoning'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', label: 'DeepSeek R1 · 32B', company: 'DeepSeek', caps: ['Reasoning'] },
   // IBM
-  { id: '@cf/ibm/granite-4.0-h-micro', label: 'Granite 4.0 · Micro', company: 'IBM', caps: ['Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/ibm/granite-4.0-h-micro', label: 'Granite 4.0 · Micro', company: 'IBM', caps: ['Function calling'] },
   // Zhipu AI
-  { id: '@cf/zhipuai/glm-4.7-flash', label: 'GLM-4.7 Flash', company: 'Zhipu AI', caps: ['Reasoning', 'Function calling'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/zhipuai/glm-4.7-flash', label: 'GLM-4.7 Flash', company: 'Zhipu AI', caps: ['Reasoning', 'Function calling'] },
   // AI Singapore
-  { id: '@cf/aisingapore/gemma-sea-lion-v4-27b-it', label: 'SEA-LION v4 · 27B', company: 'AI Singapore', caps: [], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/aisingapore/gemma-sea-lion-v4-27b-it', label: 'SEA-LION v4 · 27B', company: 'AI Singapore', caps: [] },
   // Moonshot AI
-  { id: '@cf/moonshot/kimi-k2.5', label: 'Kimi K2.5', company: 'Moonshot AI', caps: ['Reasoning', 'Vision', 'Function calling', 'Batch'], defaults: { max_tokens: 256, temperature: 0.6, top_p: 1 } },
+  { id: '@cf/moonshot/kimi-k2.5', label: 'Kimi K2.5', company: 'Moonshot AI', caps: ['Reasoning', 'Vision', 'Function calling', 'Batch'] },
 ]
 
 const USE_CASES = [
@@ -120,29 +114,46 @@ const SUGGESTIONS = [
   'Explain the difference between REST and GraphQL',
 ]
 
+interface MessageMeta {
+  timestamp: Date
+  model?: string
+  duration?: number
+}
+
 export default function AIChatPage() {
   const navigate = useNavigate()
-  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedModel, setSelectedModel] = useState(MODELS[0])
   const [showModelDropdown, setShowModelDropdown] = useState(false)
   const [openCategory, setOpenCategory] = useState<string | null>(null)
-  const [streamingContent, setStreamingContent] = useState('')
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [lastResponseJson, setLastResponseJson] = useState<object | null>(null)
+  const [chatId, setChatId] = useState(() => crypto.randomUUID())
+  const [messageMeta, setMessageMeta] = useState<Map<string, MessageMeta>>(new Map())
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const abortRef = useRef<AbortController | null>(null)
+  const startTimeRef = useRef<number>(0)
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [])
+  const transport = useMemo(
+    () => new DefaultChatTransport({
+      api: `${API_BASE}/api/chat`,
+      body: { model: selectedModel.id },
+    }),
+    [selectedModel.id]
+  )
+
+  const { messages, sendMessage: chatSend, status, stop, regenerate } = useChat({
+    id: chatId,
+    transport,
+  })
+
+  const isLoading = status === 'streaming' || status === 'submitted'
+  const isEmpty = messages.length === 0 && status === 'ready'
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, streamingContent, scrollToBottom])
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, status])
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -155,136 +166,34 @@ export default function AIChatPage() {
     t.style.height = t.scrollHeight + 'px'
   }, [input])
 
-  const sendMessage = useCallback(async (text?: string) => {
+  useEffect(() => {
+    if (status !== 'ready' || messages.length === 0) return
+    const lastMsg = messages[messages.length - 1]
+    if (lastMsg.role !== 'assistant' || messageMeta.has(lastMsg.id)) return
+    const textContent = lastMsg.parts
+      .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+      .map(p => p.text)
+      .join('')
+    const duration = Date.now() - startTimeRef.current
+    setMessageMeta(prev => { const m = new Map(prev); m.set(lastMsg.id, { timestamp: new Date(), model: selectedModel.label, duration }); return m })
+    setLastResponseJson({
+      object: 'chat.completion',
+      model: selectedModel.id,
+      role: 'assistant',
+      duration_ms: duration,
+      timestamp: new Date().toISOString(),
+      content: textContent,
+    })
+  }, [status])
+
+  const sendMessage = (text?: string) => {
     const content = (text || input).trim()
     if (!content || isLoading) return
-
-    const userMsg: Message = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content,
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMsg])
+    startTimeRef.current = Date.now()
     setInput('')
-    setIsLoading(true)
-    setStreamingContent('')
-
-    abortRef.current = new AbortController()
-    const startTime = Date.now()
-
-    try {
-      const history = messages.map((m) => ({ role: m.role, content: m.content }))
-      history.push({ role: 'user', content })
-
-      const res = await fetch(`${API_BASE}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, model: selectedModel.id, params: selectedModel.defaults }),
-        signal: abortRef.current.signal,
-      })
-
-      if (!res.ok) {
-        let errDetail = `Server error: ${res.status}`
-        try {
-          const errBody = await res.json() as { error?: string; details?: string }
-          if (errBody.error) errDetail = errBody.error
-          if (errBody.details) errDetail += ` — ${errBody.details}`
-        } catch { /* ignore parse failure */ }
-        throw new Error(errDetail)
-      }
-
-      const contentType = res.headers.get('content-type') || ''
-
-      if (contentType.includes('text/event-stream')) {
-        // Streaming SSE response
-        const reader = res.body!.getReader()
-        const decoder = new TextDecoder()
-        let accumulated = ''
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value, { stream: true })
-          const lines = chunk.split('\n')
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6)
-              if (data === '[DONE]') continue
-              try {
-                const parsed = JSON.parse(data)
-                if (parsed.response) {
-                  accumulated += parsed.response
-                  setStreamingContent(accumulated)
-                }
-              } catch {
-                // skip malformed JSON
-              }
-            }
-          }
-        }
-
-        const duration = Date.now() - startTime
-        const assistantMsg: Message = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: accumulated,
-          timestamp: new Date(),
-          model: selectedModel.label,
-          duration,
-        }
-        setMessages((prev) => [...prev, assistantMsg])
-        setLastResponseJson({
-          object: 'chat.completion',
-          model: selectedModel.id,
-          role: 'assistant',
-          duration_ms: duration,
-          timestamp: new Date().toISOString(),
-          parameters: { ...selectedModel.defaults, stream: true },
-          content: accumulated,
-        })
-      } else {
-        // JSON response fallback
-        const data = await res.json() as { response?: string; result?: { response?: string }; usage?: { total_tokens?: number } }
-        const duration = Date.now() - startTime
-        const assistantMsg: Message = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: data.response || data.result?.response || 'No response received.',
-          timestamp: new Date(),
-          model: selectedModel.label,
-          duration,
-          tokens: data.usage?.total_tokens,
-        }
-        setMessages((prev) => [...prev, assistantMsg])
-        setLastResponseJson({
-          object: 'chat.completion',
-          model: selectedModel.id,
-          role: 'assistant',
-          duration_ms: duration,
-          timestamp: new Date().toISOString(),
-          parameters: { ...selectedModel.defaults, stream: false },
-          content: assistantMsg.content,
-        })
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') return
-      const errorMsg: Message = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: `⚠️ **Connection error** — unable to reach the AI backend.\n\nMake sure the backend Worker is deployed at \`${API_BASE}\` and CORS is configured.\n\nError: \`${err instanceof Error ? err.message : 'Unknown error'}\``,
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, errorMsg])
-    } finally {
-      setIsLoading(false)
-      setStreamingContent('')
-      inputRef.current?.focus()
-    }
-  }, [input, isLoading, messages, selectedModel])
+    chatSend({ text: content })
+    inputRef.current?.focus()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -300,22 +209,16 @@ export default function AIChatPage() {
   }
 
   const clearChat = () => {
-    if (isLoading) {
-      abortRef.current?.abort()
-    }
-    setMessages([])
-    setStreamingContent('')
-    setIsLoading(false)
+    if (isLoading) stop()
+    setChatId(crypto.randomUUID())
+    setLastResponseJson(null)
+    setMessageMeta(new Map())
   }
 
   const retryLast = () => {
-    const lastUser = [...messages].reverse().find((m) => m.role === 'user')
-    if (!lastUser) return
-    setMessages((prev) => prev.slice(0, prev.findIndex((m) => m.id === lastUser.id)))
-    sendMessage(lastUser.content)
+    startTimeRef.current = Date.now()
+    regenerate()
   }
-
-  const isEmpty = messages.length === 0 && !isLoading
 
   return (
     <div className="flex flex-col h-screen bg-[#FAFAFA] overflow-hidden">
@@ -409,36 +312,24 @@ export default function AIChatPage() {
           <EmptyState onSuggestion={sendMessage} model={selectedModel.label} />
         ) : (
           <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-            {messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                onCopy={() => copyMessage(msg.id, msg.content)}
-                copied={copiedId === msg.id}
-              />
-            ))}
+            {messages.map((msg) => {
+              const textContent = msg.parts
+                .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+                .map(p => p.text)
+                .join('')
+              return (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  meta={messageMeta.get(msg.id)}
+                  onCopy={() => copyMessage(msg.id, textContent)}
+                  copied={copiedId === msg.id}
+                />
+              )
+            })}
 
-            {/* Streaming assistant response */}
-            {isLoading && streamingContent && (
-              <div className="flex gap-3">
-                <AssistantAvatar />
-                <div className="flex-1 min-w-0">
-                  <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                    <div className="prose-chat text-sm text-gray-800 leading-relaxed">
-                      <ReactMarkdown>{streamingContent}</ReactMarkdown>
-                    </div>
-                    <div className="mt-2 flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 bg-orange-400 rounded-full typing-dot" />
-                      <div className="w-1.5 h-1.5 bg-orange-400 rounded-full typing-dot" />
-                      <div className="w-1.5 h-1.5 bg-orange-400 rounded-full typing-dot" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Typing indicator (no content yet) */}
-            {isLoading && !streamingContent && (
+            {/* Typing indicator — waiting for first chunk */}
+            {status === 'submitted' && (
               <div className="flex gap-3">
                 <AssistantAvatar />
                 <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
@@ -630,14 +521,24 @@ function AssistantAvatar() {
 
 function MessageBubble({
   message,
+  meta,
   onCopy,
   copied,
 }: {
-  message: Message
+  message: UIMessage
+  meta?: MessageMeta
   onCopy: () => void
   copied: boolean
 }) {
   const isUser = message.role === 'user'
+  const textContent = message.parts
+    .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+    .map(p => p.text)
+    .join('')
+  const reasoningContent = message.parts
+    .filter((p): p is { type: 'reasoning'; text: string } => p.type === 'reasoning')
+    .map(p => p.text)
+    .join('')
 
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''} group`}>
@@ -654,11 +555,19 @@ function MessageBubble({
           `}
         >
           {isUser ? (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{textContent}</p>
           ) : (
-            <div className="prose-chat text-sm leading-relaxed">
-              <ReactMarkdown>{message.content}</ReactMarkdown>
-            </div>
+            <>
+              {reasoningContent && (
+                <div className="border-l-2 border-gray-200 pl-3 mb-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Reasoning</p>
+                  <p className="text-xs text-gray-400 italic leading-relaxed whitespace-pre-wrap">{reasoningContent}</p>
+                </div>
+              )}
+              <div className="prose-chat text-sm leading-relaxed">
+                <ReactMarkdown>{textContent}</ReactMarkdown>
+              </div>
+            </>
           )}
 
           {/* Copy button */}
@@ -678,12 +587,11 @@ function MessageBubble({
 
         {/* Metadata */}
         <div className={`flex items-center gap-3 mt-1.5 text-xs text-gray-300 ${isUser ? 'justify-end' : ''}`}>
-          <span>
-            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-          {message.model && <span className="font-mono">{message.model}</span>}
-          {message.duration && <span>{(message.duration / 1000).toFixed(1)}s</span>}
-          {message.tokens && <span>{message.tokens} tokens</span>}
+          {meta?.timestamp && (
+            <span>{meta.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          )}
+          {meta?.model && <span className="font-mono">{meta.model}</span>}
+          {meta?.duration && <span>{(meta.duration / 1000).toFixed(1)}s</span>}
         </div>
       </div>
     </div>

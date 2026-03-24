@@ -1,28 +1,16 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
-import { stream } from 'hono/streaming'
+import { streamText, convertToModelMessages } from 'ai'
+import { createWorkersAI } from 'workers-ai-provider'
 
 export interface Env {
   AI: Ai
 }
 
-interface ChatMessage {
-  role: 'system' | 'user' | 'assistant'
-  content: string
-}
-
-interface ChatParams {
-  max_tokens?: number
-  temperature?: number
-  top_p?: number
-}
-
 interface ChatRequest {
-  messages: ChatMessage[]
+  messages: unknown[]
   model?: string
-  stream?: boolean
-  params?: ChatParams
 }
 
 const ALLOWED_MODELS = new Set([
@@ -116,7 +104,7 @@ app.post('/api/chat', async (c) => {
     return c.json({ error: 'Invalid JSON body' }, 400)
   }
 
-  const { messages, model: requestedModel, stream: useStream = true, params } = body
+  const { messages, model: requestedModel } = body
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return c.json({ error: 'messages array is required and must not be empty' }, 400)
@@ -124,75 +112,28 @@ app.post('/api/chat', async (c) => {
 
   const model = requestedModel && ALLOWED_MODELS.has(requestedModel) ? requestedModel : DEFAULT_MODEL
 
-  const validRoles = new Set(['user', 'assistant', 'system'])
-  for (const msg of messages) {
-    if (!validRoles.has(msg.role) || typeof msg.content !== 'string') {
-      return c.json({ error: `Invalid message format: role must be user|assistant|system` }, 400)
-    }
-  }
-
-  const messagesWithSystem: ChatMessage[] = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    ...messages.filter((m) => m.role !== 'system'),
-  ]
-
   try {
-    if (useStream) {
-      c.header('Content-Type', 'text/event-stream')
-      c.header('Cache-Control', 'no-cache')
-      c.header('X-Model', model)
+    const workersai = createWorkersAI({ binding: c.env.AI })
 
+    const result = streamText({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const aiStream = await c.env.AI.run(model as any, {
-        messages: messagesWithSystem,
-        stream: true,
-        ...(params?.max_tokens !== undefined && { max_tokens: params.max_tokens }),
-        ...(params?.temperature !== undefined && { temperature: params.temperature }),
-        ...(params?.top_p !== undefined && { top_p: params.top_p }),
-      })
-
-      return stream(c, async (s) => {
-        const reader = (aiStream as ReadableStream).getReader()
-        const decoder = new TextDecoder()
-
-        s.onAbort(() => {
-          reader.cancel()
-        })
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) {
-            await s.write('data: [DONE]\n\n')
-            break
-          }
-          const text = decoder.decode(value, { stream: true })
-          const lines = text.split('\n').filter((l) => l.trim())
-          for (const line of lines) {
-            await s.write(line + '\n\n')
-          }
-        }
-      })
-    } else {
+      model: workersai(model as any),
+      system: SYSTEM_PROMPT,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result = await c.env.AI.run(model as any, {
-        messages: messagesWithSystem,
-        ...(params?.max_tokens !== undefined && { max_tokens: params.max_tokens }),
-        ...(params?.temperature !== undefined && { temperature: params.temperature }),
-        ...(params?.top_p !== undefined && { top_p: params.top_p }),
-      }) as { response: string }
+      messages: await convertToModelMessages(messages as any),
+    })
 
-      return c.json({
-        response: result.response,
-        model,
-        usage: {
-          prompt_tokens: null,
-          completion_tokens: null,
-          total_tokens: null,
-        },
-      }, 200, {
-        'X-Model': model,
-      })
-    }
+    const origin = c.req.header('Origin') ?? ''
+    const allowedOrigins = ['https://demo.jonathangoc.com', 'http://localhost:5173', 'http://localhost:4173']
+    const allowOrigin = allowedOrigins.includes(origin) ? origin : 'https://demo.jonathangoc.com'
+
+    const streamResponse = result.toUIMessageStreamResponse()
+    const headers = new Headers(streamResponse.headers)
+    headers.set('Access-Control-Allow-Origin', allowOrigin)
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    headers.set('X-Model', model)
+    return new Response(streamResponse.body, { status: streamResponse.status, headers })
   } catch (err: unknown) {
     console.error('Workers AI error:', err)
     return c.json(

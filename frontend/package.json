@@ -10,10 +10,12 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.139",
     "@cloudflare/ai-chat": "latest",
     "@cloudflare/kv-asset-handler": "^0.3.4",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "agents": "latest",
+    "ai": "^6.0.137",
     "cobe": "^2.0.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.462.0",
