@@ -52,6 +52,15 @@ const PLANS = [
   { label: 'Compare plans', href: 'https://www.cloudflare.com/plans/' },
 ]
 
+const DEMOS_ITEMS = [
+  { label: 'Secure AI-powered apps' },
+  { label: 'Discover and secure your APIs' },
+  { label: 'Prevent malicious bot activity' },
+  { label: 'Protect your most critical endpoints' },
+  { label: 'Augment security with threat intelligence' },
+  { label: 'Accelerate web content' },
+]
+
 const RESOURCES_GROUPS = [
   {
     heading: 'Learn',
@@ -87,6 +96,14 @@ export default function NavBar() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const handlePlatformClick = () => {
+    if (location.pathname === '/') {
+      document.getElementById('home-region-earth')?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      navigate('/', { state: { scrollToPlatform: true } })
+    }
+  }
+
   const handleDemosClick = () => {
     if (location.pathname === '/') {
       document.getElementById('demo-environments')?.scrollIntoView({ behavior: 'smooth' })
@@ -113,14 +130,12 @@ export default function NavBar() {
         <div className="hidden lg:flex items-center gap-1 mx-6">
 
           {/* Platform */}
-          <a
-            href="https://www.cloudflare.com/en-gb/connectivity-cloud/"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handlePlatformClick}
             className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
           >
             Platform
-          </a>
+          </button>
 
           {/* Products */}
           <div
@@ -237,12 +252,40 @@ export default function NavBar() {
           </div>
 
           {/* Demos */}
-          <button
-            onClick={handleDemosClick}
-            className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
+          <div
+            className="relative"
+            onMouseEnter={() => setOpenMenu('demos')}
+            onMouseLeave={() => setOpenMenu(null)}
           >
-            Demos
-          </button>
+            <button
+              className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                openMenu === 'demos' ? 'text-gray-900 bg-gray-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              Demos
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openMenu === 'demos' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openMenu === 'demos' && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2" style={{ width: 320 }}>
+                <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-5">
+                  <p className="text-[11px] font-bold tracking-widest text-[#F6821F] uppercase mb-4">Use Cases</p>
+                  <ul className="space-y-1">
+                    {DEMOS_ITEMS.map((item) => (
+                      <li key={item.label}>
+                        <button
+                          onClick={handleDemosClick}
+                          className="w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1.5 rounded-lg transition-colors"
+                        >
+                          {item.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* About */}
           <Link

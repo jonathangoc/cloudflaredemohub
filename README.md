@@ -17,10 +17,10 @@ cloudflaredemohub/
 │   │   └── index.css
 │   ├── wrangler.toml              # Deploy to demo.jonathangoc.com
 │   └── package.json
-└── backend/         # Hono.js + Cloudflare Workers AI
+└── AiChatBot/       # Hono.js + Cloudflare Workers AI
     ├── src/
     │   └── index.ts               # API routes
-    ├── wrangler.toml              # Deploy to demoai.jonathangoc.com
+    ├── wrangler.toml              # Deploy to demoaichatbot.jonathangoc.com
     └── package.json
 ```
 
@@ -42,21 +42,21 @@ npm install
 npm run dev                 # http://localhost:5173
 ```
 
-### Backend
+### AiChatBot
 
 ```bash
-cd backend
+cd AiChatBot
 npm install
 npm run dev                 # http://localhost:8787
 ```
 
-For local backend dev with Workers AI, you need to authenticate with Wrangler:
+For local AiChatBot dev with Workers AI, you need to authenticate with Wrangler:
 
 ```bash
 wrangler login
 ```
 
-Then run the backend with remote AI bindings:
+Then run AiChatBot with remote AI bindings:
 
 ```bash
 wrangler dev --remote
@@ -64,10 +64,10 @@ wrangler dev --remote
 
 ## Deployment
 
-### Backend (deploy first)
+### AiChatBot (deploy first)
 
 ```bash
-cd backend
+cd AiChatBot
 wrangler deploy --env production
 ```
 
@@ -123,5 +123,5 @@ Lists all available models.
 ## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite, Cloudflare Workers (static hosting)
-- **Backend**: Hono.js, Cloudflare Workers AI, TypeScript
+- **AiChatBot**: Hono.js, Cloudflare Workers AI, TypeScript
 - **Deployment**: Cloudflare Workers (global edge)

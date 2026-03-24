@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev:frontend": "npm run dev --prefix frontend",
-    "dev:backend": "npm run dev --prefix backend",
+    "dev:aichatbot": "npm run dev --prefix AiChatBot",
     "build:frontend": "npm run build --prefix frontend",
     "deploy:frontend": "npm run deploy --prefix frontend",
-    "deploy:backend": "npm run deploy --prefix backend",
-    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+    "deploy:aichatbot": "npm run deploy --prefix AiChatBot",
+    "install:all": "npm install --prefix frontend && npm install --prefix AiChatBot"
   }
 }

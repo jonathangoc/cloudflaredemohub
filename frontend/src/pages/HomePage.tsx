@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ArrowRight, Shield, Globe, Cpu, Database, Cloud } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -20,76 +20,76 @@ interface DemoCard {
 
 const demos: DemoCard[] = [
   {
-    id: 'ai-chat',
-    title: 'AI Chat',
-    description: 'Conversational AI powered by 25+ models — Llama 4, Qwen3, DeepSeek R1, Gemma 3, Mistral, and more — running on Cloudflare Workers AI at the edge.',
-    tag: 'Workers AI',
+    id: 'secure-ai-apps',
+    title: 'Secure AI-powered apps',
+    description: 'Secure your AI applications against misuse and protect model integrity. AI Security for Apps provides model-agnostic protection, integrated natively with Cloudflare\'s global edge network.',
+    tag: 'AI Gateway',
     tagColor: 'bg-orange-100 text-orange-700',
     icon: <Cpu className="w-6 h-6" />,
-    path: '/demo/ai-chat',
+    path: '/demo/secure-ai-apps',
     gradient: 'from-orange-500 to-amber-400',
-    available: true,
-    services: ['Workers AI', 'Llama 4', 'Qwen3', 'DeepSeek R1'],
-  },
-  {
-    id: 'ai-agent',
-    title: 'AI Agent',
-    description: 'A streaming chat agent powered by Cloudflare Agents SDK — calls server-side tools, executes client-side browser tools, and asks for user approval before sensitive actions.',
-    tag: 'Agents SDK',
-    tagColor: 'bg-violet-100 text-violet-700',
-    icon: <Cpu className="w-6 h-6" />,
-    path: '/demo/ai-agent',
-    gradient: 'from-violet-500 to-purple-400',
-    available: true,
-    services: ['Agents SDK', 'Durable Objects', 'Workers AI'],
-  },
-  {
-    id: 'r2-storage',
-    title: 'R2 Object Storage',
-    description: 'Upload, manage, and serve files globally with Cloudflare R2 — zero egress fees, S3-compatible cloud storage.',
-    tag: 'R2 Storage',
-    tagColor: 'bg-purple-100 text-purple-700',
-    icon: <Cloud className="w-6 h-6" />,
-    path: '/demo/r2-storage',
-    gradient: 'from-purple-500 to-violet-400',
     available: false,
-    services: ['R2', 'Workers', 'Hono.js'],
+    services: ['AI Gateway', 'Firewall for AI', 'Workers AI'],
   },
   {
-    id: 'd1-database',
-    title: 'D1 SQL Database',
-    description: 'Run SQL queries on Cloudflare D1 — a serverless SQLite-compatible database deployed at the edge globally.',
-    tag: 'D1 Database',
-    tagColor: 'bg-green-100 text-green-700',
-    icon: <Database className="w-6 h-6" />,
-    path: '/demo/d1-database',
-    gradient: 'from-green-500 to-emerald-400',
+    id: 'api-security',
+    title: 'Discover and secure your APIs',
+    description: 'APIs are more important than ever within application infrastructure. Gain a complete view of API usage and ensure APIs are not compromised or leaking data.',
+    tag: 'API Shield',
+    tagColor: 'bg-blue-100 text-blue-700',
+    icon: <Key className="w-6 h-6" />,
+    path: '/demo/api-security',
+    gradient: 'from-blue-500 to-indigo-400',
     available: false,
-    services: ['D1', 'Workers', 'Hono.js'],
+    services: ['API Shield', 'WAF', 'Workers'],
   },
   {
-    id: 'security',
-    title: 'Zero Trust Security',
-    description: 'Demonstrate Cloudflare\'s security capabilities including WAF, DDoS protection, and bot management in real-time.',
-    tag: 'Security',
+    id: 'bot-management',
+    title: 'Prevent malicious bot activity',
+    description: 'Cloudflare Bot Management uses advanced machine learning to identify and block unwanted bots.',
+    tag: 'Bot Management',
     tagColor: 'bg-red-100 text-red-700',
     icon: <Shield className="w-6 h-6" />,
-    path: '/demo/security',
+    path: '/demo/bot-management',
     gradient: 'from-red-500 to-rose-400',
     available: false,
-    services: ['WAF', 'Zero Trust', 'Workers'],
+    services: ['Bot Management', 'Workers AI', 'WAF'],
   },
   {
-    id: 'edge-network',
-    title: 'Edge Performance',
-    description: 'Visualize real-time edge performance metrics across Cloudflare\'s global network with latency measurements.',
-    tag: 'Network',
+    id: 'endpoint-protection',
+    title: 'Protect your most critical endpoints',
+    description: 'Block unwanted bots and authenticate real visitors with a frictionless Cloudflare CAPTCHA alternative, ensuring top-tier security without sacrificing your website\'s speed or user experience.',
+    tag: 'Turnstile',
+    tagColor: 'bg-violet-100 text-violet-700',
+    icon: <Lock className="w-6 h-6" />,
+    path: '/demo/endpoint-protection',
+    gradient: 'from-violet-500 to-purple-400',
+    available: false,
+    services: ['Turnstile', 'Zero Trust', 'Workers'],
+  },
+  {
+    id: 'threat-intelligence',
+    title: 'Augment security with threat intelligence',
+    description: 'Cloudflare enhances existing security measures with wide-ranging threat intelligence not available anywhere else.',
+    tag: 'Threat Intel',
     tagColor: 'bg-teal-100 text-teal-700',
-    icon: <Globe className="w-6 h-6" />,
-    path: '/demo/edge-network',
+    icon: <Eye className="w-6 h-6" />,
+    path: '/demo/threat-intelligence',
     gradient: 'from-teal-500 to-cyan-400',
     available: false,
-    services: ['Analytics', 'Workers', 'KV'],
+    services: ['Threat Intelligence', 'WAF', 'Analytics'],
+  },
+  {
+    id: 'accelerate-content',
+    title: 'Accelerate web content',
+    description: 'Cache static content, compress dynamic content, optimize images, and deliver video from the global Cloudflare network for the fastest possible load times.',
+    tag: 'CDN',
+    tagColor: 'bg-green-100 text-green-700',
+    icon: <Zap className="w-6 h-6" />,
+    path: '/demo/accelerate-content',
+    gradient: 'from-green-500 to-emerald-400',
+    available: false,
+    services: ['CDN', 'Argo Smart Routing', 'Workers'],
   },
 ]
 
@@ -102,6 +102,11 @@ export default function HomePage() {
     if (location.state?.scrollToDemos) {
       setTimeout(() => {
         document.getElementById('demo-environments')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+    if (location.state?.scrollToPlatform) {
+      setTimeout(() => {
+        document.getElementById('home-region-earth')?.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
   }, [])
@@ -143,9 +148,8 @@ export default function HomePage() {
       {/* Demo Grid */}
       <section id="demo-environments" className="py-20 px-6 snap-start">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Demo Environments</h2>
-            <p className="text-gray-500">Select a demo to explore its capabilities</p>
+          <div className="text-center mb-14 mt-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2">Select a use-case to explore Cloudflare's capabilities</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

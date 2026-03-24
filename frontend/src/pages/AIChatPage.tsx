@@ -13,7 +13,7 @@ import {
   RotateCcw,
 } from 'lucide-react'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://demoai.jonathangoc.com'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://demoaichatbot.jonathangoc.com'
 
 interface Message {
   id: string
