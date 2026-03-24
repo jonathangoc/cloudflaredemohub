@@ -64,9 +64,7 @@ const ALLOWED_MODELS = new Set([
 
 const DEFAULT_MODEL = '@cf/meta/llama-3.2-3b-instruct'
 
-const SYSTEM_PROMPT = `You are a helpful, knowledgeable AI assistant running on Cloudflare Workers AI at the edge. 
-You are part of the Cloudflare Demo Hub — an interactive platform showcasing Cloudflare Developer Platform capabilities.
-Be thorough, accurate, and friendly. Provide complete and detailed answers — do not truncate or cut off your response. Format code with markdown code blocks. Use clear structure with headers when helpful.`
+const SYSTEM_PROMPT = 'You are a friendly assistant.'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -148,9 +146,9 @@ app.post('/api/chat', async (c) => {
       const aiStream = await c.env.AI.run(model as any, {
         messages: messagesWithSystem,
         stream: true,
-        max_tokens: params?.max_tokens ?? 256,
-        temperature: params?.temperature ?? 0.6,
-        top_p: params?.top_p ?? 1,
+        ...(params?.max_tokens !== undefined && { max_tokens: params.max_tokens }),
+        ...(params?.temperature !== undefined && { temperature: params.temperature }),
+        ...(params?.top_p !== undefined && { top_p: params.top_p }),
       })
 
       return stream(c, async (s) => {
@@ -178,9 +176,9 @@ app.post('/api/chat', async (c) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await c.env.AI.run(model as any, {
         messages: messagesWithSystem,
-        max_tokens: params?.max_tokens ?? 256,
-        temperature: params?.temperature ?? 0.6,
-        top_p: params?.top_p ?? 1,
+        ...(params?.max_tokens !== undefined && { max_tokens: params.max_tokens }),
+        ...(params?.temperature !== undefined && { temperature: params.temperature }),
+        ...(params?.top_p !== undefined && { top_p: params.top_p }),
       }) as { response: string }
 
       return c.json({

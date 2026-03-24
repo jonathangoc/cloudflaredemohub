@@ -391,7 +391,7 @@ export default function AIChatPage() {
                       onClick={() => setInput(prompt)}
                       className={`w-full text-left px-3 py-2.5 text-[11px] text-gray-700 hover:bg-white/70 transition-colors leading-snug ${i > 0 ? `border-t ${cat.border}` : ''}`}
                     >
-                      {prompt.length > 80 ? prompt.slice(0, 80) + '…' : prompt}
+                      {prompt}
                     </button>
                   ))}
                 </div>
