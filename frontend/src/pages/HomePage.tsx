@@ -26,9 +26,9 @@ const demos: DemoCard[] = [
     tag: 'AI Gateway',
     tagColor: 'bg-orange-100 text-orange-700',
     icon: <Cpu className="w-6 h-6" />,
-    path: '/demo/secure-ai-apps',
+    path: '/demo/ai-chat',
     gradient: 'from-orange-500 to-amber-400',
-    available: false,
+    available: true,
     services: ['AI Gateway', 'Firewall for AI', 'Workers AI'],
   },
   {
@@ -203,8 +203,12 @@ function DemoCard({
             </span>
           )}
           {demo.available && (
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${demo.tagColor}`}>
-              {demo.tag}
+            <span className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-green-100 text-green-700">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+              </span>
+              Live
             </span>
           )}
         </div>

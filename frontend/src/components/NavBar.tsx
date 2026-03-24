@@ -53,7 +53,7 @@ const PLANS = [
 ]
 
 const DEMOS_ITEMS = [
-  { label: 'Secure AI-powered apps' },
+  { label: 'Secure AI-powered apps', path: '/demo/ai-chat' },
   { label: 'Discover and secure your APIs' },
   { label: 'Prevent malicious bot activity' },
   { label: 'Protect your most critical endpoints' },
@@ -274,7 +274,7 @@ export default function NavBar() {
                     {DEMOS_ITEMS.map((item) => (
                       <li key={item.label}>
                         <button
-                          onClick={handleDemosClick}
+                          onClick={() => item.path ? navigate(item.path) : handleDemosClick()}
                           className="w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1.5 rounded-lg transition-colors"
                         >
                           {item.label}

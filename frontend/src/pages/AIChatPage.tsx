@@ -6,7 +6,6 @@ import {
   Send,
   Trash2,
   Cpu,
-  ChevronDown,
   Sparkles,
   Copy,
   Check,
@@ -328,7 +327,7 @@ export default function AIChatPage() {
                 <Cpu className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-gray-900 leading-none">AI Chat</div>
+                <div className="text-sm font-semibold text-gray-900 leading-none">Secure AI-powered apps</div>
               </div>
             </div>
           </div>
@@ -356,107 +355,6 @@ export default function AIChatPage() {
         </div>
 
       </header>
-
-      {/* Workers AI description banner */}
-      <div className="flex-none border-b border-gray-100 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-gray-600 leading-relaxed">
-              <span className="font-semibold text-gray-800">Workers AI</span> allows you to run AI models in a serverless way, without having to worry about scaling, maintaining, or paying for unused infrastructure. You can invoke models running on GPUs on Cloudflare&apos;s network from your own code — from Workers, Pages, or anywhere via the Cloudflare API.{' '}
-              <a
-                href="https://developers.cloudflare.com/workers-ai/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-orange-600 hover:text-orange-700 font-medium underline underline-offset-2"
-              >
-                Learn more here
-              </a>.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { icon: '🤖', label: '50+ open-source models' },
-                { icon: '⚡', label: 'Serverless GPUs' },
-                { icon: '🌍', label: 'Edge GPU inference' },
-                { icon: '�', label: 'Pay-as-you-go' },
-              ].map((item) => (
-                <span
-                  key={item.label}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 rounded-full px-2.5 py-1"
-                >
-                  {item.icon} {item.label}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Model selector bar */}
-      <div className="flex-none border-b border-gray-200 bg-white px-4 py-2.5 relative z-40">
-        <button
-          onClick={() => setShowModelDropdown((p) => !p)}
-          className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-orange-50 border border-gray-200 hover:border-orange-300 rounded-xl transition-all"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-1.5 bg-gradient-to-br from-orange-500 to-amber-400 rounded-lg text-white flex-none">
-              <Sparkles className="w-3.5 h-3.5" />
-            </div>
-            <div className="text-left min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 leading-none mb-0.5">{selectedModel.company}</div>
-              <div className="text-sm font-semibold text-gray-900 leading-none">{selectedModel.label}</div>
-            </div>
-            <div className="hidden sm:flex flex-wrap gap-1">
-              {selectedModel.caps.slice(0, 3).map((cap) => (
-                <span key={cap} className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CAP_COLORS[cap] ?? 'bg-gray-100 text-gray-500'}`}>{cap}</span>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 flex-none">
-            <span className="hidden sm:block text-xs text-gray-400 font-medium">Change model</span>
-            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showModelDropdown ? 'rotate-180' : ''}`} />
-          </div>
-        </button>
-
-        {showModelDropdown && (() => {
-          const groups = MODELS.reduce<Record<string, typeof MODELS>>((acc, m) => {
-            ;(acc[m.company] ??= []).push(m)
-            return acc
-          }, {})
-          return (
-            <div className="absolute left-4 right-4 top-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl shadow-gray-300/50 z-50 overflow-hidden animate-fade-in">
-              <div className="max-h-96 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-x divide-gray-100">
-                {Object.entries(groups).map(([company, models]) => (
-                  <div key={company}>
-                    <div className="px-3 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 bg-gray-50 sticky top-0">
-                      {company}
-                    </div>
-                    {models.map((m) => (
-                      <button
-                        key={m.id}
-                        onClick={() => { setSelectedModel(m); setShowModelDropdown(false) }}
-                        className={`w-full text-left px-3 py-2.5 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-b-0 ${
-                          m.id === selectedModel.id ? 'bg-orange-50' : ''
-                        }`}
-                      >
-                        <div className="text-xs font-medium text-gray-900 flex items-center justify-between gap-1">
-                          <span className="truncate">{m.label}</span>
-                          {m.id === selectedModel.id && <div className="w-1.5 h-1.5 bg-orange-500 rounded-full flex-none" />}
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {m.caps.map((cap) => (
-                            <span key={cap} className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${CAP_COLORS[cap] ?? 'bg-gray-100 text-gray-500'}`}>{cap}</span>
-                          ))}
-                          {m.caps.length === 0 && <span className="text-[9px] text-gray-400">General</span>}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        })()}
-      </div>
 
       {/* Body: sidebar + chat + terminal */}
       <div className="flex flex-1 overflow-hidden">
@@ -584,6 +482,57 @@ export default function AIChatPage() {
               }}
               disabled={isLoading}
             />
+            {/* Compact model selector */}
+            <div className="relative flex-none">
+              <button
+                onClick={() => setShowModelDropdown((p) => !p)}
+                className={`p-2 rounded-xl transition-colors ${
+                  showModelDropdown ? 'bg-orange-100 text-orange-600' : 'text-gray-400 hover:bg-gray-100 hover:text-orange-500'
+                }`}
+                title={`Model: ${selectedModel.label}`}
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
+              {showModelDropdown && (() => {
+                const groups = MODELS.reduce<Record<string, typeof MODELS>>((acc, m) => {
+                  ;(acc[m.company] ??= []).push(m)
+                  return acc
+                }, {})
+                return (
+                  <div className="absolute right-0 bottom-full mb-2 bg-white border border-gray-200 rounded-2xl shadow-2xl shadow-gray-300/50 z-50 overflow-hidden animate-fade-in" style={{ width: 680 }}>
+                    <div className="max-h-96 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 divide-x divide-gray-100">
+                      {Object.entries(groups).map(([company, models]) => (
+                        <div key={company}>
+                          <div className="px-3 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 bg-gray-50 sticky top-0">
+                            {company}
+                          </div>
+                          {models.map((m) => (
+                            <button
+                              key={m.id}
+                              onClick={() => { setSelectedModel(m); setShowModelDropdown(false) }}
+                              className={`w-full text-left px-3 py-2.5 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-b-0 ${
+                                m.id === selectedModel.id ? 'bg-orange-50' : ''
+                              }`}
+                            >
+                              <div className="text-xs font-medium text-gray-900 flex items-center justify-between gap-1">
+                                <span className="truncate">{m.label}</span>
+                                {m.id === selectedModel.id && <div className="w-1.5 h-1.5 bg-orange-500 rounded-full flex-none" />}
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {m.caps.map((cap) => (
+                                  <span key={cap} className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${CAP_COLORS[cap] ?? 'bg-gray-100 text-gray-500'}`}>{cap}</span>
+                                ))}
+                                {m.caps.length === 0 && <span className="text-[9px] text-gray-400">General</span>}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
             <button
               onClick={() => sendMessage()}
               disabled={!input.trim() || isLoading}
