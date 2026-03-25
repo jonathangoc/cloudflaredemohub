@@ -113,31 +113,6 @@ app.post('/api/chat', async (c) => {
   const model = requestedModel && ALLOWED_MODELS.has(requestedModel) ? requestedModel : DEFAULT_MODEL
 
   try {
-    // WAF AI Security fields are Ruleset Engine fields — they are not available
-    // on request.cf in Workers. They must be injected as request headers via a
-    // Cloudflare "Modify Request Headers" Transform Rule on demoaichatbot.jonathangoc.com.
-    // Each header maps: x-cf-llm-<field> → cf.llm.prompt.<field>
-    const h = c.req.raw.headers
-    const parseBool = (v: string | null): boolean | null =>
-      v === 'true' ? true : v === 'false' ? false : null
-    const parseNum = (v: string | null): number | null => {
-      if (v === null) return null
-      const n = Number(v)
-      return isNaN(n) ? null : n
-    }
-    const parseList = (v: string | null): string[] | null =>
-      v ? v.split(',').map(s => s.trim()).filter(Boolean) : null
-    const wafDetections = {
-      'cf.llm.prompt.detected':                parseBool(h.get('x-waf-llm-detected')),
-      'cf.llm.prompt.pii_detected':            parseBool(h.get('x-waf-llm-pii-detected')),
-      'cf.llm.prompt.pii_categories':          parseList(h.get('x-waf-llm-pii-categories')),
-      'cf.llm.prompt.unsafe_topic_detected':   parseBool(h.get('x-waf-llm-unsafe-topic-detected')),
-      'cf.llm.prompt.unsafe_topic_categories': parseList(h.get('x-waf-llm-unsafe-topic-categories')),
-      'cf.llm.prompt.injection_score':         parseNum(h.get('x-waf-llm-injection-score')),
-      'cf.llm.prompt.token_count':             parseNum(h.get('x-waf-llm-token-count')),
-      'cf.llm.prompt.custom_topic_categories': parseList(h.get('x-waf-llm-custom-topic-categories')),
-    }
-
     const workersai = createWorkersAI({ binding: c.env.AI })
 
     const result = streamText({
@@ -157,9 +132,7 @@ app.post('/api/chat', async (c) => {
     headers.set('Access-Control-Allow-Origin', allowOrigin)
     headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    headers.set('Access-Control-Expose-Headers', 'X-Model, X-CF-WAF-Fields')
     headers.set('X-Model', model)
-    headers.set('X-CF-WAF-Fields', JSON.stringify(wafDetections))
     return new Response(streamResponse.body, { status: streamResponse.status, headers })
   } catch (err: unknown) {
     console.error('Workers AI error:', err)

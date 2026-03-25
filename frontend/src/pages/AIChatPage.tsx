@@ -136,8 +136,6 @@ export default function AIChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const startTimeRef = useRef<number>(0)
-  const wafFieldsRef = useRef<Record<string, unknown> | null>(null)
-
   const [wafBlockData, setWafBlockData] = useState<{ status: number; body: unknown } | null>(null)
   const setWafBlockRef = useRef(setWafBlockData)
   setWafBlockRef.current = setWafBlockData
@@ -147,7 +145,6 @@ export default function AIChatPage() {
       api: `${API_BASE}/api/chat`,
       body: { model: selectedModel.id },
       fetch: async (url, init) => {
-        wafFieldsRef.current = null
         if (init?.body && typeof init.body === 'string') {
           try {
             const parsed = JSON.parse(init.body)
@@ -165,10 +162,6 @@ export default function AIChatPage() {
           // the browser refuses to expose the response body.
           setWafBlockRef.current({ status: 403, body: null })
           throw new Error('Request blocked by WAF')
-        }
-        const wafHeader = response.headers.get('X-CF-WAF-Fields')
-        if (wafHeader) {
-          try { wafFieldsRef.current = JSON.parse(wafHeader) } catch { /* ignore */ }
         }
         if (response.status === 403) {
           try {
@@ -224,7 +217,6 @@ export default function AIChatPage() {
       duration_ms: duration,
       timestamp: new Date().toISOString(),
       content: textContent,
-      ...(wafFieldsRef.current && { waf_detections: wafFieldsRef.current }),
     })
   }, [status])
 
@@ -286,12 +278,12 @@ export default function AIChatPage() {
 
           <div className="flex items-center gap-2">
             <a
-              href="https://dash.cloudflare.com"
+              href="https://dash.cloudflare.com/?to=/:account/:zone/security/security-rules"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs bg-[#F6821F] text-white px-3 py-1.5 rounded-full hover:bg-[#E07010] transition-colors font-medium"
             >
-              Dashboard
+              Go to <strong>Security Rules</strong>
             </a>
 
             {messages.length > 0 && (
@@ -314,7 +306,7 @@ export default function AIChatPage() {
         {/* Left sidebar */}
         <aside className="hidden lg:flex flex-col w-64 flex-none border-r border-gray-200 bg-white overflow-y-auto">
           <div className="px-4 pt-4 pb-2">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Use-case Tests</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-900">AI Security Risks for Apps</p>
           </div>
           {USE_CASES.map((cat) => (
             <div key={cat.id} className="px-3 pb-1">
@@ -333,7 +325,7 @@ export default function AIChatPage() {
                   {cat.prompts.map((prompt, i) => (
                     <button
                       key={i}
-                      onClick={() => setInput(prompt)}
+                      onClick={() => { setInput(prompt); inputRef.current?.focus() }}
                       className={`w-full text-left px-3 py-2.5 text-[11px] text-gray-700 hover:bg-white/70 transition-colors leading-snug ${i > 0 ? `border-t ${cat.border}` : ''}`}
                     >
                       {prompt}
@@ -351,7 +343,7 @@ export default function AIChatPage() {
       {/* Messages */}
       <main className="flex-1 overflow-y-auto chat-scroll">
         {isEmpty ? (
-          <EmptyState onSuggestion={sendMessage} model={selectedModel.label} />
+          <EmptyState onSuggestion={sendMessage} />
         ) : (
           <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
             {messages.map((msg) => {
@@ -421,12 +413,13 @@ export default function AIChatPage() {
             <div className="relative flex-none">
               <button
                 onClick={() => setShowModelDropdown((p) => !p)}
-                className={`p-2 rounded-xl transition-colors ${
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl transition-colors text-xs font-medium ${
                   showModelDropdown ? 'bg-orange-100 text-orange-600' : 'text-gray-400 hover:bg-gray-100 hover:text-orange-500'
                 }`}
                 title={`Model: ${selectedModel.label}`}
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 flex-none" />
+                <span>{selectedModel.label}</span>
               </button>
               {showModelDropdown && (() => {
                 const groups = MODELS.reduce<Record<string, typeof MODELS>>((acc, m) => {
@@ -604,10 +597,10 @@ function WafBlockModal({
         </div>
 
         {/* JSON payload */}
-        <div className="bg-gray-950 px-4 py-4 overflow-auto max-h-72">
+        <div className="bg-white border-t border-gray-200 px-4 py-4 overflow-auto max-h-72">
           {data.body === null ? (
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-mono text-yellow-400">
+              <p className="text-[11px] font-mono text-yellow-600">
                 {'// WAF response body unavailable'}
               </p>
               <p className="text-[11px] font-mono text-gray-500 leading-relaxed">
@@ -627,24 +620,24 @@ function WafBlockModal({
                     const isBool = val === 'true' || val === 'false'
                     const isNull = val === 'null'
                     const valColor = isString
-                      ? 'text-green-400'
+                      ? 'text-green-700'
                       : isNumber
-                      ? 'text-orange-400'
+                      ? 'text-orange-600'
                       : isBool
-                      ? 'text-blue-400'
+                      ? 'text-blue-600'
                       : isNull
-                      ? 'text-gray-500'
-                      : 'text-gray-300'
+                      ? 'text-gray-400'
+                      : 'text-gray-700'
                     return (
                       <span key={i} className="block">
-                        <span className="text-gray-500">{indent}</span>
-                        <span className="text-red-400">{key}</span>
-                        <span className="text-gray-500">{colon}</span>
+                        <span className="text-gray-400">{indent}</span>
+                        <span className="text-red-700 font-medium">{key}</span>
+                        <span className="text-gray-400">{colon}</span>
                         <span className={valColor}>{val}</span>
                       </span>
                     )
                   }
-                  return <span key={i} className="block text-gray-500">{line}</span>
+                  return <span key={i} className="block text-gray-600 font-medium">{line}</span>
                 })
               }
             </pre>
@@ -758,10 +751,8 @@ function MessageBubble({
 
 function EmptyState({
   onSuggestion,
-  model,
 }: {
   onSuggestion: (text: string) => void
-  model: string
 }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-16 px-4 animate-fade-in">
@@ -770,9 +761,6 @@ function EmptyState({
       </div>
 
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Hi, I am your AI Chat Bot!</h2>
-      <p className="text-gray-500 text-sm text-center max-w-sm mb-2">
-        Ask anything — powered by <strong>{model}</strong> running at the edge on Cloudflare's global network.
-      </p>
       <div className="flex items-center gap-2 mb-10 text-xs text-gray-400">
         <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
         Ready · Inference at the edge
