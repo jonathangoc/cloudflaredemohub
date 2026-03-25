@@ -148,6 +148,15 @@ export default function AIChatPage() {
       body: { model: selectedModel.id },
       fetch: async (url, init) => {
         wafFieldsRef.current = null
+        if (init?.body && typeof init.body === 'string') {
+          try {
+            const parsed = JSON.parse(init.body)
+            if (Array.isArray(parsed.messages)) {
+              parsed.messages = parsed.messages.slice(-1)
+              init = { ...init, body: JSON.stringify(parsed) }
+            }
+          } catch { /* ignore */ }
+        }
         let response: Response
         try {
           response = await globalThis.fetch(url as RequestInfo, init as RequestInit)
