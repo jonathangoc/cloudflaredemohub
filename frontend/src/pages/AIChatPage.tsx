@@ -13,6 +13,8 @@ import {
   Copy,
   Check,
   RotateCcw,
+  ShieldAlert,
+  X,
 } from 'lucide-react'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://demoaichatbot.jonathangoc.com'
@@ -134,11 +136,41 @@ export default function AIChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const startTimeRef = useRef<number>(0)
+  const wafFieldsRef = useRef<Record<string, unknown> | null>(null)
+
+  const [wafBlockData, setWafBlockData] = useState<{ status: number; body: unknown } | null>(null)
+  const setWafBlockRef = useRef(setWafBlockData)
+  setWafBlockRef.current = setWafBlockData
 
   const transport = useMemo(
     () => new DefaultChatTransport({
       api: `${API_BASE}/api/chat`,
       body: { model: selectedModel.id },
+      fetch: async (url, init) => {
+        wafFieldsRef.current = null
+        let response: Response
+        try {
+          response = await globalThis.fetch(url as RequestInfo, init as RequestInit)
+        } catch {
+          // WAF blocked the request before CORS headers were applied —
+          // the browser refuses to expose the response body.
+          setWafBlockRef.current({ status: 403, body: null })
+          throw new Error('Request blocked by WAF')
+        }
+        const wafHeader = response.headers.get('X-CF-WAF-Fields')
+        if (wafHeader) {
+          try { wafFieldsRef.current = JSON.parse(wafHeader) } catch { /* ignore */ }
+        }
+        if (response.status === 403) {
+          try {
+            const text = await response.clone().text()
+            let body: unknown
+            try { body = JSON.parse(text) } catch { body = text }
+            setWafBlockRef.current({ status: 403, body })
+          } catch { /* ignore */ }
+        }
+        return response
+      },
     }),
     [selectedModel.id]
   )
@@ -183,6 +215,7 @@ export default function AIChatPage() {
       duration_ms: duration,
       timestamp: new Date().toISOString(),
       content: textContent,
+      ...(wafFieldsRef.current && { waf_detections: wafFieldsRef.current }),
     })
   }, [status])
 
@@ -507,6 +540,122 @@ export default function AIChatPage() {
         </aside>
 
       </div> {/* end body row */}
+
+      {/* WAF Block Modal */}
+      {wafBlockData && (
+        <WafBlockModal
+          data={wafBlockData}
+          onClose={() => setWafBlockData(null)}
+        />
+      )}
+    </div>
+  )
+}
+
+function WafBlockModal({
+  data,
+  onClose,
+}: {
+  data: { status: number; body: unknown }
+  onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-red-300">
+        {/* Header */}
+        <div className="bg-red-600 px-6 py-4 flex items-center gap-3">
+          <div className="flex-none w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <ShieldAlert className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold text-base leading-tight">Request Blocked by WAF</p>
+            <p className="text-red-200 text-xs mt-0.5">HTTP {data.status} Forbidden &middot; Cloudflare AI Security</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="flex-none text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Description */}
+        <div className="bg-red-50 px-6 py-3 border-b border-red-100">
+          <p className="text-sm text-red-800 leading-relaxed">
+            Cloudflare&apos;s AI Security WAF detected a policy violation in your message and blocked this request. The WAF response payload is shown below.
+          </p>
+        </div>
+
+        {/* JSON payload */}
+        <div className="bg-gray-950 px-4 py-4 overflow-auto max-h-72">
+          {data.body === null ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-[11px] font-mono text-yellow-400">
+                {'// WAF response body unavailable'}
+              </p>
+              <p className="text-[11px] font-mono text-gray-500 leading-relaxed">
+                {'// The WAF returned HTTP 403 without CORS headers,\n// so the browser blocked access to the response body.\n//\n// To expose the WAF payload, add an HTTP Response\n// Header Transform Rule in the Cloudflare dashboard:\n//\n//   Zone \u2192 Rules \u2192 Transform Rules \u2192 Modify Response Headers\n//   Field : Access-Control-Allow-Origin\n//   Value : https://demo.jonathangoc.com'}
+              </p>
+            </div>
+          ) : (
+            <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-all">
+              {JSON.stringify(data.body, null, 2)
+                .split('\n')
+                .map((line, i) => {
+                  const keyMatch = line.match(/^(\s*)("[^"]+")(: )(.*)$/)
+                  if (keyMatch) {
+                    const [, indent, key, colon, val] = keyMatch
+                    const isString = val.startsWith('"')
+                    const isNumber = /^-?\d/.test(val)
+                    const isBool = val === 'true' || val === 'false'
+                    const isNull = val === 'null'
+                    const valColor = isString
+                      ? 'text-green-400'
+                      : isNumber
+                      ? 'text-orange-400'
+                      : isBool
+                      ? 'text-blue-400'
+                      : isNull
+                      ? 'text-gray-500'
+                      : 'text-gray-300'
+                    return (
+                      <span key={i} className="block">
+                        <span className="text-gray-500">{indent}</span>
+                        <span className="text-red-400">{key}</span>
+                        <span className="text-gray-500">{colon}</span>
+                        <span className={valColor}>{val}</span>
+                      </span>
+                    )
+                  }
+                  return <span key={i} className="block text-gray-500">{line}</span>
+                })
+              }
+            </pre>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="bg-red-50 border-t border-red-100 px-6 py-4 flex items-center justify-between gap-3">
+          <p className="text-xs text-red-400">
+            Modify your message and try again.
+          </p>
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to AI Chat
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
