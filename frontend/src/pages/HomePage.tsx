@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -78,6 +78,18 @@ const demos: DemoCard[] = [
     gradient: 'from-teal-500 to-cyan-400',
     available: false,
     services: ['Threat Intelligence', 'WAF', 'Analytics'],
+  },
+  {
+    id: 'credential-stuffing',
+    title: 'Preventing Credential Stuffing Attacks',
+    description: 'Stop automated attacks that use stolen credential lists to gain unauthorised access to user accounts. Combine Bot Management, WAF rules, and Turnstile to block credential stuffing at the edge.',
+    tag: 'Bot Management',
+    tagColor: 'bg-indigo-100 text-indigo-700',
+    icon: <ShieldCheck className="w-6 h-6" />,
+    path: '/demo/credential-stuffing',
+    gradient: 'from-indigo-500 to-purple-400',
+    available: true,
+    services: ['Bot Management', 'WAF', 'Turnstile'],
   },
   {
     id: 'accelerate-content',
