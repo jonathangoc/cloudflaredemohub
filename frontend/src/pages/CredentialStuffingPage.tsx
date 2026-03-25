@@ -23,11 +23,6 @@ const DISPLAY_VALID_PASSWORD = 'PleaseDontHackMe'
 const DISPLAY_LEAKED_USERNAME = import.meta.env.VITE_EXPOSED_USERNAME ?? 'CF_EXPOSED_USERNAME@example.com'
 const DISPLAY_LEAKED_PASSWORD = import.meta.env.VITE_EXPOSED_PASSWORD ?? 'CF_EXPOSED_PASSWORD'
 
-async function sha256Hex(text: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
 interface Account {
   name: string
   email: string
@@ -115,11 +110,10 @@ function LoginView({ onLogin }: { onLogin: (account: Account, token: string) => 
     setError('')
     setIsLoading(true)
     try {
-      const passwordHash = await sha256Hex(password)
       const res = await fetch(`${AUTH_API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Username: username, Password: passwordHash }),
+        body: JSON.stringify({ Username: username, Password: password }),
       })
       const data = await res.json() as { token?: string; account?: Account; error?: string }
       if (!res.ok || !data.token || !data.account) {

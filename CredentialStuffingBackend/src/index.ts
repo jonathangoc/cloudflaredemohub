@@ -47,11 +47,6 @@ app.get('/api/health', (c) => {
 
 // --- Crypto helpers ---
 
-async function sha256Hex(text: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
 function b64url(obj: unknown): string {
   const bytes = new TextEncoder().encode(JSON.stringify(obj))
   let binary = ''
@@ -90,14 +85,14 @@ app.post('/api/auth/login', async (c) => {
 
   const jwtSecret = c.env.JWT_SECRET || 'dev-secret-change-in-production'
   const validUser = c.env.AUTH_VALID_USERNAME || 'jcarvalho@cloudflare.com'
+  const validPass = c.env.AUTH_VALID_PASSWORD || 'PleaseDontHackMe'
   const leakedUser = c.env.AUTH_LEAKED_USERNAME || 'CF_EXPOSED_USERNAME@example.com'
-  const validPassHash = await sha256Hex(c.env.AUTH_VALID_PASSWORD || 'PleaseDontHackMe')
-  const leakedPassHash = await sha256Hex(c.env.AUTH_LEAKED_PASSWORD || 'CF_EXPOSED_PASSWORD')
+  const leakedPass = c.env.AUTH_LEAKED_PASSWORD || 'CF_EXPOSED_PASSWORD'
 
   type AccountData = Record<string, string>
   let account: AccountData | null = null
 
-  if (Username === validUser && Password === validPassHash) {
+  if (Username === validUser && Password === validPass) {
     account = {
       name: 'Jonathan Carvalho',
       email: validUser,
@@ -109,7 +104,7 @@ app.post('/api/auth/login', async (c) => {
       accountNumber: 'ACC-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022-3391',
       avatarSeed: 'JonathanCarvalho',
     }
-  } else if (Username === leakedUser && Password === leakedPassHash) {
+  } else if (Username === leakedUser && Password === leakedPass) {
     account = {
       name: 'John Smith',
       email: leakedUser,
