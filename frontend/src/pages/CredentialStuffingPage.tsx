@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -9,12 +9,25 @@ import {
   Mail,
   CreditCard,
   ShieldCheck,
+  ShieldAlert,
   Eye,
   EyeOff,
   Calendar,
   Star,
   LogOut,
+  X,
 } from 'lucide-react'
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement | string, params: Record<string, unknown>) => string
+      reset: (widgetId: string) => void
+      remove: (widgetId: string) => void
+      getResponse: (widgetId: string) => string | undefined
+    }
+  }
+}
 
 const AUTH_API_BASE = import.meta.env.VITE_AUTH_API_URL ?? 'https://democredentialstuffing.jonathangoc.com'
 
@@ -59,6 +72,9 @@ export default function CredentialStuffingPage() {
   const [loggedInAccount, setLoggedInAccount] = useState<Account | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [exposedCredCheck, setExposedCredCheck] = useState<string | null>(null)
+  const [wafBlockData, setWafBlockData] = useState<{ status: number; body: unknown } | null>(null)
+  const setWafBlockRef = useRef(setWafBlockData)
+  setWafBlockRef.current = setWafBlockData
 
   const handleLogin = (account: Account, token: string, credCheck: string | null) => {
     setLoggedInAccount(account)
@@ -96,14 +112,24 @@ export default function CredentialStuffingPage() {
               <div className="text-sm font-semibold text-gray-900 leading-none">Preventing Credential Stuffing Attacks</div>
             </div>
           </div>
-          <a
-            href="https://dash.cloudflare.com/?to=/:account/:zone/security/security-rules"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs bg-[#F6821F] text-white px-3 py-1.5 rounded-full hover:bg-[#E07010] transition-colors font-medium"
-          >
-            Go to <strong>Security Rules</strong>
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://dash.cloudflare.com/?to=/:account/:zone/security/security-rules"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs bg-[#F6821F] text-white px-3 py-1.5 rounded-full hover:bg-[#E07010] transition-colors font-medium"
+            >
+              Go to <strong>Security Rules</strong>
+            </a>
+            <a
+              href="https://dash.cloudflare.com/?to=/:account/turnstile"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs bg-[#F6821F] text-white px-3 py-1.5 rounded-full hover:bg-[#E07010] transition-colors font-medium"
+            >
+              Go to <strong>Turnstile Analytics</strong>
+            </a>
+          </div>
         </div>
       </header>
 
@@ -112,34 +138,100 @@ export default function CredentialStuffingPage() {
           {loggedInAccount ? (
             <AccountView account={loggedInAccount} exposedCredCheck={exposedCredCheck} onLogout={handleLogout} />
           ) : (
-            <LoginView onLogin={handleLogin} />
+            <LoginView onLogin={handleLogin} onWafBlocked={(d) => setWafBlockRef.current(d)} />
           )}
         </div>
-      </div>
+      </div>{/* end flex-1 scroll */}
+
+      {/* WAF Block Modal */}
+      {wafBlockData && (
+        <WafBlockModal
+          data={wafBlockData}
+          onClose={() => setWafBlockData(null)}
+        />
+      )}
     </div>
   )
 }
 
-function LoginView({ onLogin }: { onLogin: (account: Account, token: string, credCheck: string | null) => void }) {
+function LoginView({
+  onLogin,
+  onWafBlocked,
+}: {
+  onLogin: (account: Account, token: string, credCheck: string | null) => void
+  onWafBlocked: (d: { status: number; body: unknown }) => void
+}) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const widgetIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    const sitekey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined
+    if (!sitekey) return
+    const render = () => {
+      if (!containerRef.current || widgetIdRef.current) return
+      widgetIdRef.current = window.turnstile!.render(containerRef.current, {
+        sitekey,
+        theme: 'auto',
+        action: 'login',
+        callback: (token: string) => setTurnstileToken(token),
+        'expired-callback': () => setTurnstileToken(null),
+        'error-callback': () => setTurnstileToken(null),
+      })
+    }
+    if (window.turnstile) {
+      render()
+    } else {
+      const id = setInterval(() => {
+        if (window.turnstile) { clearInterval(id); render() }
+      }, 100)
+      return () => clearInterval(id)
+    }
+    return () => {
+      if (widgetIdRef.current) {
+        window.turnstile?.remove(widgetIdRef.current)
+        widgetIdRef.current = null
+      }
+    }
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
+    let res: Response
     try {
-      const res = await fetch(`${AUTH_API_BASE}/api/auth/login`, {
+      res = await fetch(`${AUTH_API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Username: username, Password: password }),
+        body: JSON.stringify({ Username: username, Password: password, TurnstileToken: turnstileToken ?? '' }),
       })
+    } catch {
+      onWafBlocked({ status: 403, body: null })
+      setIsLoading(false)
+      return
+    }
+    if (res.status === 403) {
+      try {
+        const text = await res.clone().text()
+        let body: unknown
+        try { body = JSON.parse(text) } catch { body = text }
+        onWafBlocked({ status: 403, body })
+      } catch { onWafBlocked({ status: 403, body: null }) }
+      if (widgetIdRef.current) { window.turnstile?.reset(widgetIdRef.current); setTurnstileToken(null) }
+      setIsLoading(false)
+      return
+    }
+    try {
       const data = await res.json() as { token?: string; account?: Account; error?: string }
       if (!res.ok || !data.token || !data.account) {
         setError(data.error ?? 'Invalid username or password. Please try again.')
+        if (widgetIdRef.current) { window.turnstile?.reset(widgetIdRef.current); setTurnstileToken(null) }
       } else {
         const credCheck = res.headers.get('X-Exposed-Credential-Check')
         onLogin(data.account, data.token, credCheck)
@@ -279,11 +371,15 @@ function LoginView({ onLogin }: { onLogin: (account: Account, token: string, cre
               </div>
             )}
 
+            <div className="flex justify-center">
+              <div ref={containerRef} />
+            </div>
+
             <button
               type="submit"
-              disabled={isLoading || !username || !password}
+              disabled={isLoading || !username || !password || !turnstileToken}
               className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm ${
-                isLoading || !username || !password
+                isLoading || !username || !password || !turnstileToken
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-br from-indigo-500 to-purple-400 text-white hover:from-indigo-600 hover:to-purple-500 shadow-indigo-200'
               }`}
@@ -448,6 +544,91 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
         </div>
       )}
 
+    </div>
+  )
+}
+
+function WafBlockModal({
+  data,
+  onClose,
+}: {
+  data: { status: number; body: unknown }
+  onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative z-10 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-red-300">
+        <div className="bg-red-600 px-6 py-4 flex items-center gap-3">
+          <div className="flex-none w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <ShieldAlert className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold text-base leading-tight">Login Request Blocked by WAF</p>
+            <p className="text-red-200 text-xs mt-0.5">HTTP {data.status} Forbidden &middot; Cloudflare WAF</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="flex-none text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="bg-red-50 px-6 py-3 border-b border-red-100">
+          <p className="text-sm text-red-800 leading-relaxed">
+            Cloudflare&apos;s WAF detected and blocked this login request. The WAF response payload is shown below.
+          </p>
+        </div>
+        <div className="bg-white border-t border-gray-200 px-4 py-4 overflow-auto max-h-72">
+          {data.body === null ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-[11px] font-mono text-yellow-600">{'// WAF response body unavailable'}</p>
+              <p className="text-[11px] font-mono text-gray-500 leading-relaxed">
+                {'// The WAF returned HTTP 403 without CORS headers,\n// so the browser blocked access to the response body.\n//\n// To expose the WAF payload, add an HTTP Response\n// Header Transform Rule in the Cloudflare dashboard:\n//\n//   Zone \u2192 Rules \u2192 Transform Rules \u2192 Modify Response Headers\n//   Field : Access-Control-Allow-Origin\n//   Value : https://demo.jonathangoc.com'}
+              </p>
+            </div>
+          ) : (
+            <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-all">
+              {JSON.stringify(data.body, null, 2)
+                .split('\n')
+                .map((line, i) => {
+                  const keyMatch = line.match(/^(\s*)("[^"]+")(: )(.*)$/)
+                  if (keyMatch) {
+                    const [, indent, key, colon, val] = keyMatch
+                    const isString = val.startsWith('"')
+                    const isNumber = /^-?\d/.test(val)
+                    const isBool = val === 'true' || val === 'false'
+                    const isNull = val === 'null'
+                    const valColor = isString ? 'text-green-700' : isNumber ? 'text-orange-600' : isBool ? 'text-blue-600' : isNull ? 'text-gray-400' : 'text-gray-700'
+                    return (
+                      <span key={i} className="block">
+                        <span className="text-gray-400">{indent}</span>
+                        <span className="text-red-700 font-medium">{key}</span>
+                        <span className="text-gray-400">{colon}</span>
+                        <span className={valColor}>{val}</span>
+                      </span>
+                    )
+                  }
+                  return <span key={i} className="block text-gray-600 font-medium">{line}</span>
+                })}
+            </pre>
+          )}
+        </div>
+        <div className="bg-red-50 border-t border-red-100 px-6 py-4 flex items-center justify-between gap-3">
+          <p className="text-xs text-red-400">Modify your credentials and try again.</p>
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Login
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

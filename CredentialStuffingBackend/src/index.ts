@@ -10,6 +10,7 @@ export interface Env {
   AUTH_LEAKED_USERNAME: string
   AUTH_LEAKED_PASSWORD: string
   JWT_SECRET: string
+  TURNSTILE_SECRET_KEY: string
 }
 
 const app = new Hono<{ Bindings: Env }>()
@@ -48,6 +49,64 @@ app.get('/api/health', (c) => {
   })
 })
 
+// --- Turnstile validation ---
+
+interface TurnstileResult {
+  success: boolean
+  'error-codes'?: string[]
+  action?: string
+  hostname?: string
+  challenge_ts?: string
+}
+
+async function validateTurnstileWithRetry(
+  token: string,
+  secret: string,
+  remoteip: string,
+  expectedAction: string,
+  maxRetries = 3
+): Promise<{ valid: boolean; reason?: string }> {
+  const idempotencyKey = crypto.randomUUID()
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const formData = new FormData()
+      formData.append('secret', secret)
+      formData.append('response', token)
+      formData.append('remoteip', remoteip)
+      formData.append('idempotency_key', idempotencyKey)
+
+      const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await res.json() as TurnstileResult
+
+      if (!res.ok) {
+        if (attempt === maxRetries) return { valid: false, reason: 'siteverify_error' }
+        await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
+        continue
+      }
+
+      if (!result.success) {
+        return { valid: false, reason: result['error-codes']?.[0] ?? 'unknown' }
+      }
+
+      if (result.action && result.action !== expectedAction) {
+        return { valid: false, reason: 'action_mismatch' }
+      }
+
+      return { valid: true }
+    } catch {
+      if (attempt === maxRetries) return { valid: false, reason: 'internal_error' }
+      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
+    }
+  }
+
+  return { valid: false, reason: 'max_retries_exceeded' }
+}
+
 // --- Crypto helpers ---
 
 function b64url(obj: unknown): string {
@@ -74,16 +133,28 @@ async function signJWT(payload: Record<string, unknown>, secret: string): Promis
 // --- Auth routes ---
 
 app.post('/api/auth/login', async (c) => {
-  let body: { Username?: string; Password?: string }
+  let body: { Username?: string; Password?: string; TurnstileToken?: string }
   try {
     body = await c.req.json()
   } catch {
     return c.json({ error: 'Invalid JSON' }, 400)
   }
 
-  const { Username, Password } = body
+  const { Username, Password, TurnstileToken } = body
   if (!Username || !Password) {
     return c.json({ error: 'Username and Password are required' }, 400)
+  }
+
+  const turnstileSecret = c.env.TURNSTILE_SECRET_KEY
+  if (turnstileSecret) {
+    if (!TurnstileToken) {
+      return c.json({ error: 'CAPTCHA token missing. Please complete the verification.' }, 400)
+    }
+    const remoteip = c.req.header('CF-Connecting-IP') ?? ''
+    const check = await validateTurnstileWithRetry(TurnstileToken, turnstileSecret, remoteip, 'login')
+    if (!check.valid) {
+      return c.json({ error: 'CAPTCHA validation failed. Please try again.' }, 401)
+    }
   }
 
   const jwtSecret = c.env.JWT_SECRET || 'dev-secret-change-in-production'
