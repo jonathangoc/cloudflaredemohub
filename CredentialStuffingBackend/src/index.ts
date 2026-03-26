@@ -5,6 +5,8 @@ import { logger } from 'hono/logger'
 export interface Env {
   AUTH_VALID_USERNAME: string
   AUTH_VALID_PASSWORD: string
+  AUTH_SECOND_USERNAME: string
+  AUTH_SECOND_PASSWORD: string
   AUTH_LEAKED_USERNAME: string
   AUTH_LEAKED_PASSWORD: string
   JWT_SECRET: string
@@ -18,6 +20,7 @@ app.use(
     origin: ['https://demo.jonathangoc.com', 'http://localhost:5173', 'http://localhost:5175', 'http://localhost:4173'],
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
+    exposeHeaders: ['X-Exposed-Credential-Check'],
     maxAge: 86400,
   })
 )
@@ -86,6 +89,8 @@ app.post('/api/auth/login', async (c) => {
   const jwtSecret = c.env.JWT_SECRET || 'dev-secret-change-in-production'
   const validUser = c.env.AUTH_VALID_USERNAME || 'jcarvalho@cloudflare.com'
   const validPass = c.env.AUTH_VALID_PASSWORD || 'PleaseDontHackMe'
+  const secondUser = c.env.AUTH_SECOND_USERNAME || ''
+  const secondPass = c.env.AUTH_SECOND_PASSWORD || ''
   const leakedUser = c.env.AUTH_LEAKED_USERNAME || 'CF_EXPOSED_USERNAME@example.com'
   const leakedPass = c.env.AUTH_LEAKED_PASSWORD || 'CF_EXPOSED_PASSWORD'
 
@@ -104,6 +109,18 @@ app.post('/api/auth/login', async (c) => {
       accountNumber: 'ACC-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022-3391',
       avatarSeed: 'JonathanCarvalho',
     }
+  } else if (secondUser && Username === secondUser && Password === secondPass) {
+    account = {
+      name: 'Jonathan Gabriel Carvalho',
+      email: secondUser,
+      phone: '+44 7700 900142',
+      address: '22 Bishopsgate, London, EC2N 4BQ',
+      memberSince: 'August 2023',
+      plan: 'Standard',
+      cardLast4: '6017',
+      accountNumber: 'ACC-••••-••••-6017',
+      avatarSeed: 'JonathanGabrielCarvalho',
+    }
   } else if (Username === leakedUser && Password === leakedPass) {
     account = {
       name: 'John Smith',
@@ -120,6 +137,12 @@ app.post('/api/auth/login', async (c) => {
 
   if (!account) {
     return c.json({ error: 'Invalid credentials' }, 401)
+  }
+
+  // Forward the Exposed-Credential-Check header added by Cloudflare's managed transform
+  const exposedCredentialCheck = c.req.header('Exposed-Credential-Check')
+  if (exposedCredentialCheck) {
+    c.header('X-Exposed-Credential-Check', exposedCredentialCheck)
   }
 
   const now = Math.floor(Date.now() / 1000)

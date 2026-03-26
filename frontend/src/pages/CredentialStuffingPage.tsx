@@ -23,6 +23,25 @@ const DISPLAY_VALID_PASSWORD = 'PleaseDontHackMe'
 const DISPLAY_LEAKED_USERNAME = import.meta.env.VITE_EXPOSED_USERNAME ?? 'CF_EXPOSED_USERNAME@example.com'
 const DISPLAY_LEAKED_PASSWORD = import.meta.env.VITE_EXPOSED_PASSWORD ?? 'CF_EXPOSED_PASSWORD'
 
+const EXPOSED_CRED_MEANINGS: Record<string, { short: string; detail: string }> = {
+  '1': {
+    short: 'Username & password found in breach',
+    detail: 'Both the username and password combination were found together in a known data breach database.',
+  },
+  '2': {
+    short: 'Username found in breach',
+    detail: 'The username alone was found in a known data breach database.',
+  },
+  '3': {
+    short: 'Password is similar to username',
+    detail: 'The password is similar to the username, indicating a weak or predictable credential pair.',
+  },
+  '4': {
+    short: 'Password found in breach',
+    detail: 'The password alone was found in a known data breach database.',
+  },
+}
+
 interface Account {
   name: string
   email: string
@@ -39,10 +58,12 @@ export default function CredentialStuffingPage() {
   const navigate = useNavigate()
   const [loggedInAccount, setLoggedInAccount] = useState<Account | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [exposedCredCheck, setExposedCredCheck] = useState<string | null>(null)
 
-  const handleLogin = (account: Account, token: string) => {
+  const handleLogin = (account: Account, token: string, credCheck: string | null) => {
     setLoggedInAccount(account)
     setSessionToken(token)
+    setExposedCredCheck(credCheck)
   }
 
   const handleLogout = async () => {
@@ -54,6 +75,7 @@ export default function CredentialStuffingPage() {
     } catch { /* ignore */ }
     setLoggedInAccount(null)
     setSessionToken(null)
+    setExposedCredCheck(null)
   }
 
   return (
@@ -88,7 +110,7 @@ export default function CredentialStuffingPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {loggedInAccount ? (
-            <AccountView account={loggedInAccount} onLogout={handleLogout} />
+            <AccountView account={loggedInAccount} exposedCredCheck={exposedCredCheck} onLogout={handleLogout} />
           ) : (
             <LoginView onLogin={handleLogin} />
           )}
@@ -98,7 +120,7 @@ export default function CredentialStuffingPage() {
   )
 }
 
-function LoginView({ onLogin }: { onLogin: (account: Account, token: string) => void }) {
+function LoginView({ onLogin }: { onLogin: (account: Account, token: string, credCheck: string | null) => void }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -119,7 +141,8 @@ function LoginView({ onLogin }: { onLogin: (account: Account, token: string) => 
       if (!res.ok || !data.token || !data.account) {
         setError(data.error ?? 'Invalid username or password. Please try again.')
       } else {
-        onLogin(data.account, data.token)
+        const credCheck = res.headers.get('X-Exposed-Credential-Check')
+        onLogin(data.account, data.token, credCheck)
       }
     } catch {
       setError('Unable to reach the authentication server. Please try again.')
@@ -281,20 +304,13 @@ function LoginView({ onLogin }: { onLogin: (account: Account, token: string) => 
   )
 }
 
-function AccountView({ account, onLogout }: { account: Account; onLogout: () => void }) {
+function AccountView({ account, exposedCredCheck, onLogout }: { account: Account; exposedCredCheck: string | null; onLogout: () => void }) {
+  const meaning = exposedCredCheck ? EXPOSED_CRED_MEANINGS[exposedCredCheck] : null
   return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+    <div className={`${exposedCredCheck ? 'grid grid-cols-1 xl:grid-cols-2 gap-8 items-start' : 'max-w-3xl mx-auto'} animate-fade-in`}>
 
-      {/* Success banner */}
-      <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-5 py-4">
-        <ShieldCheck className="w-5 h-5 text-green-600 flex-none" />
-        <div>
-          <p className="text-sm font-semibold text-green-800">Login successful — account accessed</p>
-          <p className="text-xs text-green-600 mt-0.5">
-            In a credential stuffing attack, this is the moment an attacker gains full control of the victim's account.
-          </p>
-        </div>
-      </div>
+      {/* Left column */}
+      <div className="space-y-6">
 
       {/* Profile card */}
       <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
@@ -374,6 +390,63 @@ function AccountView({ account, onLogout }: { account: Account; onLogout: () => 
           ))}
         </div>
       </div>
+
+      </div>{/* end left column */}
+
+      {/* Right column — Exposed-Credential-Check terminal */}
+      {exposedCredCheck && (
+        <div className="xl:sticky xl:top-6 space-y-3">
+          <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-xl">
+            {/* Terminal title bar */}
+            <div className="bg-gray-900 px-4 py-2.5 flex items-center gap-2">
+              <div className="flex gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-red-500" />
+                <span className="w-3 h-3 rounded-full bg-yellow-400" />
+                <span className="w-3 h-3 rounded-full bg-green-500" />
+              </div>
+              <span className="text-xs text-gray-400 font-mono ml-2">Cloudflare — leaked credentials detection</span>
+            </div>
+            {/* Terminal body */}
+            <div className="bg-gray-950 px-5 py-5 font-mono text-sm space-y-4">
+              <div>
+                <p className="text-gray-500 text-xs mb-2">// Request header added by Cloudflare managed transform</p>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-blue-400">Exposed-Credential-Check</span>
+                  <span className="text-red-400 font-bold text-base">{exposedCredCheck}</span>
+                </div>
+              </div>
+              {meaning && (
+                <div className="border-t border-gray-800 pt-4">
+                  <p className="text-gray-500 text-xs mb-3">// Value reference</p>
+                  <div className="space-y-2">
+                    {Object.entries(EXPOSED_CRED_MEANINGS).map(([val, info]) => (
+                      <div key={val} className={`flex items-start gap-3 rounded-lg px-3 py-2 ${val === exposedCredCheck ? 'bg-red-950/60 ring-1 ring-red-700' : 'opacity-40'}`}>
+                        <span className={`flex-none font-bold text-base w-4 text-center ${val === exposedCredCheck ? 'text-red-400' : 'text-gray-500'}`}>{val}</span>
+                        <span className={`text-xs leading-relaxed ${val === exposedCredCheck ? 'text-red-200' : 'text-gray-500'}`}>{info.short}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {meaning && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-red-700 mb-2">What this means</p>
+              <p className="text-xs text-red-600 leading-relaxed">{meaning.detail}</p>
+              <a
+                href="https://developers.cloudflare.com/waf/detections/leaked-credentials/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 text-xs text-red-700 font-semibold hover:underline"
+              >
+                View docs →
+              </a>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   )
