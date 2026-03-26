@@ -122,6 +122,14 @@ export default function CredentialStuffingPage() {
               Go to <strong>Security Rules</strong>
             </a>
             <a
+              href="https://dash.cloudflare.com/add808ef3e2b76bd4cec9c8247455e46/log-explorer/dashboards/6b78d9f2-98a6-4eb3-9e6a-8450a1fff23b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs bg-[#F6821F] text-white px-3 py-1.5 rounded-full hover:bg-[#E07010] transition-colors font-medium"
+            >
+              Go to <strong>Log Explorer</strong>
+            </a>
+            <a
               href="https://dash.cloudflare.com/?to=/:account/turnstile"
               target="_blank"
               rel="noopener noreferrer"
@@ -333,8 +341,9 @@ function LoginView({
 
           <form onSubmit={handleLogin} className="px-8 py-8 space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
+              <label htmlFor="cs-username" className="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
               <input
+                id="cs-username"
                 type="text"
                 value={username}
                 onChange={e => { setUsername(e.target.value); setError('') }}
@@ -345,9 +354,10 @@ function LoginView({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
+              <label htmlFor="cs-password" className="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
               <div className="relative">
                 <input
+                  id="cs-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => { setPassword(e.target.value); setError('') }}

@@ -4,6 +4,14 @@ compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 account_id = "add808ef3e2b76bd4cec9c8247455e46"
 
+[[kv_namespaces]]
+binding = "ACCOUNT_ABUSE_USERS"
+id = "a8967eb2640044838055cdc68aa458f7"
+
+[[routes]]
+pattern = "demoaccountabuse.jonathangoc.com"
+custom_domain = true
+
 [env.production]
 name = "cloudflare-demo-hub-account-abuse"
 
