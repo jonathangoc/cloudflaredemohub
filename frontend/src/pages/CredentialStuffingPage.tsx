@@ -18,7 +18,7 @@ import {
 
 const AUTH_API_BASE = import.meta.env.VITE_AUTH_API_URL ?? 'https://democredentialstuffing.jonathangoc.com'
 
-const DISPLAY_VALID_USERNAME = 'jcarvalho@cloudflare.com'
+const DISPLAY_VALID_USERNAME = 'jcarvalho@myemail.com'
 const DISPLAY_VALID_PASSWORD = 'PleaseDontHackMe'
 const DISPLAY_LEAKED_USERNAME = import.meta.env.VITE_EXPOSED_USERNAME ?? 'CF_EXPOSED_USERNAME@example.com'
 const DISPLAY_LEAKED_PASSWORD = import.meta.env.VITE_EXPOSED_PASSWORD ?? 'CF_EXPOSED_PASSWORD'

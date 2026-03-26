@@ -87,7 +87,7 @@ app.post('/api/auth/login', async (c) => {
   }
 
   const jwtSecret = c.env.JWT_SECRET || 'dev-secret-change-in-production'
-  const validUser = c.env.AUTH_VALID_USERNAME || 'jcarvalho@cloudflare.com'
+  const validUser = c.env.AUTH_VALID_USERNAME || 'jcarvalho@myemail.com'
   const validPass = c.env.AUTH_VALID_PASSWORD || 'PleaseDontHackMe'
   const secondUser = c.env.AUTH_SECOND_USERNAME || ''
   const secondPass = c.env.AUTH_SECOND_PASSWORD || ''

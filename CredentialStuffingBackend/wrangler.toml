@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 name = "cloudflare-demo-hub-credential-stuffing"
 
 [env.production.vars]
-AUTH_VALID_USERNAME = "jcarvalho@cloudflare.com"
+AUTH_VALID_USERNAME = "jcarvalho@myemail.com"
 AUTH_SECOND_USERNAME = "jonathangabriel.carvalho@gmail.com"
 AUTH_LEAKED_USERNAME = "CF_EXPOSED_USERNAME@example.com"
 
