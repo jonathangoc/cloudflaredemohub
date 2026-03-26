@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -90,6 +90,18 @@ const demos: DemoCard[] = [
     gradient: 'from-indigo-500 to-purple-400',
     available: true,
     services: ['Bot Management', 'WAF', 'Turnstile'],
+  },
+  {
+    id: 'account-abuse',
+    title: 'Account Abuse Protection',
+    description: 'Fraud detection allows you to detect and mitigate account abuse among your traffic, specifically bulk account creation and account takeover attacks.',
+    tag: 'Bot Management',
+    tagColor: 'bg-rose-100 text-rose-700',
+    icon: <ShieldAlert className="w-6 h-6" />,
+    path: '/demo/account-abuse',
+    gradient: 'from-rose-500 to-orange-400',
+    available: true,
+    services: ['Bot Management', 'Turnstile', 'WAF', 'Workers KV'],
   },
   {
     id: 'accelerate-content',

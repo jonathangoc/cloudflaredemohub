@@ -11,6 +11,10 @@ AUTH_VALID_USERNAME = "jcarvalho@myemail.com"
 AUTH_SECOND_USERNAME = "jonathangabriel.carvalho@gmail.com"
 AUTH_LEAKED_USERNAME = "CF_EXPOSED_USERNAME@example.com"
 
+[[env.production.kv_namespaces]]
+binding = "ACCOUNT_ABUSE_USERS"
+id = "a8967eb2640044838055cdc68aa458f7"
+
 [[env.production.routes]]
 pattern = "democredentialstuffing.jonathangoc.com"
 custom_domain = true

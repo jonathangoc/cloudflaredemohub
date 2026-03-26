@@ -5,6 +5,7 @@ import AIChatPage from './pages/AIChatPage'
 import AIAgentPage from './pages/AIAgentPage'
 import AboutPage from './pages/AboutPage'
 import CredentialStuffingPage from './pages/CredentialStuffingPage'
+import AccountAbusePage from './pages/AccountAbusePage'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/demo/ai-chat" element={<AIChatPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/demo/credential-stuffing" element={<CredentialStuffingPage />} />
+        <Route path="/demo/account-abuse" element={<AccountAbusePage />} />
         <Route path="/demo/ai-agent" element={
           <Suspense fallback={
             <div className="h-screen flex items-center justify-center bg-gray-50">

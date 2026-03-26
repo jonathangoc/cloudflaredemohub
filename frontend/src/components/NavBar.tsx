@@ -55,6 +55,7 @@ const PLANS = [
 const DEMOS_ITEMS = [
   { label: 'Secure AI-powered apps', path: '/demo/ai-chat' },
   { label: 'Preventing Credential Stuffing Attacks', path: '/demo/credential-stuffing' },
+  { label: 'Account Abuse Protection', path: '/demo/account-abuse' },
   { label: 'Discover and secure your APIs' },
   { label: 'Prevent malicious bot activity' },
   { label: 'Protect your most critical endpoints' },

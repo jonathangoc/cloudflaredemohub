@@ -11,6 +11,7 @@ export interface Env {
   AUTH_LEAKED_PASSWORD: string
   JWT_SECRET: string
   TURNSTILE_SECRET_KEY: string
+  ACCOUNT_ABUSE_USERS: KVNamespace
 }
 
 const app = new Hono<{ Bindings: Env }>()
@@ -203,6 +204,27 @@ app.post('/api/auth/login', async (c) => {
       cardLast4: '4821',
       accountNumber: 'ACC-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022-7834',
       avatarSeed: 'JohnSmith',
+    }
+  }
+
+  // Check KV for dynamically registered users (Account Abuse demo)
+  if (!account && c.env.ACCOUNT_ABUSE_USERS) {
+    const kvUser = await c.env.ACCOUNT_ABUSE_USERS.get(`user:${Username.toLowerCase()}`)
+    if (kvUser) {
+      const parsed = JSON.parse(kvUser) as { name: string; email: string; password: string; createdAt: string }
+      if (parsed.password === Password) {
+        account = {
+          name: parsed.name,
+          email: parsed.email,
+          phone: 'N/A',
+          address: 'N/A',
+          memberSince: new Date(parsed.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          plan: 'Standard',
+          cardLast4: '0000',
+          accountNumber: 'ACC-••••-••••-0000',
+          avatarSeed: parsed.name.replace(/\s+/g, ''),
+        }
+      }
     }
   }
 
