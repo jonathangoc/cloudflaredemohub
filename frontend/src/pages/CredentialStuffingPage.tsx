@@ -16,6 +16,10 @@ import {
   Star,
   LogOut,
   X,
+  Upload,
+  CheckCircle,
+  AlertCircle,
+  FileText,
 } from 'lucide-react'
 
 declare global {
@@ -72,7 +76,7 @@ export default function CredentialStuffingPage() {
   const [loggedInAccount, setLoggedInAccount] = useState<Account | null>(null)
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [exposedCredCheck, setExposedCredCheck] = useState<string | null>(null)
-  const [wafBlockData, setWafBlockData] = useState<{ status: number; body: unknown } | null>(null)
+  const [wafBlockData, setWafBlockData] = useState<{ status: number; body: unknown; footerMessage?: string } | null>(null)
   const setWafBlockRef = useRef(setWafBlockData)
   setWafBlockRef.current = setWafBlockData
 
@@ -142,9 +146,9 @@ export default function CredentialStuffingPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           {loggedInAccount ? (
-            <AccountView account={loggedInAccount} exposedCredCheck={exposedCredCheck} onLogout={handleLogout} />
+            <AccountView account={loggedInAccount} exposedCredCheck={exposedCredCheck} onLogout={handleLogout} onWafBlocked={(d) => setWafBlockRef.current(d)} />
           ) : (
             <LoginView onLogin={handleLogin} onWafBlocked={(d) => setWafBlockRef.current(d)} />
           )}
@@ -410,19 +414,78 @@ function LoginView({
   )
 }
 
-function AccountView({ account, exposedCredCheck, onLogout }: { account: Account; exposedCredCheck: string | null; onLogout: () => void }) {
+function AccountView({ account, exposedCredCheck, onLogout, onWafBlocked }: { account: Account; exposedCredCheck: string | null; onLogout: () => void; onWafBlocked: (d: { status: number; body: unknown; footerMessage?: string }) => void }) {
   const meaning = exposedCredCheck ? EXPOSED_CRED_MEANINGS[exposedCredCheck] : null
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file)
+    setUploadState('idle')
+    setUploadedUrl(null)
+    setUploadError(null)
+  }
+
+  const handleUpload = async () => {
+    if (!selectedFile) return
+    setUploadState('uploading')
+    setUploadError(null)
+
+    let res: Response
+    try {
+      const fd = new FormData()
+      fd.append('file', selectedFile)
+      res = await fetch('/r2/upload', { method: 'POST', body: fd })
+    } catch {
+      onWafBlocked({ status: 403, body: null, footerMessage: 'Select another file and try again.' })
+      setUploadState('idle')
+      return
+    }
+
+    if (res.status === 403) {
+      let body: unknown = null
+      try {
+        const text = await res.text()
+        try { body = JSON.parse(text) } catch { body = text || null }
+      } catch { /* ignore */ }
+      onWafBlocked({ status: 403, body, footerMessage: 'Select another file and try again.' })
+      setUploadState('idle')
+      return
+    }
+
+    try {
+      const data = await res.json() as { success?: boolean; url?: string; error?: string }
+      if (!res.ok || !data.success) throw new Error(data.error ?? 'Upload failed')
+      setUploadedUrl(data.url ?? null)
+      setUploadState('success')
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed')
+      setUploadState('error')
+    }
+  }
+
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
   return (
     <div className={`${exposedCredCheck ? 'grid grid-cols-1 xl:grid-cols-2 gap-8 items-start' : 'max-w-3xl mx-auto'} animate-fade-in`}>
 
       {/* Left column */}
-      <div className="space-y-6">
+      <div className="space-y-3">
 
       {/* Profile card */}
       <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-400 h-28 relative">
-          <div className="absolute -bottom-10 left-8">
-            <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
+        <div className="bg-gradient-to-br from-indigo-500 to-purple-400 h-20 relative">
+          <div className="absolute -bottom-7 left-6">
+            <div className="w-14 h-14 rounded-2xl bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
               <img
                 src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${account.avatarSeed}&backgroundColor=b6e3f4`}
                 alt="Avatar"
@@ -440,11 +503,11 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
           </div>
         </div>
 
-        <div className="pt-14 px-8 pb-6">
+        <div className="pt-10 px-6 pb-3">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{account.name}</h2>
-              <p className="text-sm text-gray-500">{account.email}</p>
+              <h2 className="text-base font-bold text-gray-900">{account.name}</h2>
+              <p className="text-xs text-gray-500">{account.email}</p>
             </div>
             <button
               onClick={onLogout}
@@ -458,7 +521,7 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
       </div>
 
       {/* Details grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {[
           { icon: <Mail className="w-4 h-4" />, label: 'Email address', value: account.email },
           { icon: <Phone className="w-4 h-4" />, label: 'Phone number', value: account.phone },
@@ -467,8 +530,8 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
           { icon: <CreditCard className="w-4 h-4" />, label: 'Payment card', value: `•••• •••• •••• ${account.cardLast4}` },
           { icon: <User className="w-4 h-4" />, label: 'Account number', value: account.accountNumber },
         ].map(item => (
-          <div key={item.label} className="bg-white rounded-2xl border border-gray-200 px-5 py-4 flex items-start gap-3">
-            <div className="flex-none w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center mt-0.5">
+          <div key={item.label} className="bg-white rounded-2xl border border-gray-200 px-4 py-2.5 flex items-start gap-2">
+            <div className="flex-none w-7 h-7 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center mt-0.5">
               {item.icon}
             </div>
             <div className="min-w-0">
@@ -479,29 +542,100 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
         ))}
       </div>
 
-      {/* Threat summary */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-amber-700 mb-3">What Cloudflare would have blocked</p>
-        <div className="space-y-2">
-          {[
-            'Detected automated login attempts from a known bot network',
-            'Rate-limited requests exceeding 10 login attempts per second',
-            'Flagged IP addresses matching threat intelligence feeds',
-            'Challenged suspicious sessions with Turnstile CAPTCHA',
-          ].map(item => (
-            <div key={item} className="flex items-start gap-2 text-sm text-amber-800">
-              <ShieldCheck className="w-4 h-4 text-amber-500 flex-none mt-0.5" />
-              {item}
-            </div>
-          ))}
+      {/* File upload */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-3 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Upload a File</p>
+
+        {/* Drop zone */}
+        <div
+          className={`relative border-2 border-dashed rounded-xl p-3 flex flex-col items-center gap-2 cursor-pointer transition-colors ${dragOver ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f) }}
+        >
+          <Upload className="w-5 h-5 text-gray-400" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-700">Drop a file here or <span className="text-indigo-600">browse</span></p>
+            <p className="text-xs text-gray-400 mt-0.5">Stored in R2 → demoassets/contentupload</p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }}
+          />
         </div>
+
+        {/* Selected file info */}
+        {selectedFile && uploadState !== 'success' && (
+          <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
+            <FileText className="w-5 h-5 text-indigo-400 flex-none" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800 truncate">{selectedFile.name}</p>
+              <p className="text-xs text-gray-400">{formatBytes(selectedFile.size)}</p>
+            </div>
+            <button
+              onClick={() => { setSelectedFile(null); setUploadState('idle') }}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Upload button */}
+        {selectedFile && (uploadState === 'idle' || uploadState === 'error') && (
+          <button
+            onClick={handleUpload}
+            className="w-full py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors"
+          >
+            Upload to R2
+          </button>
+        )}
+
+        {/* Uploading */}
+        {uploadState === 'uploading' && (
+          <div className="flex items-center justify-center gap-2 py-2 text-sm text-indigo-600">
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+            Uploading…
+          </div>
+        )}
+
+        {/* Success */}
+        {uploadState === 'success' && uploadedUrl && (
+          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 space-y-1">
+            <div className="flex items-center gap-2 text-green-700">
+              <CheckCircle className="w-4 h-4 flex-none" />
+              <span className="text-sm font-semibold">File uploaded successfully</span>
+            </div>
+            <p className="text-xs text-green-600 font-mono break-all">{uploadedUrl}</p>
+            <button
+              onClick={() => { setSelectedFile(null); setUploadState('idle'); setUploadedUrl(null) }}
+              className="text-xs text-green-700 underline hover:no-underline mt-1"
+            >
+              Upload another
+            </button>
+          </div>
+        )}
+
+        {/* Error */}
+        {uploadState === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2 text-red-700">
+            <AlertCircle className="w-4 h-4 flex-none" />
+            <span className="text-sm">{uploadError}</span>
+          </div>
+        )}
       </div>
 
       </div>{/* end left column */}
 
       {/* Right column — Exposed-Credential-Check terminal */}
       {exposedCredCheck && (
-        <div className="xl:sticky xl:top-6 space-y-3">
+        <div className="xl:sticky xl:top-2 space-y-2">
           <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-xl">
             {/* Terminal title bar */}
             <div className="bg-gray-900 px-4 py-2.5 flex items-center gap-2">
@@ -513,7 +647,7 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
               <span className="text-xs text-gray-400 font-mono ml-2">Cloudflare — leaked credentials detection</span>
             </div>
             {/* Terminal body */}
-            <div className="bg-gray-950 px-5 py-5 font-mono text-sm space-y-4">
+            <div className="bg-gray-950 px-4 py-3 font-mono text-sm space-y-3">
               <div>
                 <p className="text-gray-500 text-xs mb-2">// Request header added by Cloudflare managed transform</p>
                 <div className="flex items-center justify-between gap-4">
@@ -538,7 +672,7 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
           </div>
 
           {meaning && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-3">
               <p className="text-xs font-bold uppercase tracking-widest text-red-700 mb-2">What this means</p>
               <p className="text-xs text-red-600 leading-relaxed">{meaning.detail}</p>
               <a
@@ -551,6 +685,59 @@ function AccountView({ account, exposedCredCheck, onLogout }: { account: Account
               </a>
             </div>
           )}
+
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-orange-700 mb-3">Recommended Actions For Preventing Credential Stuffing Attacks</p>
+            <ul className="space-y-2.5">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-orange-500 font-bold text-xs">→</span>
+                <a
+                  href="https://developers.cloudflare.com/waf/detections/leaked-credentials/examples/#rate-limit-suspicious-logins-with-leaked-credentials"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-orange-700 hover:underline leading-relaxed"
+                >
+                  Rate limit suspicious logins with leaked credentials
+                </a>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-orange-500 font-bold text-xs">→</span>
+                <a
+                  href="https://developers.cloudflare.com/waf/detections/leaked-credentials/examples/#challenge-requests-containing-leaked-credentials"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-orange-700 hover:underline leading-relaxed"
+                >
+                  Challenge requests containing leaked credentials
+                </a>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-orange-500 font-bold text-xs">→</span>
+                <a
+                  href="https://developers.cloudflare.com/waf/detections/leaked-credentials/#notify-your-origin-server"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-orange-700 hover:underline leading-relaxed"
+                >
+                  Notify the origin and request the user to change their credentials
+                </a>
+              </li>
+            </ul>
+            <p className="text-xs font-bold uppercase tracking-widest text-orange-700 mt-5 mb-3">Recommended Actions For Preventing Malicious Uploads</p>
+            <ul className="space-y-2.5">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 text-orange-500 font-bold text-xs">→</span>
+                <a
+                  href="https://developers.cloudflare.com/waf/detections/malicious-uploads/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-orange-700 hover:underline leading-relaxed"
+                >
+                  Stop Malware Reaching Your Origin
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       )}
 
@@ -562,7 +749,7 @@ function WafBlockModal({
   data,
   onClose,
 }: {
-  data: { status: number; body: unknown }
+  data: { status: number; body: unknown; footerMessage?: string }
   onClose: () => void
 }) {
   return (
@@ -629,7 +816,7 @@ function WafBlockModal({
           )}
         </div>
         <div className="bg-red-50 border-t border-red-100 px-6 py-4 flex items-center justify-between gap-3">
-          <p className="text-xs text-red-400">Modify your credentials and try again.</p>
+          <p className="text-xs text-red-400">{data.footerMessage ?? 'Modify your credentials and try again.'}</p>
           <button
             onClick={onClose}
             className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"

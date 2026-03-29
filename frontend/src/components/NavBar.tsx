@@ -56,6 +56,7 @@ const DEMOS_ITEMS = [
   { label: 'Secure AI-powered apps', path: '/demo/ai-chat' },
   { label: 'Preventing Credential Stuffing Attacks', path: '/demo/credential-stuffing' },
   { label: 'Account Abuse Protection', path: '/demo/account-abuse' },
+  { label: 'Content Scanning and Malware Protection', path: '/demo/credential-stuffing' },
   { label: 'Discover and secure your APIs' },
   { label: 'Prevent malicious bot activity' },
   { label: 'Protect your most critical endpoints' },
@@ -136,7 +137,7 @@ export default function NavBar() {
             onClick={handlePlatformClick}
             className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
           >
-            Platform
+            The Platform
           </button>
 
           {/* Products */}

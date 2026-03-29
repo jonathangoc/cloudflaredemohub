@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -102,6 +102,18 @@ const demos: DemoCard[] = [
     gradient: 'from-rose-500 to-orange-400',
     available: true,
     services: ['Bot Management', 'Turnstile', 'WAF', 'Workers KV'],
+  },
+  {
+    id: 'content-scanning',
+    title: 'Content Scanning and Malware Protection',
+    description: 'Detect and block malicious file uploads before they reach your origin. Cloudflare scans uploaded content at the edge, stopping malware, ransomware, and other threats without impacting performance.',
+    tag: 'WAF',
+    tagColor: 'bg-emerald-100 text-emerald-700',
+    icon: <ScanLine className="w-6 h-6" />,
+    path: '/demo/credential-stuffing',
+    gradient: 'from-emerald-500 to-teal-400',
+    available: true,
+    services: ['WAF', 'R2', 'Workers'],
   },
   {
     id: 'accelerate-content',

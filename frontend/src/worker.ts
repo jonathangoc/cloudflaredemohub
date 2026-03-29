@@ -12,6 +12,32 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url)
 
+    if (url.pathname === '/r2/upload' && request.method === 'POST') {
+      try {
+        const formData = await request.formData()
+        const file = formData.get('file')
+        if (!file || !(file instanceof File)) {
+          return new Response(JSON.stringify({ error: 'No file provided' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        const key = `contentupload/${safeName}`
+        await env.DemoR2Bucket.put(key, await file.arrayBuffer(), {
+          httpMetadata: { contentType: file.type || 'application/octet-stream' },
+        })
+        return new Response(JSON.stringify({ success: true, key, url: `/r2/${key}` }), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      } catch {
+        return new Response(JSON.stringify({ error: 'Upload failed' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     if (url.pathname.startsWith('/r2/')) {
       const key = url.pathname.replace('/r2/', '')
       const object = await env.DemoR2Bucket.get(key)
