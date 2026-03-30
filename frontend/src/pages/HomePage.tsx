@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, ChevronDown } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -30,6 +30,42 @@ const demos: DemoCard[] = [
     gradient: 'from-orange-500 to-amber-400',
     available: true,
     services: ['AI Gateway', 'Firewall for AI', 'Workers AI'],
+  },
+  {
+    id: 'credential-stuffing',
+    title: 'Preventing Credential Stuffing Attacks',
+    description: 'Stop automated attacks that use stolen credential lists to gain unauthorised access to user accounts. Combine Bot Management, WAF rules, and Turnstile to block credential stuffing at the edge.',
+    tag: 'Bot Management',
+    tagColor: 'bg-indigo-100 text-indigo-700',
+    icon: <ShieldCheck className="w-6 h-6" />,
+    path: '/demo/credential-stuffing',
+    gradient: 'from-indigo-500 to-purple-400',
+    available: true,
+    services: ['Bot Management', 'WAF', 'Turnstile'],
+  },
+  {
+    id: 'account-abuse',
+    title: 'Account Abuse Protection',
+    description: 'Fraud detection allows you to detect and mitigate account abuse among your traffic, specifically bulk account creation and account takeover attacks.',
+    tag: 'Bot Management',
+    tagColor: 'bg-rose-100 text-rose-700',
+    icon: <ShieldAlert className="w-6 h-6" />,
+    path: '/demo/account-abuse',
+    gradient: 'from-rose-500 to-orange-400',
+    available: true,
+    services: ['Bot Management', 'Turnstile', 'WAF', 'Workers KV'],
+  },
+  {
+    id: 'content-scanning',
+    title: 'Content Scanning and Malware Protection',
+    description: 'Detect and block malicious file uploads before they reach your origin. Cloudflare scans uploaded content at the edge, stopping malware, ransomware, and other threats without impacting performance.',
+    tag: 'WAF',
+    tagColor: 'bg-emerald-100 text-emerald-700',
+    icon: <ScanLine className="w-6 h-6" />,
+    path: '/demo/credential-stuffing',
+    gradient: 'from-emerald-500 to-teal-400',
+    available: true,
+    services: ['WAF', 'R2', 'Workers'],
   },
   {
     id: 'api-security',
@@ -78,42 +114,6 @@ const demos: DemoCard[] = [
     gradient: 'from-teal-500 to-cyan-400',
     available: false,
     services: ['Threat Intelligence', 'WAF', 'Analytics'],
-  },
-  {
-    id: 'credential-stuffing',
-    title: 'Preventing Credential Stuffing Attacks',
-    description: 'Stop automated attacks that use stolen credential lists to gain unauthorised access to user accounts. Combine Bot Management, WAF rules, and Turnstile to block credential stuffing at the edge.',
-    tag: 'Bot Management',
-    tagColor: 'bg-indigo-100 text-indigo-700',
-    icon: <ShieldCheck className="w-6 h-6" />,
-    path: '/demo/credential-stuffing',
-    gradient: 'from-indigo-500 to-purple-400',
-    available: true,
-    services: ['Bot Management', 'WAF', 'Turnstile'],
-  },
-  {
-    id: 'account-abuse',
-    title: 'Account Abuse Protection',
-    description: 'Fraud detection allows you to detect and mitigate account abuse among your traffic, specifically bulk account creation and account takeover attacks.',
-    tag: 'Bot Management',
-    tagColor: 'bg-rose-100 text-rose-700',
-    icon: <ShieldAlert className="w-6 h-6" />,
-    path: '/demo/account-abuse',
-    gradient: 'from-rose-500 to-orange-400',
-    available: true,
-    services: ['Bot Management', 'Turnstile', 'WAF', 'Workers KV'],
-  },
-  {
-    id: 'content-scanning',
-    title: 'Content Scanning and Malware Protection',
-    description: 'Detect and block malicious file uploads before they reach your origin. Cloudflare scans uploaded content at the edge, stopping malware, ransomware, and other threats without impacting performance.',
-    tag: 'WAF',
-    tagColor: 'bg-emerald-100 text-emerald-700',
-    icon: <ScanLine className="w-6 h-6" />,
-    path: '/demo/credential-stuffing',
-    gradient: 'from-emerald-500 to-teal-400',
-    available: true,
-    services: ['WAF', 'R2', 'Workers'],
   },
   {
     id: 'accelerate-content',
@@ -181,20 +181,50 @@ export default function HomePage() {
         <GlobeSection />
       </div>
 
-      {/* Demo Grid */}
-      <section id="demo-environments" className="py-20 px-6 snap-start">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14 mt-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2">Select a use-case to explore Cloudflare's capabilities</h2>
+      {/* Demo Grid — Page 1 (first 6) */}
+      <section id="demo-environments" className="h-screen overflow-hidden snap-start snap-always flex flex-col pt-20">
+        <div className="max-w-7xl mx-auto px-6 w-full py-6 flex flex-col h-full">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">Select a use-case to explore Cloudflare's capabilities</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {demos.map((demo, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {demos.slice(0, 6).map((demo, i) => (
               <DemoCard
                 key={demo.id}
                 demo={demo}
                 onClick={() => demo.available && navigate(demo.path)}
                 index={i}
+              />
+            ))}
+          </div>
+
+          <div className="text-center mt-6 flex-none">
+            <button
+              onClick={() => document.getElementById('demo-environments-2')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors group"
+            >
+              Click here for more demos
+              <ChevronDown className="w-4 h-4 animate-bounce" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Grid — Page 2 (remaining) */}
+      <section id="demo-environments-2" className="h-screen overflow-hidden snap-start snap-always flex flex-col pt-20">
+        <div className="max-w-7xl mx-auto px-6 w-full py-6">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">More use-cases coming soon</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {demos.slice(6).map((demo, i) => (
+              <DemoCard
+                key={demo.id}
+                demo={demo}
+                onClick={() => demo.available && navigate(demo.path)}
+                index={i + 6}
               />
             ))}
           </div>
@@ -220,7 +250,7 @@ function DemoCard({
       className={`
         group relative bg-white rounded-3xl p-6 border border-gray-200/80 overflow-hidden
         animate-slide-up
-        ${demo.available ? 'cursor-pointer card-hover' : 'opacity-60 cursor-default'}
+        ${demo.available ? 'cursor-pointer card-hover' : 'opacity-50 grayscale cursor-default'}
       `}
       style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
     >
