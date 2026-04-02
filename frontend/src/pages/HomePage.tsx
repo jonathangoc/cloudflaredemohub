@@ -68,6 +68,18 @@ const demos: DemoCard[] = [
     services: ['WAF', 'R2', 'Workers'],
   },
   {
+    id: 'waf',
+    title: 'Web Application Firewall',
+    description: 'Get automatic protection from vulnerabilities and the flexibility to create custom rules. Filter SQL injection, RCE, and XSS attacks at the Cloudflare edge before they reach your origin.',
+    tag: 'WAF',
+    tagColor: 'bg-blue-100 text-blue-700',
+    icon: <Shield className="w-6 h-6" />,
+    path: '/demo/waf',
+    gradient: 'from-blue-600 to-indigo-500',
+    available: true,
+    services: ['WAF', 'Managed Rules', 'Workers'],
+  },
+  {
     id: 'api-security',
     title: 'Discover and secure your APIs',
     description: 'APIs are more important than ever within application infrastructure. Gain a complete view of API usage and ensure APIs are not compromised or leaking data.',

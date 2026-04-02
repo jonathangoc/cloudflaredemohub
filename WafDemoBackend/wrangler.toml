@@ -1,0 +1,16 @@
+name = "cloudflare-demo-hub-waf"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+account_id = "add808ef3e2b76bd4cec9c8247455e46"
+
+[[routes]]
+pattern = "demowaf.jonathangoc.com"
+custom_domain = true
+
+[env.production]
+name = "cloudflare-demo-hub-waf"
+
+[[env.production.routes]]
+pattern = "demowaf.jonathangoc.com"
+custom_domain = true
