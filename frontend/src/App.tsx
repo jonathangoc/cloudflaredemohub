@@ -7,6 +7,7 @@ import AboutPage from './pages/AboutPage'
 import CredentialStuffingPage from './pages/CredentialStuffingPage'
 import AccountAbusePage from './pages/AccountAbusePage'
 import WAFPage from './pages/WAFPage'
+import AIGatewayPage from './pages/AIGatewayPage'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/demo/credential-stuffing" element={<CredentialStuffingPage />} />
         <Route path="/demo/account-abuse" element={<AccountAbusePage />} />
         <Route path="/demo/waf" element={<WAFPage />} />
+        <Route path="/demo/ai-gateway" element={<AIGatewayPage />} />
         <Route path="/demo/ai-agent" element={
           <Suspense fallback={
             <div className="h-screen flex items-center justify-center bg-gray-50">

@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, ChevronDown } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, ChevronDown, Network } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -78,6 +78,18 @@ const demos: DemoCard[] = [
     gradient: 'from-blue-600 to-indigo-500',
     available: true,
     services: ['WAF', 'Managed Rules', 'Workers'],
+  },
+  {
+    id: 'ai-gateway',
+    title: 'Observe and control your AI applications',
+    description: 'Connect any AI provider through a single universal endpoint. AI Gateway gives you real-time logs, cost analytics, semantic caching, rate limiting, and automatic fallbacks — so your AI applications stay reliable, observable, and cost-efficient at any scale.',
+    tag: 'AI Gateway',
+    tagColor: 'bg-amber-100 text-amber-700',
+    icon: <Network className="w-6 h-6" />,
+    path: '/demo/ai-gateway',
+    gradient: 'from-amber-500 to-yellow-400',
+    available: true,
+    services: ['AI Gateway', 'Workers AI', 'Analytics Engine'],
   },
   {
     id: 'api-security',

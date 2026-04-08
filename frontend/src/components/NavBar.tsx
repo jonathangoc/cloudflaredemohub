@@ -58,6 +58,7 @@ const DEMOS_ITEMS = [
   { label: 'Account Abuse Protection', path: '/demo/account-abuse' },
   { label: 'Content Scanning and Malware Protection', path: '/demo/credential-stuffing' },
   { label: 'Web Application Firewall', path: '/demo/waf' },
+  { label: 'Observe and control your AI applications', path: '/demo/ai-gateway' },
   { label: 'Discover and secure your APIs' },
   { label: 'Prevent malicious bot activity' },
   { label: 'Protect your most critical endpoints' },

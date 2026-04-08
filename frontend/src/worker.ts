@@ -6,11 +6,35 @@ const assetManifest = JSON.parse(manifestJSON)
 export interface Env {
   __STATIC_CONTENT: KVNamespace
   DemoR2Bucket: R2Bucket
+  CF_AIG_TOKEN: string
 }
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url)
+
+    if (url.pathname === '/api/aig' && (request.method === 'POST' || request.method === 'OPTIONS')) {
+      if (request.method === 'OPTIONS') {
+        return new Response(null, { status: 204 })
+      }
+      const GW_URL = 'https://gateway.ai.cloudflare.com/v1/add808ef3e2b76bd4cec9c8247455e46/default/compat/chat/completions'
+      const body = await request.text()
+      const metadata = request.headers.get('cf-aig-metadata') ?? '{}'
+      const upstream = await fetch(GW_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+          'Content-Type': 'application/json',
+          'cf-aig-metadata': metadata,
+        },
+        body,
+      })
+      const data = await upstream.text()
+      return new Response(data, {
+        status: upstream.status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
 
     if (url.pathname === '/r2/upload' && request.method === 'POST') {
       try {
