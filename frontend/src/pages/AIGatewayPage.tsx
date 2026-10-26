@@ -231,7 +231,8 @@ function ChatBubble({ msg }: { msg: Message }) {
 export default function AIGatewayPage() {
   const navigate = useNavigate()
   const [messages, setMessages] = useState<Message[]>([])
-  const [loading, setLoading] = useState(false)
+  const [pendingCount, setPendingCount] = useState(0)
+  const loading = pendingCount > 0
   const [error, setError] = useState<string | null>(null)
   const [plan, setPlan] = useState<'premium' | 'free'>('premium')
   const [email, setEmail] = useState('user@example.com')
@@ -259,12 +260,11 @@ export default function AIGatewayPage() {
 
   const send = useCallback(async () => {
     const text = input.trim()
-    if (!text || loading) return
+    if (!text) return
     const userMsg: Message = { role: 'user', content: text }
-    const history = [...messages, userMsg]
-    setMessages(history)
+    setMessages(prev => [...prev, userMsg])
     setInput('')
-    setLoading(true)
+    setPendingCount(c => c + 1)
     setError(null)
     try {
       const res = await fetch('/api/aig', {
@@ -273,7 +273,7 @@ export default function AIGatewayPage() {
           'Content-Type': 'application/json',
           'cf-aig-metadata': JSON.stringify({ plan, email: email.trim() || undefined }),
         },
-        body: JSON.stringify({ model: MODEL, messages: history }),
+        body: JSON.stringify({ model: MODEL, messages: [userMsg] }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({})) as { error?: string; message?: string }
@@ -286,9 +286,9 @@ export default function AIGatewayPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Request failed')
     } finally {
-      setLoading(false)
+      setPendingCount(c => c - 1)
     }
-  }, [input, loading, messages, plan, email])
+  }, [input, plan, email])
 
   return (
     <div className="h-screen flex flex-col bg-[#FAFAFA] overflow-hidden">
@@ -392,7 +392,7 @@ export default function AIGatewayPage() {
           <div className="flex-none border-t border-gray-100 bg-white px-3 pb-3 pt-2.5 space-y-2">
             <div className="flex flex-wrap gap-1">
               {EXAMPLE_PROMPTS.map(p => (
-                <button key={p} onClick={() => { setInput(p); inputRef.current?.focus() }} disabled={loading}
+                <button key={p} onClick={() => { setInput(p); inputRef.current?.focus() }}
                   className="text-[11px] bg-gray-100 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 text-gray-600 border border-gray-200 px-2 py-0.5 rounded-full transition-colors disabled:opacity-40">
                   {p}
                 </button>
@@ -401,9 +401,9 @@ export default function AIGatewayPage() {
             <div className="flex gap-2 items-end">
               <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-                placeholder="Send a message… (Enter to send)" rows={2} disabled={loading}
-                className="flex-1 resize-none text-sm rounded-xl border border-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400 transition-all placeholder-gray-400 disabled:opacity-60" />
-              <button onClick={send} disabled={!input.trim() || loading}
+                placeholder="Send a message… (Enter to send)" rows={2}
+                className="flex-1 resize-none text-sm rounded-xl border border-gray-200 px-3 py-2 outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400 transition-all placeholder-gray-400" />
+              <button onClick={send} disabled={!input.trim()}
                 className="flex-none flex items-center gap-1.5 px-3.5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-400 text-white text-sm font-semibold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
