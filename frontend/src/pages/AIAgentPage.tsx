@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 import {
   ArrowLeft, Bot, Cloud, Globe, Calculator, CheckCircle,
   XCircle, AlertTriangle, ChevronDown, Loader2, Send, Trash2, Sparkles,
@@ -394,13 +395,13 @@ function MessageRow({
             return (
               <div
                 key={i}
-                className={`px-4 py-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`px-4 py-3 rounded-2xl shadow-sm max-w-[85%] text-sm leading-relaxed ${
                   isUser
-                    ? 'bg-gradient-to-br from-violet-500 to-purple-400 text-white rounded-tr-sm'
-                    : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'
+                    ? 'bg-gradient-to-br from-violet-500 to-purple-400 text-white rounded-tr-sm whitespace-pre-wrap'
+                    : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm prose-chat'
                 }`}
               >
-                {part.text}
+                {isUser ? part.text : <ReactMarkdown>{part.text}</ReactMarkdown>}
               </div>
             )
           }

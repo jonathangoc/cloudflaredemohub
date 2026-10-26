@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 import {
   ArrowLeft, Network, Send, Trash2, Crown, User, Loader2,
   Sparkles, Mail, ChevronRight, ZoomIn, ZoomOut, Maximize2,
@@ -222,7 +223,9 @@ function ChatBubble({ msg }: { msg: Message }) {
       <div className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
         isUser ? 'bg-gray-900 text-white rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
       }`}>
-        {msg.content}
+        {isUser ? <span className="whitespace-pre-wrap">{msg.content}</span> : (
+          <div className="prose-chat"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+        )}
       </div>
     </div>
   )

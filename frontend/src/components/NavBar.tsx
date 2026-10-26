@@ -52,18 +52,43 @@ const PLANS = [
   { label: 'Compare plans', href: 'https://www.cloudflare.com/plans/' },
 ]
 
-const DEMOS_ITEMS = [
-  { label: 'Secure AI-powered apps', path: '/demo/ai-chat' },
-  { label: 'Preventing Credential Stuffing Attacks', path: '/demo/credential-stuffing' },
-  { label: 'Account Abuse Protection', path: '/demo/account-abuse' },
-  { label: 'Content Scanning and Malware Protection', path: '/demo/credential-stuffing' },
-  { label: 'Web Application Firewall', path: '/demo/waf' },
-  { label: 'Observe and control your AI applications', path: '/demo/ai-gateway' },
-  { label: 'Discover and secure your APIs' },
-  { label: 'Prevent malicious bot activity' },
-  { label: 'Protect your most critical endpoints' },
-  { label: 'Augment security with threat intelligence' },
-  { label: 'Accelerate web content' },
+const DEMOS_GROUPS: { heading: string; items: { label: string; path?: string }[] }[] = [
+  {
+    heading: 'AI',
+    items: [
+      { label: 'Secure AI-powered apps', path: '/demo/ai-chat' },
+      { label: 'Observe and control your AI applications', path: '/demo/ai-gateway' },
+    ],
+  },
+  {
+    heading: 'API Security',
+    items: [
+      { label: 'Discover and secure your APIs' },
+    ],
+  },
+  {
+    heading: 'Application Security',
+    items: [
+      { label: 'Web Application Firewall', path: '/demo/waf' },
+      { label: 'Content Scanning and Malware Protection', path: '/demo/credential-stuffing' },
+      { label: 'Augment security with threat intelligence' },
+    ],
+  },
+  {
+    heading: 'Bot Detection & Mitigation',
+    items: [
+      { label: 'Preventing Credential Stuffing Attacks', path: '/demo/credential-stuffing' },
+      { label: 'Account Abuse Protection', path: '/demo/account-abuse' },
+      { label: 'Prevent malicious bot activity' },
+      { label: 'Protect your most critical endpoints' },
+    ],
+  },
+  {
+    heading: 'Performance',
+    items: [
+      { label: 'Accelerate web content' },
+    ],
+  },
 ]
 
 const RESOURCES_GROUPS = [
@@ -272,21 +297,32 @@ export default function NavBar() {
             </button>
 
             {openMenu === 'demos' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2" style={{ width: 320 }}>
-                <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-5">
-                  <p className="text-[11px] font-bold tracking-widest text-[#F6821F] uppercase mb-4">Use Cases</p>
-                  <ul className="space-y-1">
-                    {DEMOS_ITEMS.map((item) => (
-                      <li key={item.label}>
-                        <button
-                          onClick={() => item.path ? navigate(item.path) : handleDemosClick()}
-                          className="w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1.5 rounded-lg transition-colors"
-                        >
-                          {item.label}
-                        </button>
-                      </li>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2" style={{ width: 780 }}>
+                <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6">
+                  <div className="grid grid-cols-3 gap-x-6 gap-y-6">
+                    {DEMOS_GROUPS.map((group) => (
+                      <div key={group.heading}>
+                        <p className="text-[11px] font-bold tracking-widest text-[#F6821F] uppercase mb-2 px-2">{group.heading}</p>
+                        <ul className="space-y-0.5">
+                          {group.items.map((item) => (
+                            <li key={item.label}>
+                              <button
+                                onClick={() => item.path ? navigate(item.path) : handleDemosClick()}
+                                className={`w-full text-left text-sm px-2 py-1.5 rounded-lg transition-colors leading-snug hover:bg-gray-50 ${
+                                  item.path ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-gray-500'
+                                }`}
+                              >
+                                {item.label}
+                                {!item.path && (
+                                  <span className="ml-1.5 align-middle text-[9px] font-semibold uppercase tracking-wide bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full">Soon</span>
+                                )}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
             )}

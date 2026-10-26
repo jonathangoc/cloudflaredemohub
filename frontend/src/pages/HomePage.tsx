@@ -1,12 +1,16 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, ChevronDown, Network } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, Network } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
 
+const CATEGORIES = ['AI', 'API Security', 'Application Security', 'Bot Detection & Mitigation', 'Performance'] as const
+type Category = typeof CATEGORIES[number]
+
 interface DemoCard {
   id: string
+  category: Category
   title: string
   description: string
   tag: string
@@ -21,6 +25,7 @@ interface DemoCard {
 const demos: DemoCard[] = [
   {
     id: 'secure-ai-apps',
+    category: 'AI',
     title: 'Secure AI-powered apps',
     description: 'Secure your AI applications against misuse and protect model integrity. AI Security for Apps provides model-agnostic protection, integrated natively with Cloudflare\'s global edge network.',
     tag: 'AI Gateway',
@@ -33,6 +38,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'credential-stuffing',
+    category: 'Bot Detection & Mitigation',
     title: 'Preventing Credential Stuffing Attacks',
     description: 'Stop automated attacks that use stolen credential lists to gain unauthorised access to user accounts. Combine Bot Management, WAF rules, and Turnstile to block credential stuffing at the edge.',
     tag: 'Bot Management',
@@ -45,6 +51,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'account-abuse',
+    category: 'Bot Detection & Mitigation',
     title: 'Account Abuse Protection',
     description: 'Fraud detection allows you to detect and mitigate account abuse among your traffic, specifically bulk account creation and account takeover attacks.',
     tag: 'Bot Management',
@@ -57,6 +64,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'content-scanning',
+    category: 'Application Security',
     title: 'Content Scanning and Malware Protection',
     description: 'Detect and block malicious file uploads before they reach your origin. Cloudflare scans uploaded content at the edge, stopping malware, ransomware, and other threats without impacting performance.',
     tag: 'WAF',
@@ -69,6 +77,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'waf',
+    category: 'Application Security',
     title: 'Web Application Firewall',
     description: 'Get automatic protection from vulnerabilities and the flexibility to create custom rules. Filter SQL injection, RCE, and XSS attacks at the Cloudflare edge before they reach your origin.',
     tag: 'WAF',
@@ -81,6 +90,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'ai-gateway',
+    category: 'AI',
     title: 'Observe and control your AI applications',
     description: 'Connect any AI provider through a single universal endpoint. AI Gateway gives you real-time logs, cost analytics, semantic caching, rate limiting, and automatic fallbacks — so your AI applications stay reliable, observable, and cost-efficient at any scale.',
     tag: 'AI Gateway',
@@ -93,6 +103,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'api-security',
+    category: 'API Security',
     title: 'Discover and secure your APIs',
     description: 'APIs are more important than ever within application infrastructure. Gain a complete view of API usage and ensure APIs are not compromised or leaking data.',
     tag: 'API Shield',
@@ -105,6 +116,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'bot-management',
+    category: 'Bot Detection & Mitigation',
     title: 'Prevent malicious bot activity',
     description: 'Cloudflare Bot Management uses advanced machine learning to identify and block unwanted bots.',
     tag: 'Bot Management',
@@ -117,6 +129,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'endpoint-protection',
+    category: 'Bot Detection & Mitigation',
     title: 'Protect your most critical endpoints',
     description: 'Block unwanted bots and authenticate real visitors with a frictionless Cloudflare CAPTCHA alternative, ensuring top-tier security without sacrificing your website\'s speed or user experience.',
     tag: 'Turnstile',
@@ -129,6 +142,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'threat-intelligence',
+    category: 'Application Security',
     title: 'Augment security with threat intelligence',
     description: 'Cloudflare enhances existing security measures with wide-ranging threat intelligence not available anywhere else.',
     tag: 'Threat Intel',
@@ -141,6 +155,7 @@ const demos: DemoCard[] = [
   },
   {
     id: 'accelerate-content',
+    category: 'Performance',
     title: 'Accelerate web content',
     description: 'Cache static content, compress dynamic content, optimize images, and deliver video from the global Cloudflare network for the fastest possible load times.',
     tag: 'CDN',
@@ -157,6 +172,7 @@ const demos: DemoCard[] = [
 export default function HomePage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [activeCategory, setActiveCategory] = useState<Category>('AI')
 
   useEffect(() => {
     if (location.state?.scrollToDemos) {
@@ -205,50 +221,44 @@ export default function HomePage() {
         <GlobeSection />
       </div>
 
-      {/* Demo Grid — Page 1 (first 6) */}
+      {/* Demo Grid — grouped by category */}
       <section id="demo-environments" className="h-screen overflow-hidden snap-start snap-always flex flex-col pt-20">
         <div className="max-w-7xl mx-auto px-6 w-full py-6 flex flex-col h-full">
-          <div className="text-center mb-6">
+          <div className="text-center mb-5">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">Select a use-case to explore Cloudflare's capabilities</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {demos.slice(0, 6).map((demo, i) => (
+          <div role="tablist" className="flex flex-wrap justify-center gap-2 mb-6">
+            {CATEGORIES.map((cat) => {
+              const items = demos.filter(d => d.category === cat)
+              const live = items.filter(d => d.available).length
+              const active = cat === activeCategory
+              return (
+                <button
+                  key={cat}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    active ? 'bg-[#F6821F] border-[#F6821F] text-white shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:text-gray-900'
+                  }`}
+                >
+                  {cat}
+                  <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${active ? 'bg-white/25 text-white' : live ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+                    {live ? `${live} live` : 'soon'}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div key={activeCategory} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto min-h-0 content-start p-1">
+            {demos.filter(d => d.category === activeCategory).map((demo, i) => (
               <DemoCard
                 key={demo.id}
                 demo={demo}
                 onClick={() => demo.available && navigate(demo.path)}
                 index={i}
-              />
-            ))}
-          </div>
-
-          <div className="text-center mt-6 flex-none">
-            <button
-              onClick={() => document.getElementById('demo-environments-2')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors group"
-            >
-              Click here for more demos
-              <ChevronDown className="w-4 h-4 animate-bounce" />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Grid — Page 2 (remaining) */}
-      <section id="demo-environments-2" className="h-screen overflow-hidden snap-start snap-always flex flex-col pt-20">
-        <div className="max-w-7xl mx-auto px-6 w-full py-6">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">More use-cases coming soon</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {demos.slice(6).map((demo, i) => (
-              <DemoCard
-                key={demo.id}
-                demo={demo}
-                onClick={() => demo.available && navigate(demo.path)}
-                index={i + 6}
               />
             ))}
           </div>
