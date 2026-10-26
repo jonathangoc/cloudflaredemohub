@@ -54,6 +54,55 @@ const DEFAULT_MODEL = '@cf/meta/llama-3.2-3b-instruct'
 
 const SYSTEM_PROMPT = 'You are a friendly assistant.'
 
+// Workers AI streaming chunks can carry the same token in both `response` and
+// `choices[0].delta.content`; workers-ai-provider emits both, duplicating every word.
+function dedupeSSE(): TransformStream<Uint8Array, Uint8Array> {
+  const decoder = new TextDecoder()
+  const encoder = new TextEncoder()
+  let buffer = ''
+  const fixLine = (line: string) => {
+    if (!line.startsWith('data:')) return line
+    const payload = line.slice(5).trim()
+    if (!payload || payload === '[DONE]') return line
+    try {
+      const chunk = JSON.parse(payload)
+      if (chunk.response && chunk.choices?.[0]?.delta?.content) {
+        delete chunk.response
+        return `data: ${JSON.stringify(chunk)}`
+      }
+    } catch {}
+    return line
+  }
+  return new TransformStream({
+    transform(bytes, controller) {
+      buffer += decoder.decode(bytes, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+      if (lines.length) controller.enqueue(encoder.encode(lines.map(fixLine).join('\n') + '\n'))
+    },
+    flush(controller) {
+      buffer += decoder.decode()
+      if (buffer) controller.enqueue(encoder.encode(fixLine(buffer)))
+    },
+  })
+}
+
+function withDedupedStream(ai: Ai): Ai {
+  return new Proxy(ai, {
+    get(target, prop) {
+      if (prop === 'run') {
+        return async (...args: unknown[]) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const out = await (target.run as any)(...args)
+          return out instanceof ReadableStream ? out.pipeThrough(dedupeSSE()) : out
+        }
+      }
+      const value = Reflect.get(target, prop, target)
+      return typeof value === 'function' ? value.bind(target) : value
+    },
+  })
+}
+
 const app = new Hono<{ Bindings: Env }>()
 
 app.use(
@@ -113,7 +162,7 @@ app.post('/api/chat', async (c) => {
   const model = requestedModel && ALLOWED_MODELS.has(requestedModel) ? requestedModel : DEFAULT_MODEL
 
   try {
-    const workersai = createWorkersAI({ binding: c.env.AI })
+    const workersai = createWorkersAI({ binding: withDedupedStream(c.env.AI) })
 
     const result = streamText({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
