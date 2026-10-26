@@ -15,6 +15,8 @@ import {
   RotateCcw,
   ShieldAlert,
   X,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://demoaichatbot.jonathangoc.com'
@@ -116,6 +118,16 @@ const SUGGESTIONS = [
   'Explain the difference between REST and GraphQL',
 ]
 
+interface ResponseMetadata {
+  model?: string
+  colo?: string
+  created?: number
+  finish_reason?: string
+  usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number; reasoning_tokens?: number; cached_prompt_tokens?: number }
+  cost?: { currency: string; input: number; output: number; total: number; price_per_million_tokens: { input: number; output: number } } | null
+  timing?: { server_ms: number; time_to_first_token_ms: number | null; tokens_per_second: number | null }
+}
+
 interface MessageMeta {
   timestamp: Date
   model?: string
@@ -127,11 +139,17 @@ export default function AIChatPage() {
   const [input, setInput] = useState('')
   const [selectedModel, setSelectedModel] = useState(MODELS[0])
   const [showModelDropdown, setShowModelDropdown] = useState(false)
-  const [openCategory, setOpenCategory] = useState<string | null>(null)
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set())
+  const toggleCategory = (id: string) => setOpenCategories(prev => {
+    const next = new Set(prev)
+    if (!next.delete(id)) next.add(id)
+    return next
+  })
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [lastResponseJson, setLastResponseJson] = useState<object | null>(null)
   const [chatId, setChatId] = useState(() => crypto.randomUUID())
   const [messageMeta, setMessageMeta] = useState<Map<string, MessageMeta>>(new Map())
+  const [responseExpanded, setResponseExpanded] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -194,6 +212,13 @@ export default function AIChatPage() {
   }, [])
 
   useEffect(() => {
+    if (!responseExpanded) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setResponseExpanded(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [responseExpanded])
+
+  useEffect(() => {
     const t = inputRef.current
     if (!t) return
     t.style.height = 'auto'
@@ -210,12 +235,19 @@ export default function AIChatPage() {
       .join('')
     const duration = Date.now() - startTimeRef.current
     setMessageMeta(prev => { const m = new Map(prev); m.set(lastMsg.id, { timestamp: new Date(), model: selectedModel.label, duration }); return m })
+    const meta = (lastMsg.metadata ?? {}) as ResponseMetadata
     setLastResponseJson({
       object: 'chat.completion',
-      model: selectedModel.id,
-      role: 'assistant',
-      duration_ms: duration,
+      id: lastMsg.id,
+      model: meta.model ?? selectedModel.id,
+      created: meta.created,
+      finish_reason: meta.finish_reason,
+      usage: meta.usage,
+      cost: meta.cost ?? 'Pricing not available for this model',
+      timing: { ...meta.timing, client_total_ms: duration },
+      colo: meta.colo,
       timestamp: new Date().toISOString(),
+      role: 'assistant',
       content: textContent,
     })
   }, [status])
@@ -308,19 +340,22 @@ export default function AIChatPage() {
           <div className="px-4 pt-4 pb-2">
             <p className="text-[10px] font-black uppercase tracking-widest text-gray-900">AI Security Risks for Apps</p>
           </div>
-          {USE_CASES.map((cat) => (
+          {USE_CASES.map((cat) => {
+            const isOpen = openCategories.has(cat.id)
+            return (
             <div key={cat.id} className="px-3 pb-1">
               <button
-                onClick={() => setOpenCategory(openCategory === cat.id ? null : cat.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${openCategory === cat.id ? `${cat.bg} ${cat.color}` : 'text-gray-600 hover:bg-gray-50'}`}
+                onClick={() => toggleCategory(cat.id)}
+                aria-expanded={isOpen}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${isOpen ? `${cat.bg} ${cat.color}` : 'text-gray-600 hover:bg-gray-50'}`}
               >
                 <span className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full flex-none ${cat.dot}`} />
                   {cat.label}
                 </span>
-                <span className={`transition-transform ${openCategory === cat.id ? 'rotate-90' : ''}`}>›</span>
+                <span className={`transition-transform ${isOpen ? 'rotate-90' : ''}`}>›</span>
               </button>
-              {openCategory === cat.id && (
+              {isOpen && (
                 <div className={`mt-1 mb-2 rounded-xl border ${cat.border} ${cat.bg} overflow-hidden`}>
                   {cat.prompts.map((prompt, i) => (
                     <button
@@ -334,7 +369,8 @@ export default function AIChatPage() {
                 </div>
               )}
             </div>
-          ))}
+            )
+          })}
         </aside>
 
         {/* Chat column */}
@@ -495,7 +531,12 @@ export default function AIChatPage() {
         </div> {/* end chat column */}
 
         {/* Right terminal panel */}
-        <aside className="hidden xl:flex flex-col w-80 flex-none border-l border-gray-200 bg-gray-950 overflow-hidden">
+        {responseExpanded && (
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setResponseExpanded(false)} />
+        )}
+        <aside className={responseExpanded
+          ? 'fixed inset-4 md:inset-10 z-50 flex flex-col rounded-2xl border border-gray-800 bg-gray-950 overflow-hidden shadow-2xl animate-fade-in'
+          : 'hidden xl:flex flex-col w-60 flex-none border-l border-gray-200 bg-gray-950 overflow-hidden'}>
           <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800 flex-none">
             <div className="flex gap-1.5">
               <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -503,10 +544,17 @@ export default function AIChatPage() {
               <div className="w-3 h-3 rounded-full bg-green-500" />
             </div>
             <span className="text-[11px] font-medium text-gray-400 ml-2 tracking-wide">API Response</span>
+            <button
+              onClick={() => setResponseExpanded(e => !e)}
+              className="ml-auto p-1 rounded-md text-gray-500 hover:text-gray-200 hover:bg-gray-800 transition-colors"
+              title={responseExpanded ? 'Collapse (Esc)' : 'Expand'}
+            >
+              {responseExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className={`flex-1 overflow-y-auto ${responseExpanded ? 'p-6' : 'p-3'}`}>
             {lastResponseJson ? (
-              <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-all">
+              <pre className={`font-mono leading-relaxed whitespace-pre-wrap ${responseExpanded ? 'text-sm break-words max-w-5xl mx-auto' : 'text-[10px] break-all'}`}>
                 {JSON.stringify(lastResponseJson, null, 2)
                   .split('\n')
                   .map((line, i) => {
