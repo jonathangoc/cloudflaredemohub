@@ -14,5 +14,10 @@
   },
   "ai": {
     "binding": "AI"
+  },
+  // MCP_CLIENT_SECRET is a Worker secret; set it with `wrangler secret put`, never here.
+  "vars": {
+    "MCP_CLIENT_ID": "7786ede5a0c3a9c04f152fd7fb9ab468.access",
+    "MCP_SERVER_URL": "https://mcp.seven-hills-agent.jonathangoc.com/mcp"
   }
 }
