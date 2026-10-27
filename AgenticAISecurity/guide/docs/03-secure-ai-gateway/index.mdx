@@ -1,0 +1,62 @@
+---
+sidebar_position: 3
+title: Secure AI Gateway
+---
+
+# 03: Secure AI Gateway
+
+## Goals
+
+The Seven Hills AI Agent begins by calling Workers AI directly. That path provides inference, but it does not give the business a dedicated control point for authenticating the workload, choosing models, managing consumption, or inspecting the content sent to those models.
+
+In this module, you will move the agent's model traffic through an Access-protected AI Gateway custom domain. You will use:
+
+- **Cloudflare Access** to authenticate the agent as an approved application workload.
+- **AI Gateway** to log model traffic, route requests by trusted business context, and control cache, request rate, and spend.
+- **AI Gateway Guardrails and DLP** to block selected unsafe instructions and sensitive financial data before model inference.
+- **Workers AI** to serve the models selected for standard shopping and premium Concierge requests.
+
+For Seven Hills, these controls keep routine shopping assistance on the established model while assigning more capable, higher-cost inference to the premium Concierge experience. They also limit unnecessary model consumption and stop targeted unsafe or sensitive prompts without breaking legitimate customer requests. The business can change these policies at the gateway instead of rebuilding the storefront or Agent logic.
+
+**Estimated time:** 25 minutes
+
+## Target Architecture
+
+```text
+Website customer
+    |
+    v
+Seven Hills AI Agent
+    |
+    | Access service-token credentials
+    | Trusted request context
+    v
+Cloudflare Access
+    |
+    v
+AI Gateway custom domain
+    |
+    | Logs and dynamic routing
+    | Cache, rate, and spend controls
+    | Guardrails and DLP
+    v
+Workers AI
+    |-- Llama 3.3 70B: standard shopping and tool-assisted requests
+    `-- Kimi K2.6: premium Concierge requests
+```
+
+Access verifies the "identity" of the agent before a request reaches AI Gateway. AI Gateway then records the request, selects a Workers AI model from server-assigned context, applies consumption controls, and inspects prompts for configured safety and data risks.
+
+This is the app-to-AI model path. The public website (Module 04) will focus on protecting the customer/end user-to-application path with AI Security for Apps. 
+
+Together, the controls let Seven Hills govern who can reach its model endpoint, which model handles each ecommerce use case, and what content may reach the model.
+
+## Before You Start
+
+| Lab value | Value |
+| --- | --- |
+| Seven Hills application | `https://<your-lab-domain>` |
+| AI Gateway | `seven-hills` |
+| AI Gateway custom hostname | `ai.<your-lab-domain>` |
+| Dynamic route | `seven-hills-route` |
+| Access identity | `seven-hills-agent` from Module 02 |

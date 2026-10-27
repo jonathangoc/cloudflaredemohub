@@ -1,0 +1,55 @@
+---
+sidebar_position: 4
+title: Protect the AI App
+---
+
+# 04: Protect the AI App
+
+## Goals
+
+The public endpoints of the Seven Hills AI Agent accept prompts from untrusted users. Modules 02 and 03 secured the agent's connections to tools and models; this module protects the separate customer-to-application path.
+
+In this module, you will use:
+
+- **AI Security for Apps** to identify LLM endpoints and detect prompt injection, PII, unsafe content, and Seven Hills-specific risks.
+- **Cloudflare WAF** to protect against conventional web exploits and block selected AI threats at the edge.
+- **Security Analytics** to investigate detections, tune enforcement thresholds, and review blocked requests.
+
+For Seven Hills, these controls protect customer data, store policies, and promotional margins while allowing legitimate product, sales, and delivery questions to reach the agent. The business gains application-layer AI protection without changing the storefront or model integration.
+
+## Target Architecture
+
+```text
+Website customer
+    |
+    | POST /api/chat or /api/concierge
+    v
+Cloudflare edge
+    |-- AI Security for Apps: detection and scoring
+    |-- WAF custom rules: enforcement
+    `-- Security Analytics: visibility and audit trail
+    |
+    | Allowed requests
+    v
+Seven Hills AI Agent
+    |
+    v
+Access-protected AI Gateway
+    |
+    v
+Workers AI
+```
+
+AI Security for Apps analyzes prompts sent to the labeled public endpoints. WAF custom rules use the resulting signals to stop selected threats before they reach the Worker or model, while Security Analytics records the detections and enforcement actions.
+
+This is the customer-to-application path. It complements the MCP and model controls configured in Modules 02 and 03, giving Seven Hills distinct protection for public ingress, tool access, and model traffic.
+
+## Before You Start
+
+| Lab value | Value |
+| --- | --- |
+| Seven Hills application | `https://<your-lab-domain>` |
+| Lab zone | `<your-lab-domain>` |
+| Chat endpoint | `/api/chat` |
+| Concierge endpoint | `/api/concierge` |
+| LLM endpoint label | `cf-llm` |

@@ -1,0 +1,43 @@
+# Dependencies and generated builds
+**/node_modules/
+**/.wrangler/
+**/.docusaurus/
+**/build/
+**/dist/
+**/coverage/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!*.example.env
+deploy/config.local.env
+*.tfvars
+!*.tfvars.example
+
+# Terraform working data
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Event operations outputs and personal data
+deployment/*.csv
+deployment/*.txt
+deployment/*-report.json
+
+# Kept local only: CML/Labs templates, event operations tooling and data,
+# superseded Terraform-era config, and ad-hoc archives.
+/terraform/
+/deployment/
+/deploy/
+*.zip
+
+# OS and editor files
+.DS_Store
+**/.DS_Store
+.idea/
+.vscode/
+*.swp

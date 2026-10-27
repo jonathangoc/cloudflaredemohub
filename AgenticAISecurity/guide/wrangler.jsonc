@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "agentic-ai-lab-portal",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  // The target account comes from CLOUDFLARE_ACCOUNT_ID (set by scripts/deploy.sh)
+  // or from the account selected during `wrangler login`. Do not hardcode it here.
+  "workers_dev": true,
+  "assets": {
+    "directory": "./build",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+  // Optional: add a custom domain after the first deploy, for example
+  // "routes": [{ "pattern": "lab-guide.example.com", "custom_domain": true }]
+}

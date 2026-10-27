@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, Network } from 'lucide-react'
+import { ArrowRight, Shield, Cpu, Key, Lock, Eye, Zap, ShieldCheck, ShieldAlert, ScanLine, Network, Bot } from 'lucide-react'
 import GlobeSection from '../components/GlobeSection'
 import NavBar from '../components/NavBar'
 import HeroGlobe from '../components/HeroGlobe'
@@ -100,6 +100,19 @@ const demos: DemoCard[] = [
     gradient: 'from-amber-500 to-yellow-400',
     available: true,
     services: ['AI Gateway', 'Workers AI', 'Analytics Engine'],
+  },
+  {
+    id: 'agentic-ai-security',
+    category: 'AI',
+    title: 'Secure agentic AI end to end',
+    description: 'Follow one AI agent across its public ingress, model, and MCP tool paths. Secure each path with Access, MCP server portals, Gateway, DLP, AI Gateway, and AI Security for Apps — then validate that attacks are blocked and legitimate requests still work.',
+    tag: 'Agentic AI',
+    tagColor: 'bg-fuchsia-100 text-fuchsia-700',
+    icon: <Bot className="w-6 h-6" />,
+    path: 'https://seven-hills-agent.jonathangoc.com/',
+    gradient: 'from-fuchsia-500 to-orange-400',
+    available: true,
+    services: ['AI Gateway', 'MCP server portals', 'AI Security for Apps'],
   },
   {
     id: 'api-security',
@@ -257,7 +270,7 @@ export default function HomePage() {
               <DemoCard
                 key={demo.id}
                 demo={demo}
-                onClick={() => demo.available && navigate(demo.path)}
+                onClick={() => demo.available && (demo.path.startsWith('http') ? window.location.assign(demo.path) : navigate(demo.path))}
                 index={i}
               />
             ))}

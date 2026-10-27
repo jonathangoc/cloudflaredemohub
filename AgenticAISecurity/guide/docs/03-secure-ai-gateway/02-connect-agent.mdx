@@ -1,0 +1,160 @@
+---
+sidebar_position: 2
+title: Connect the Agent Through Access and AI Gateway
+slug: /secure-ai-gateway/connect-agent
+custom_edit_url: null
+---
+
+# Connect the Agent Through Access and AI Gateway
+
+## Introduction
+In this module, you will connect the Seven Hills AI Agent to AI Gateway through a custom hostname protected by Cloudflare Access. You will reuse the agent’s service-token identity created in the previous section, switch its model traffic from the direct Workers AI path, and confirm an approved shopping request succeeds through Cloudflare AI Gateway.
+
+This creates an authenticated control point between the ecommerce application and its models. Seven Hills keeps serving customers while gaining centralized visibility and the foundation for the routing, cost, and data-protection controls that follow.
+
+## Architecture Context
+
+```text
+Unauthenticated client ----X----> Access
+
+Seven Hills agent
+    | CF-Access-Client-Id + CF-Access-Client-Secret
+    v
+Access -> ai.<your-lab-domain> -> AI Gateway -> dynamic route
+```
+
+## Steps
+
+### 1. Add the custom domain
+
+1. Go to **AI** > **AI Gateway** > `seven-hills`.
+2. Open **Domains**.
+3. Select **Add Domain**.
+4. Enter sub-domain `ai.<your-lab-domain>`
+5. Save the custom domain.
+
+The custom-domain OpenAI-compatible endpoint is:
+
+```text
+https://ai.<your-lab-domain>/compat/chat/completions
+```
+
+
+### 2. Protect the gateway with Access
+
+1. In the same AI gateway, open **Access**.
+2. If the domain still shows **Provisioning**, wait a few minutes.
+3. When **Protect this gateway behind Access** turns blue, select it.
+4. Add the reusable policy created in Module 02:
+
+| Field | Value |
+| --- | --- |
+| Policy | `Allow Seven Hills agent` |
+| Action | `Service Auth` |
+| Include | Service token `seven-hills-agent` |
+
+5. Save the Access configuration.
+
+![AI Gateway custom domain protected by Access](/img/screenshots/03-secure-ai-gateway/03-02-01-access-protected-gateway.png)
+
+:::note Existing workload secret
+The prebuilt Seven Hills Worker reuses the encrypted service-token bindings stored in Module 02.
+:::
+
+### 3. Flip Seven Hills to gateway mode
+
+1. Go to **Workers & Pages** and select your Seven Hills Worker.
+2. Open **Settings** > **Variables and Secrets**.
+3. Add Variable:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| Text | `AI_GATEWAY_URL` | `https://ai.<your-lab-domain>/compat/chat/completions` |
+
+4. Save and deploy the new Worker version.
+
+The prebuilt client now requests model `dynamic/seven-hills-route` with Access service-token headers and metadata: `agent_id: seven-hills`.
+
+
+### 4. Test the approved path after connection
+
+1. Wait for the Worker deployment to finish. Go to **AI Gateway** > `seven-hills` > **Logs**, then select **LIVE**.
+2. Open Seven Hills, go to **Chat with AI Agent**, and send `Which headphones are best for travel?`.
+3. Return to the live log stream, open the new log, and confirm:
+
+| Field | Expected value |
+| --- | --- |
+| Provider | Workers AI |
+| Model | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` |
+| Metadata | `agent_id: seven-hills`, `request_type: standard_chat` |
+| Status | Success |
+| Tokens and duration | Values are present |
+
+![Successful Seven Hills request in AI Gateway logs](/img/screenshots/03-secure-ai-gateway/03-02-02-approved-gateway-request.png)
+
+The successful live log proves that DNS, Cloudflare Access, the AI Gateway dynamic route, and the selected model worked together to deliver the Seven Hills Agent question and answer.
+
+## What You Established
+You configured an AI Gateway custom hostname, protected it with an Access Service Auth policy, and switched the agent to the dynamic route. A successful AI Gateway log validated that the approved workload passed through Access and reached Workers AI with trusted request metadata.
+
+Access is now configured to reject AI Gateway callers without the required identity, while the legitimate AI Agent continues through the authenticated model path. The Seven Hills LLM path gains centralized control without exposing credentials or changing the customer experience.
+
+## Checkpoint
+
+The real Seven Hills model path is authenticated and observable. Continue to [Route Model Traffic Dynamically](/secure-ai-gateway/dynamic-routing).
+
+## Troubleshooting
+
+<details>
+<summary>The custom domain does not become active</summary>
+
+- Confirm the hostname belongs to a zone in the same account as the gateway.
+- Check **DNS** for the record created by AI Gateway.
+- Do not manually replace the generated target; ask the facilitator to verify the assigned zone.
+
+</details>
+
+<details>
+<summary>The unauthenticated probe reaches the model</summary>
+
+- Confirm you called the custom hostname, not `gateway.ai.cloudflare.com`.
+- Confirm Access is active on the gateway's **Access** tab.
+- Confirm the policy action is **Service Auth** and save again.
+
+</details>
+
+<details>
+<summary>Seven Hills receives an Access denial</summary>
+
+- Confirm Module 02 stored both service-token values in the Worker.
+- Confirm the reusable policy selects the same `seven-hills-agent` service token.
+- Check Access logs for the failed request before changing credentials.
+
+</details>
+
+<details>
+<summary>Gateway mode produces no AI Gateway log</summary>
+
+- Confirm the URL ends in `/compat/chat/completions`.
+- Confirm `seven-hills-route` is deployed, not only saved as a draft.
+- Refresh Logs and filter by `agent_id = seven-hills`.
+
+</details>
+
+<details>
+<summary>The website returns a generic model error</summary>
+
+- Open Access logs first, then AI Gateway logs, to locate the failing boundary.
+- Confirm the route model is available in Workers AI.
+- Use the status endpoint to rule out a stale deployment.
+
+</details>
+
+<details>
+<summary>Standard chat works but the inventory request fails</summary>
+
+- Confirm the log metadata is `request_type: standard_chat`; tool intent no longer creates a separate request type.
+- Confirm the model is `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, which supports function calling.
+- Recheck the Module 02 MCP status and service-token bindings before changing the route.
+
+</details>

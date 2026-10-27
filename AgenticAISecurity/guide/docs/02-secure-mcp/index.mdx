@@ -1,0 +1,60 @@
+---
+sidebar_position: 2
+title: Secure MCP
+---
+
+# 02: Secure MCP
+
+## Goals
+The Seven Hills AI Agent needs an MCP connection to access current operational data, such as store locations and inventory levels. MCP gives the agent a standard way to use these backend systems, allowing it to provide grounded answers instead of relying only on the model’s training data or potentially inventing information.
+
+In this module, you will connect the Seven Hills AI Agent to an approved Operations MCP server through Cloudflare. You will use:
+
+- **Cloudflare Access** to authenticate the agent as an approved application workload.
+- **MCP server portals** to provide one governed endpoint and limit which tools the agent can use.
+- **Cloudflare Gateway** to inspect and log upstream MCP traffic.
+- **Data Loss Prevention (DLP)** to block sensitive information returned by those tools.
+
+For an ecommerce business, these controls allow an AI agent to use live operational data, such as store inventory, without granting unrestricted access to internal systems or exposing sensitive customer information. You will validate that unauthorized access and sensitive data are blocked while legitimate inventory requests continue to work.
+
+**Estimated time:** 25 minutes
+
+## Architecture
+
+```text
+Website customer
+    |
+    v
+Seven Hills AI Agent
+    |
+    | Access service-token credentials
+    v
+Cloudflare Access
+    |
+    v
+MCP server portal
+    |
+    | Approved tools only
+    |
+    v
+Cloudflare Gateway + response-side DLP
+    |
+    v
+Seven Hills Operations MCP server
+```
+
+Access verifies the identity of the application workload. The MCP server portal gives the agent a single endpoint and exposes only the tools required for the shopping experience. Gateway then provides visibility into calls from the portal to the Operations server, while DLP inspects responses and prevents sensitive data from reaching the agent, model, or customer.
+
+Together, these controls separate four security decisions: which agent may connect, which server it may reach, which tools it may use, and what data those tools may return.
+
+## Before You Start
+
+Use the values assigned to your environment. They will be displayed again in the appropriate sections.
+
+| Lab value | Example format |
+| --- | --- |
+| Seven Hills application | `https://<your-lab-domain>` |
+| Operations MCP URL | `https://<your-mcp-host>/mcp` |
+| Operations MCP host | `<your-mcp-host>` without `https://` or `/mcp` |
+| Portal hostname | `mcp.<your-lab-domain>` |
+| Portal URL | `https://mcp.<your-lab-domain>/mcp` |

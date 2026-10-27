@@ -1,0 +1,228 @@
+---
+sidebar_position: 4
+title: Delegate Support and Inspect the A2A Traffic
+slug: /secure-a2a/validate-handoff
+custom_edit_url: null
+---
+
+# Delegate Support and Inspect the A2A Traffic
+
+## Purpose
+
+Send a real website request through A2A, inspect the private HTTP exchange in Gateway, and prove that ordinary shopping traffic still stays with Sofia.
+
+## Architecture Context
+
+```text
+"Get specialist support ... Bluetooth ..."
+            |
+            v
+Deterministic support router
+            |
+            | POST /rpc
+            | JSON-RPC method: SendMessage
+            v
+Support Agent task ------> diagnostic artifact
+
+Normal shopping question ------> Sofia, no A2A task
+```
+
+The fixed router is part of the prebuilt Seven Hills application. It runs before model inference, so Sofia cannot intercept the lab prompt and generate plausible troubleshooting from model training data.
+
+## Steps
+
+### 1. Enable HTTP inspection on port 8080
+
+Gateway inspects plaintext HTTP on port `80` by default. The Support Agent uses port `8080`, so enable protocol detection and HTTP inspection on non-standard ports:
+
+1. Go to **Zero Trust** > **Traffic policies** > **Traffic settings** > **Proxy and inspection settings**.
+2. Turn on **Allow protocol detection**.
+3. Under **Manage HTTP inspection by port**, choose **Inspect on all ports**.
+4. Save the settings.
+
+:::note Shared account setting
+This setting affects the account, not only this policy.
+:::
+
+### 2. Add a Gateway policy for the A2A destination
+
+1. Go to **Zero Trust** > **Traffic policies** > **Firewall policies** > **HTTP**.
+2. Select **Add a policy**.
+3. Set **Policy name** to `Allow Seven Hills A2A`.
+4. Configure the traffic match:
+
+| Selector | Operator | Value |
+| --- | --- | --- |
+| Access Private App | is | Present |
+| URL Path | is | `/rpc` |
+| HTTP Method | is | `POST` |
+
+5. Set **Action** to **Allow**.
+6. Save the policy.
+
+The private Access application already limits the destination to your Mesh IP and port `8080`. This HTTP policy adds a documented Layer 7 match for its A2A RPC traffic. Access still authenticates the caller; a Gateway Allow action is not a replacement for Service Auth.
+
+> **Screenshot placeholder:** Gateway HTTP policy scoped to private-app `POST /rpc` traffic.
+
+### 3. Delegate the support request from the website
+
+Open Seven Hills chat and send the exact lab prompt:
+
+> Get specialist support: My Aurora Buds Pro stopped connecting over Bluetooth after a firmware update.
+
+Expected result:
+
+- The response is labeled **Handled by Seven Hills Support via A2A**.
+- The diagnostic says to place both buds in the case, hold the case button for 15 seconds until the indicator changes from amber to white, forget the old Bluetooth pairing, and pair again.
+- The response includes a support task ID and state `TASK_STATE_COMPLETED`.
+- The result states when to escalate instead of claiming that a replacement has already been approved.
+
+> **Screenshot placeholder:** Support artifact, A2A attribution, completed state, and task ID in Seven Hills chat.
+
+The Worker sends only the product name, symptom, and firmware-update context. It does not forward the cart or unrelated chat history.
+
+### 4. Run the deterministic task probe
+
+Use the API checkpoint to verify the protocol outcome independently of response wording:
+
+```bash
+curl -s -X POST https://<your-lab-domain>/api/a2a/probe \
+  -H 'content-type: application/json' \
+  -d '{"case":"bluetooth-diagnostic"}'
+```
+
+Expected result:
+
+```json
+{
+  "ok": true,
+  "path": "mesh",
+  "protocol": "a2a-jsonrpc-1.0",
+  "method": "SendMessage",
+  "jsonrpc": "2.0",
+  "a2a_version_header": "1.0",
+  "agent": "Seven Hills Support Agent",
+  "skill": "diagnose_product_issue",
+  "task_state": "TASK_STATE_COMPLETED",
+  "diagnostic_code": "AURORA_POST_UPDATE_PAIRING",
+  "received_fields": ["product", "symptom", "trigger"],
+  "unexpected_fields_received": false
+}
+```
+
+The probe checks structured fields from the task and artifact. It does not use an LLM to judge whether the answer looks correct.
+
+### 5. Find the exchange in Gateway
+
+1. Go to **Zero Trust** > **Insights** > **Logs** > **HTTP request logs**.
+2. Filter **Destination IP** to `<mesh-ip>`.
+3. Generate a fresh Bluetooth diagnostic probe if necessary.
+4. Open the matching event and confirm:
+
+| Field | Expected value |
+| --- | --- |
+| Action | Allow |
+| Policy | `Allow Seven Hills A2A` |
+| Destination IP | Your support Mesh IP |
+| Destination port | `8080` |
+| HTTP method | `POST` |
+| Path | `/rpc` |
+
+The Gateway event identifies the HTTP exchange, not the JSON-RPC method or task ID inside its body. Use the probe time, destination, method, and path to locate the event. The task ID is separate application-side evidence rather than a shared Gateway correlation key.
+
+> **Screenshot placeholder:** Allowed `POST /rpc` event for the support Mesh destination.
+
+### 6. Prove the normal agent path still works
+
+In Seven Hills chat, ask:
+
+> Which product has active noise cancellation?
+
+Expected result: Sofia recommends Aurora Buds Pro. The response has no A2A support badge or task ID.
+
+Confirm the route independently of free-form model wording:
+
+```bash
+curl -s -X POST https://<your-lab-domain>/api/a2a/probe \
+  -H 'content-type: application/json' \
+  -d '{"case":"shopping-route"}'
+```
+
+Expected result:
+
+```json
+{
+  "ok": true,
+  "route": "sofia",
+  "a2a_invoked": false
+}
+```
+
+Gateway logs are asynchronous, so the absence of an immediate log entry is not used as the required proof.
+
+## Expected Result
+
+The fixed support prompt creates a completed A2A task on the private Support Agent and appears as an allowed `POST /rpc` exchange in Gateway. A normal catalog question remains on Sofia's path and creates no A2A task.
+
+## Troubleshooting
+
+<details>
+<summary>Sofia answers the troubleshooting question herself</summary>
+
+- Use the exact prompt beginning with `Get specialist support:`.
+- Confirm `/api/a2a/status` reports connected and authenticated.
+- The deterministic router must run before model inference. Ask the facilitator to verify the assigned Worker if Sofia receives the fixed prompt.
+
+</details>
+
+<details>
+<summary>The A2A task starts but does not complete</summary>
+
+- Check whether the response state is `TASK_STATE_INPUT_REQUIRED`, `TASK_STATE_FAILED`, or another explicit state.
+- Rerun the fixed probe; do not treat an arbitrary free-form support answer as success.
+- Confirm the prebuilt support knowledge service is healthy on the VM.
+
+</details>
+
+<details>
+<summary>No Gateway HTTP event appears</summary>
+
+- Filter on the Mesh destination IP, not the public Seven Hills hostname.
+- Confirm **Inspect on all ports** is enabled for HTTP visibility on port `8080`.
+- Confirm the call used `SUPPORT_NETWORK.fetch()` and not global `fetch()`.
+- Generate a new probe and use the matching time window.
+- Check Network logs if HTTP parsing is unavailable, then ask the facilitator to verify Gateway proxy settings.
+
+</details>
+
+<details>
+<summary>The shopping question also creates an A2A task</summary>
+
+The router is too broad or the wrong Worker version is active. Normal product discovery must remain on Sofia's path.
+
+</details>
+
+<details>
+<summary>Gateway allows the request but Access denies it</summary>
+
+This is expected when the Gateway routing policy matches but the workload identity is missing or invalid. Verify the Worker's encrypted service credentials and rerun both deterministic probes; do not weaken the Access policy.
+
+</details>
+
+## Optional Extension: Continue the Support Task
+
+If time permits, reply with the indicator behavior from the first diagnostic response. The Worker should reuse the A2A context or task identifier so the Support Agent continues the same troubleshooting conversation rather than creating an unrelated task.
+
+This extension demonstrates why A2A is more than a tool call: the remote agent can manage a multi-turn task and request additional input.
+
+## What You Built
+
+Seven Hills can now discover and invoke a private specialist agent through A2A. Mesh and Workers VPC provide reachability, Access establishes workload identity, Gateway provides policy and audit evidence, and the application router controls when delegation occurs.
+
+## Customer Talk Track
+
+> "The customer still sees one Seven Hills assistant, but specialist requests become authenticated A2A tasks on a private support agent. The agents do not share internals: they exchange a scoped message, task state, and result. Cloudflare provides the private network, machine authentication, and traffic evidence, while regular shopping questions continue on the original path."
+
+## Checkpoint
+
+You have validated both required outcomes: the unauthorized path is blocked, and the legitimate specialist handoff works without breaking Sofia. Continue to [06: Wrap Up](/wrap-up/).

@@ -58,6 +58,7 @@ const DEMOS_GROUPS: { heading: string; items: { label: string; path?: string }[]
     items: [
       { label: 'Secure AI-powered apps', path: '/demo/ai-chat' },
       { label: 'Observe and control your AI applications', path: '/demo/ai-gateway' },
+      { label: 'Secure agentic AI end to end', path: 'https://seven-hills-agent.jonathangoc.com/' },
     ],
   },
   {
@@ -307,7 +308,7 @@ export default function NavBar() {
                           {group.items.map((item) => (
                             <li key={item.label}>
                               <button
-                                onClick={() => item.path ? navigate(item.path) : handleDemosClick()}
+                                onClick={() => !item.path ? handleDemosClick() : item.path.startsWith('http') ? window.location.assign(item.path) : navigate(item.path)}
                                 className={`w-full text-left text-sm px-2 py-1.5 rounded-lg transition-colors leading-snug hover:bg-gray-50 ${
                                   item.path ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-gray-500'
                                 }`}

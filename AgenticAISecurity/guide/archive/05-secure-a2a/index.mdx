@@ -1,0 +1,152 @@
+---
+sidebar_position: 5
+title: Secure A2A
+---
+
+# 05: Secure A2A
+
+## Purpose
+
+Connect the public Seven Hills shopping agent to a private product-support agent using the Agent2Agent (A2A) protocol. You will bring the support VM onto Cloudflare Mesh, connect the existing Worker with a VPC Network binding, authenticate the workload with Access, and observe the delegated task in Gateway.
+
+**Target time:** 18 minutes. Confirm the complete timing during the lab pilot.
+
+:::info One customer experience, two agents
+Sofia remains the customer-facing shopping assistant. When a customer explicitly requests specialist product support, a deterministic application router delegates the request to the private Support Agent. The Support Agent has diagnostic skills and knowledge that Sofia does not have.
+:::
+
+## Architecture Context
+
+```text
+Website user
+    |
+    | Specialist-support request
+    v
+Seven Hills Worker (A2A client)
+    |
+    | A2A 1.0 JSON-RPC + Access service-token headers
+    v
+Workers VPC Network binding: SUPPORT_NETWORK
+    |
+    v
+Cloudflare Gateway ---------> HTTP request logs and policy
+    |
+    v
+Cloudflare Access ----------> Service Auth: seven-hills-agent
+    |
+    v
+Cloudflare Mesh
+    |
+    v
+Support Agent on pod VM ----> Private diagnostic skills
+```
+
+The Worker calls the VM's Mesh IP over Cloudflare One rather than exposing the Support Agent to the public Internet. Gateway evaluates and records the private HTTP exchange. Access then checks the Worker's machine identity before the request reaches the VM.
+
+### Why this matters
+
+A2A standardizes collaboration between independent agents. It does not make every discovered agent trustworthy or authorize every caller. This module applies separate controls to four questions:
+
+1. How does the customer-facing agent privately reach the remote agent?
+2. Which workload is allowed to invoke it?
+3. Which requests are inspected and recorded?
+4. Which customer requests should be delegated?
+
+### A2A is not MCP
+
+| Protocol | Relationship | Seven Hills example |
+| --- | --- | --- |
+| MCP | An agent invokes a narrow tool or resource. | Sofia retrieves inventory from an Operations tool. |
+| A2A | One agent delegates a goal to another agent that manages its own reasoning, skills, and task lifecycle. | Sofia delegates a Bluetooth problem to the Support Agent. |
+
+The Support Agent remains opaque. Seven Hills sees its Agent Card, messages, task state, and artifacts, but not its private prompt, memory, or tools.
+
+## Submodules
+
+1. [Establish the A2A Baseline and Connect the VM](/secure-a2a/connect-mesh)
+2. [Connect Seven Hills to the Support Agent](/secure-a2a/connect-worker)
+3. [Authenticate the Agent With Access](/secure-a2a/authenticate-agent)
+4. [Delegate Support and Inspect the A2A Traffic](/secure-a2a/validate-handoff)
+
+| Submodule | Control boundary | Required checkpoint |
+| --- | --- | --- |
+| 1 | Application and private network | The specialist route fails closed before Mesh; the support VM then appears online with a Mesh IP. |
+| 2 | Worker and A2A discovery | The existing Worker reaches the private Agent Card through `SUPPORT_NETWORK`. |
+| 3 | Access workload identity | A request without service-token headers is denied while Seven Hills remains authorized. |
+| 4 | Gateway and application routing | The fixed support prompt creates an A2A task and a normal shopping prompt stays with Sofia. |
+
+## Before You Start
+
+Use the values assigned to your pod:
+
+| Lab value | Value |
+| --- | --- |
+| Seven Hills application | `https://<your-lab-domain>` |
+| Application Worker | `seven-hills-agent` for your pod |
+| Support VM | Pod origin server running Ubuntu 24.04 LTS |
+| Support Agent local URL | `http://127.0.0.1:8080` |
+| A2A Agent Card | `/.well-known/agent-card.json` |
+| A2A JSON-RPC endpoint | `/rpc` |
+| A2A version | `1.0` |
+| Worker VPC binding | `SUPPORT_NETWORK` |
+| Access identity | `seven-hills-agent` from Module 02 |
+
+:::warning Publication gate
+The current application baseline does not yet implement the A2A client, fixed support router, safe diagnostic endpoints, or support attribution described by this module. Before publication, verify the complete flow in a lab account, including that a request from a Workers VPC Network binding is evaluated by the private Access application on port `8080`, the Worker dashboard binding workflow, and Gateway HTTP policy and log fields.
+:::
+
+:::caution Keep machine credentials server-side
+The browser must never receive the Access Client ID or Client Secret. The Worker adds them only to server-side requests made through `SUPPORT_NETWORK`.
+:::
+
+## Expected Result
+
+The customer asks for specialist help with Aurora Buds Pro after a firmware update. Seven Hills delegates the issue through A2A, displays the Support Agent's diagnostic artifact with its task ID, and leaves ordinary shopping questions on Sofia's local path. The Support Agent remains private, rejects an unauthenticated workload, and produces a matching allowed event in Gateway.
+
+## What You Built
+
+| Layer | Control | Outcome |
+| --- | --- | --- |
+| Application | Deterministic support router | Only the approved lab support intent enters the A2A path. |
+| A2A | Agent Card and `SendMessage` | Seven Hills discovers a specialist capability and delegates a task. |
+| Workers VPC | `SUPPORT_NETWORK` | The Worker reaches the VM by private Mesh IP. |
+| Mesh | Pod VM node | The private Support Agent joins Cloudflare One without a public hostname. |
+| Access | Service Auth | Only the approved workload identity may invoke the private application. |
+| Gateway | HTTP policy and logs | The inter-agent exchange is governed and auditable. |
+
+## Customer Talk Track
+
+> "A2A lets our public shopping agent delegate a customer goal to a specialist without exposing that agent or sharing its internal tools. Workers VPC and Mesh provide the private path, Access authenticates the calling workload, and Gateway gives us policy and audit visibility. We proved an anonymous caller is blocked, the approved agent completes the support task, and normal shopping traffic is unaffected."
+
+## Production Caveats
+
+- Workers VPC and VPC Network bindings are beta services. Revalidate availability, limits, roles, and configuration before production use.
+- A2A 1.0 supports JSON-RPC, HTTP+JSON, and gRPC bindings. Pin and test the interface and protocol version advertised by the Agent Card.
+- The lab uses plaintext HTTP inside the encrypted Mesh path for simple Gateway inspection. A2A recommends HTTPS in production; use trusted certificates and verify server identity.
+- An Access service token identifies the Seven Hills workload, not the customer. The Support Agent must separately authorize customer data and high-impact actions.
+- Reusing one workload identity keeps the lab short. Use separate credentials when agents have different privileges, owners, or rotation schedules.
+- Do not rely on a system prompt to route security-sensitive requests. Production routing should combine deterministic policy, constrained classification, authorization, and safe fallback behavior.
+- Send only the context required by the specialist. Do not forward the entire conversation, cart, or customer profile by default.
+- Gateway logs can reveal destinations, paths, and request metadata. Configure retention and payload collection according to privacy requirements.
+- Gateway inspects HTTP on port `80` by default. This lab requires **Inspect on all ports** because the Support Agent uses port `8080`.
+- Agent Cards can expose sensitive capabilities and internal endpoints. Protect private cards and consider authenticated extended cards or signed Agent Cards where appropriate.
+- High-impact skills such as refunds, replacements, or account changes require skill-level authorization and confirmation beyond network access.
+
+## References
+
+- [Cloudflare Mesh](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-mesh/)
+- [Connect Workers to Cloudflare Mesh](https://developers.cloudflare.com/workers-vpc/examples/connect-to-cloudflare-mesh/)
+- [Workers VPC Network bindings](https://developers.cloudflare.com/workers-vpc/configuration/vpc-networks/)
+- [Secure a private IP or hostname with Access](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/non-http/self-hosted-private-app/)
+- [Cloudflare Access service tokens](https://developers.cloudflare.com/cloudflare-one/access-controls/service-credentials/service-tokens/)
+- [Cloudflare Gateway logs](https://developers.cloudflare.com/cloudflare-one/insights/logs/dashboard-logs/gateway-logs/)
+- [Gateway protocol detection and inspection on all ports](https://developers.cloudflare.com/cloudflare-one/traffic-policies/network-policies/protocol-detection/)
+- [A2A Protocol 1.0 specification](https://a2a-protocol.org/latest/specification/)
+- [A2A agent discovery](https://a2a-protocol.org/latest/topics/agent-discovery/)
+- [A2A and MCP](https://a2a-protocol.org/latest/topics/a2a-and-mcp/)
+
+{/*
+  Cloudflare dashboard labels and behavior are based on documentation current
+  on 2026-09-01. The private Service Auth and Worker binding paths still require
+  live-dashboard verification before this module is published as runnable.
+*/}

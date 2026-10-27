@@ -1,0 +1,158 @@
+---
+sidebar_position: 2
+title: Connect Seven Hills to the Support Agent
+slug: /secure-a2a/connect-worker
+custom_edit_url: null
+---
+
+# Connect Seven Hills to the Support Agent
+
+## Purpose
+
+Add a VPC Network binding to the existing Seven Hills Worker, point it at the VM's Mesh IP, and use the A2A Agent Card to discover the remote agent's declared identity and capabilities.
+
+## Architecture Context
+
+```text
+Seven Hills Worker
+    |
+    | env.SUPPORT_NETWORK.fetch()
+    v
+VPC Network: cf1:network
+    |
+    v
+Support VM Mesh IP:8080
+    |
+    +-- GET /.well-known/agent-card.json
+    +-- POST /rpc
+```
+
+The binding grants private network reachability. The URL passed to `fetch()` selects the destination IP and port. It does not, by itself, prove that the caller is authorized.
+
+## Steps
+
+### 1. Add the VPC Network binding
+
+1. In the Cloudflare dashboard, go to **Workers & Pages**.
+2. Open the `seven-hills-agent` Worker assigned to your pod.
+3. Go to **Settings** > **Bindings**.
+4. Select **Add binding** > **VPC Network**.
+5. Configure:
+
+| Field | Value |
+| --- | --- |
+| Variable name | `SUPPORT_NETWORK` |
+| Network | Cloudflare One network (`cf1:network`) |
+
+6. Save the binding to the existing Worker.
+
+This updates the existing application configuration. You are not creating another Worker or replacing Seven Hills.
+
+> **Screenshot placeholder:** `SUPPORT_NETWORK` VPC Network binding on the existing Worker.
+
+:::note Required account role
+Adding the binding requires **Connectivity Directory Bind** or **Connectivity Directory Admin**. The lab account should grant the narrower role.
+:::
+
+### 2. Configure the private endpoint
+
+On the same Worker, go to **Settings** > **Variables and Secrets** and add:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| Variable | `SUPPORT_AGENT_URL` | `http://<mesh-ip>:8080` |
+
+Replace `<mesh-ip>` with the address recorded in the previous exercise. Do not use `127.0.0.1` or the VM's Azure address `10.91.0.105`; those addresses do not identify the pod node from the Worker.
+
+Save the variable.
+
+### 3. Verify private Agent Card discovery
+
+Run the safe discovery probe:
+
+```bash
+curl -s -X POST https://<your-lab-domain>/api/a2a/probe \
+  -H 'content-type: application/json' \
+  -d '{"case":"agent-card"}'
+```
+
+Expected result:
+
+```json
+{
+  "ok": true,
+  "path": "mesh",
+  "agent": "Seven Hills Support Agent",
+  "protocol_binding": "JSONRPC",
+  "protocol_version": "1.0",
+  "interface_source": "supportedInterfaces",
+  "skills": ["diagnose_product_issue"]
+}
+```
+
+The Worker validates only approved fields and does not return internal endpoint details to the browser.
+
+The prebuilt client selects the `JSONRPC` entry from the card's A2A 1.0 `supportedInterfaces` array. For every JSON-RPC operation it sends:
+
+```text
+A2A-Version: 1.0
+Content-Type: application/json
+```
+
+and a JSON-RPC 2.0 envelope. Without `A2A-Version: 1.0`, the server may apply the legacy protocol default instead of the interface selected from the card.
+
+### 4. Confirm the connected status
+
+```bash
+curl -s https://<your-lab-domain>/api/a2a/status
+```
+
+Expected fields:
+
+```json
+{
+  "configured": true,
+  "connected": true,
+  "authenticated": false,
+  "path": "mesh"
+}
+```
+
+`authenticated: false` means Access protection has not been added yet. It does not mean the Agent Card check failed.
+
+## Expected Result
+
+The existing Seven Hills Worker reaches the private Support Agent through `SUPPORT_NETWORK`. It discovers an A2A 1.0 JSON-RPC interface and the expected diagnostic skill without exposing the VM publicly.
+
+## Troubleshooting
+
+<details>
+<summary>VPC Network is not available as a binding type</summary>
+
+- Confirm that you opened **Settings** for the Worker assigned to your pod.
+- Confirm that your account role includes **Connectivity Directory Bind**.
+- Do not create a second Worker if the binding type is unavailable; ask the facilitator to verify the assigned account and role.
+
+</details>
+
+<details>
+<summary>The probe returns A2A_NETWORK_UNREACHABLE</summary>
+
+- Confirm the Mesh node is still **Online**.
+- Compare `SUPPORT_AGENT_URL` with the node's **Mesh IP** and port `8080`.
+- Confirm that the Support Agent listens on an address reachable from the Mesh interface, not only `127.0.0.1`.
+
+</details>
+
+<details>
+<summary>The probe returns A2A_CARD_INVALID</summary>
+
+- Verify the local card again from the VM.
+- Confirm that the card advertises a `JSONRPC` interface with protocol version `1.0`.
+- Ask the facilitator to verify the Support Agent deployment rather than editing the card during the lab.
+
+</details>
+
+## Checkpoint
+
+Private discovery works, but any workload with network reachability can still call the Support Agent. Continue to [Authenticate the Agent With Access](/secure-a2a/authenticate-agent).

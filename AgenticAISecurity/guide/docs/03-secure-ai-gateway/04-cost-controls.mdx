@@ -1,0 +1,194 @@
+---
+sidebar_position: 4
+title: Control Cache, Request Rate, and Spend
+slug: /secure-ai-gateway/cost-controls
+custom_edit_url: null
+---
+
+# Control Cache, Request Rate, and Spend
+
+## Introduction
+In this module, you will apply AI Gateway caching, rate limiting, and spend limits to model traffic from the Seven Hills AI Agent. You will test each control separately and use AI gateway live logs to distinguish cached responses, request-volume blocks, and budget enforcement.
+
+These controls help an ecommerce business reduce repeated inference costs and contain abusive, unexpected, or runaway model consumption. Trusted request metadata also keeps standard shopping and premium Concierge budgets independent, preserving higher-value services when another workload reaches its limit.
+
+## Architecture Diagram
+
+```text
+Seven Hills -> Cache -> Rate limit -> Spend limit -> Dynamic route -> Workers AI
+                |          |              |
+              exact      request        estimated
+              match       count           cost
+```
+
+
+## Steps
+
+### 1. Enable and test cache
+
+1. Go to **AI** > **AI Gateway** > `seven-hills` > **Settings**.
+2. Enable **Cache Responses**.
+3. Set the default TTL to `300` seconds.
+4. Save the settings.
+
+Validate the cache with live application traffic:
+
+1. Go to **AI Gateway** > `seven-hills` > **Logs**, then select **LIVE**.
+2. Open Seven Hills and send `Which headphones are best for travel?` in **Chat with Sofia** three times. Do not change the cart between requests.
+3. Return to the live log stream and confirm the first request is a cache `MISS` and the repeated requests are cache `HIT` entries.
+
+![AI Gateway logs showing a cache miss followed by cache hits](/img/screenshots/03-secure-ai-gateway/03-04-01-cache-validation.png)
+
+:::info A cache hit avoids another model charge
+In Logs, confirm the hit has zero model cost and did not run a second inference. For an ecommerce business, caching repeated product questions can serve answers faster while avoiding a new model charge each time; at scale, those avoided inferences translate directly into lower operating costs.
+:::
+
+:::info Exact match
+The default cache key includes provider, endpoint, model, provider authorization, and the full request body. A changed prompt, tool list, cart, or model parameter creates a different key.
+:::
+
+### 2. Disable caching
+
+In gateway **Settings**, turn off **Cache Responses** and save. This ensures the following requests reach the rate-limiting control instead of being served from cache.
+
+### 3. Enable and test rate limiting
+
+1. In gateway **Settings**, enable **Rate-limiting**.
+2. Configure:
+
+| Field | Value |
+| --- | --- |
+| Requests | `1` |
+| Time period | `1 hour` |
+| Method | `Sliding` |
+
+3. Save.
+4. Go to **AI Gateway** > `seven-hills` > **Logs**, then select **LIVE**.
+5. Open Seven Hills and send `Do you sell a portable charger?` in **Chat with Sofia**. Wait for the AI Agent to respond.
+6. Send `Which headphones are best for travel?`.
+7. Return to the live log stream and open the two new entries.
+
+Confirm:
+
+- The first request succeeds.
+- The second request is blocked because it exceeds the one-request limit.
+- The blocked request's gateway log reports **Rate limited**, internal code `2003`, zero inference tokens, and zero model cost.
+
+![AI Gateway rate-limit validation](/img/screenshots/03-secure-ai-gateway/03-04-02-rate-limit-validation.png)
+
+:::info An intentionally low limit
+One request per hour is deliberately unreasonable for a shopping assistant, but it makes the control visible immediately. In production, businesses set thresholds from expected traffic so sudden bursts, abusive clients, or runaway applications cannot create uncontrolled model costs while normal customer demand continues to be served at human-rate.
+:::
+
+### 4. Disable rate limiting
+
+Turn **Rate-limiting** off and save.
+
+### 5. Create a scoped spend limit
+
+1. In AI gateway **Settings**, find **Spend Limits** and select **Add Rule**.
+2. Configure:
+
+| Field | Value |
+| --- | --- |
+| Budget | `$1` |
+| Time window | `1 hour` |
+| Window | `Sliding` |
+| Limit by metadata - Metadata key | `request_type` |
+| Dimension mode | `Split by key` |
+
+3. Save the rule.
+
+![Scoped AI Gateway spend-limit rule](/img/screenshots/03-secure-ai-gateway/03-04-03-scoped-spend-limit.png)
+
+AI Gateway now maintains independent `$1` buckets for `standard_chat` and `concierge`. If the two use cases need different dollar limits in production, create separate **Filter by value** rules instead.
+
+:::info Why split by request type?
+`request_type` is assigned by the Seven Hills Worker, not accepted from the browser. Splitting on this trusted business context lets the gateway cap runaway standard-chat spend without consuming the premium Concierge budget, and vice versa.
+:::
+
+### 6. Test spend before and after the budget is consumed
+
+From your terminal, trigger a customised cost call to trigger cost controls:
+
+```bash
+curl -s -X POST \
+  https://<your-lab-domain>/api/ai-gateway/probe \
+  --header 'Content-Type: application/json' \
+  --data '{"case":"spend"}'
+```
+
+The first request should succeed. The lab-only probe uses `request_type: standard_chat` and applies a fixed custom cost high enough to consume only the standard-chat `$1` bucket.
+
+After the first request appears in Logs, run the command again.
+
+Expected after-state:
+
+- The next probe returns `429`.
+- Its gateway log explicitly reports that a spend limit was exceeded.
+- A normal AI Agent prompt is blocked because it shares the exhausted `standard_chat` bucket.
+- A Concierge request still succeeds because it has an independent `concierge` bucket.
+
+![AI Gateway spend-limit validation](/img/screenshots/03-secure-ai-gateway/03-04-04-spend-limit-validation.png)
+
+
+### 7. Leave a clean state
+
+Confirm rate limiting and caching are off, delete or disable the spend-limit rule. Send one Agent prompt and one Concierge request and confirm both work before continuing.
+
+## What You Established
+You configured and validated three distinct AI Gateway cost controls. Logs showed a cache hit avoiding another Workers AI inference, a named rate-limit event stopping excess requests, and a spend limit affecting only the standard-chat budget while Concierge remained available.
+These controls prevent unnecessary or runaway spending on a public facing AI Agent tool. 
+
+## Checkpoint
+
+You proved the operational controls separately and preserved legitimate traffic. Continue to [Enforce Guardrails and DLP](/secure-ai-gateway/guardrails-dlp).
+
+## Troubleshooting
+
+<details>
+<summary>The second cache request is still a MISS</summary>
+
+- Confirm **Cache Responses** is enabled and saved.
+- Run the fixed probe rather than manually retyping a prompt.
+- Check whether the route or model changed between requests.
+
+</details>
+
+<details>
+<summary>The second request is not rate limited</summary>
+
+- Confirm caching is off.
+- Confirm the limit is one request per hour using Sliding mode.
+- Confirm both requests were sent after rate limiting was enabled.
+- Check Live logs for two distinct requests and compare their timestamps.
+
+</details>
+
+<details>
+<summary>The first request is already rate limited</summary>
+
+- A previous request may already occupy the sliding window.
+- Open the blocked log and confirm **Rate limited** with code `2003`; this still validates the control.
+- Confirm no other application shares your assigned gateway.
+
+</details>
+
+<details>
+<summary>The spend probe is not blocked</summary>
+
+- Wait for the successful cost to appear; spend counters are eventually consistent.
+- Confirm metadata key `request_type` and **Split by value**.
+- Confirm the probe log contains `request_type: standard_chat`.
+- Confirm the first log displays the custom cost supplied by the fixed probe.
+
+</details>
+
+<details>
+<summary>Concierge is also blocked after the standard-chat spend test</summary>
+
+- Confirm the rule uses **Split by value**, not one shared global bucket.
+- Confirm the Concierge log contains `request_type: concierge`.
+- Disable the rule to restore service, then rebuild it with the correct metadata key.
+
+</details>

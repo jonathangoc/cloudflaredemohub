@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "seven-hills-operations-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  // The target account comes from CLOUDFLARE_ACCOUNT_ID (set by scripts/deploy.sh)
+  // or from the account selected during `wrangler login`. Do not hardcode it here.
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MCP_OBJECT",
+        "class_name": "SevenHillsOperationsMCP"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["SevenHillsOperationsMCP"]
+    }
+  ]
+  // Optional: add a custom domain after the first deploy, for example
+  // "routes": [{ "pattern": "mcp.example.com", "custom_domain": true }]
+}

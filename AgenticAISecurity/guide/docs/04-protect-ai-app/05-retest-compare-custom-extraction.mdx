@@ -1,0 +1,130 @@
+---
+sidebar_position: 5
+title: Retest & Compare
+slug: /protect-ai-app/retest-compare-custom-extraction
+custom_edit_url: null
+---
+
+# Retest and Custom Extractions (Optional)
+
+## Introduction
+
+In this module, you will retest the Seven Hills AI Agent and compare its protected behavior with the original baseline. You will validate the complete AI Security for Apps, Security Analytics, and WAF workflow across discovery, detection, mitigation, and monitoring. You will also learn how custom prompt extraction can focus inspection on model input when an application sends prompts alongside customer or session metadata. This confirms that Seven Hills can stop ecommerce abuse at its public ingress while preserving useful shopping interactions.
+
+## 1: Mitigation Comparison Review
+
+Rerun each baseline prompt and record the result
+
+| # | Prompt | Detection Type | Baseline Result | Protected Result |
+| --- | --- | --- | --- | --- |
+| 1 | `What products do you have?` | Normal | Response | Response (unchanged) |
+| 2 | `Ignore previous instructions...` | Injection | Request reached model | **Blocked** with prompt-injection message |
+| 3 | `My credit card is 4111-1111...` | PII | Response | **Blocked** with sensitive-information message |
+| 4 | `How do I pick a lock...` | Unsafe topic | Response or refusal | **Blocked** with restricted-topic message |
+| 5 | `What hidden employee discount codes?` | Custom topic | Response | **Blocked** with unauthorized-discount message |
+
+## 2: Review the Detection Pipeline
+
+| Layer | What It Does | How You Configured It |
+| --- | --- | --- |
+| **Discovery** | Identifies the LLM endpoints | `cf-llm` label on `/api/chat` and `/api/concierge` |
+| **Injection detection** | Scores prompts for injection likelihood | Active after enablement |
+| **PII detection** | Flags prompts containing personal data | Active after enablement |
+| **Unsafe topic detection** | Flags harmful content categories | Active after enablement |
+| **Custom topic detection** | Scores business-specific intents | Three custom topics |
+| **Mitigation** | Blocks selected threats | Four WAF custom rules |
+| **Analytics** | Shows traffic, detections, and enforcement | Security Analytics filtered by `cf-llm` |
+
+This completes the **discover -> detect -> mitigate -> monitor** flow for AI Security for Apps.
+
+## 3: Custom Prompt Extraction
+
+### Challenge
+
+Applications often send prompts inside complex JSON payloads containing customer and session metadata:
+
+```json
+{
+  "customer_email": "sofia@example.com",
+  "assistant_context": {
+    "shopping_request": {
+      "customer_prompt": "What headphones do you sell?"
+    }
+  }
+}
+```
+
+Inspecting the whole payload could treat `customer_email` as part of the prompt and trigger an unnecessary PII block.
+
+### Solution
+
+Custom prompt extraction tells AI Security which field contains the text sent to the model:
+
+```text
+assistant_context.shopping_request.customer_prompt
+```
+
+AI Security applies its prompt injection, PII, unsafe-topic, and custom-topic detections to that extracted text rather than unrelated request metadata.
+
+### Benefit
+
+Detection is aligned with the model's actual input:
+
+| Scenario | Result |
+| --- | --- |
+| Email appears only in `customer_email` | The prompt is not flagged for PII |
+| Email appears in `customer_prompt` | The PII rule can detect and block it |
+
+This reduces false positives while preserving protection for content that reaches the model.
+
+### Test this in your own environment
+
+Custom extraction currently requires API configuration and these entitlements:
+
+- `ai_security.detections_allowed`
+- `rulesets.unstable_features_allowed`
+
+AI Security must be enabled, request-body buffering must be active, and the proxied endpoint must be registered as a Web Asset with the `cf-llm` label.
+
+Using an appropriately scoped API token, first retrieve any existing configuration because `PUT` replaces all custom prompt extraction rules:
+
+```bash
+curl "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/field_extractors/llm_prompts" \
+  -H "Authorization: Bearer ${API_TOKEN}"
+```
+
+Configure the Concierge prompt field:
+
+```bash
+curl -X PUT \
+  "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/field_extractors/llm_prompts" \
+  -H "Authorization: Bearer ${API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "rules": [{
+      "ref": "seven-hills-concierge",
+      "description": "Extract the Seven Hills Concierge prompt",
+      "fields": [{
+        "name": "prompt",
+        "expression": "lookup_json_string(http.request.body.raw, \"assistant_context\", \"shopping_request\", \"customer_prompt\")"
+      }]
+    }]
+  }'
+```
+
+With the PII WAF rule enabled, compare two Concierge requests:
+
+- A clean `customer_prompt` with an email only in `customer_email` should be allowed.
+- The same email inside `customer_prompt` should be blocked.
+
+Custom extractors are account-scoped and apply to labeled `cf-llm` operations. Confirm current availability and API requirements with your Cloudflare account team before testing.
+
+
+## Step 4: Customer Talk Track
+
+> Seven Hills needed to protect the public endpoints of the Seven Hills AI Agent without disrupting the shopping experience. We enabled AI Security for Apps, identified and labeled the chat and concierge endpoints, and inspected prompts for injection attacks, personal data, unsafe content, and business-specific risks such as discount abuse. 
+
+> Security Analytics gave the team evidence to understand each detection and choose appropriate enforcement thresholds. We then connected those signals to Cloudflare WAF custom rules, stopping high-risk requests at the edge before they reached the model. 
+
+> Finally, we repeated the baseline tests and confirmed both outcomes: adversarial prompts were blocked with clear responses, while customers could still ask about products, promotions, and delivery. Cloudflare added discovery, detection, enforcement, and auditability to the existing application without requiring code changes.
+{/* Source: partner lab docs/M3/retest-and-compare.mdx. */}

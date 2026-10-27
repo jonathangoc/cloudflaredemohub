@@ -1,0 +1,155 @@
+---
+sidebar_position: 1
+title: Establish the A2A Baseline and Connect the VM
+slug: /secure-a2a/connect-mesh
+custom_edit_url: null
+---
+
+# Establish the A2A Baseline and Connect the VM
+
+## Purpose
+
+Prove that specialist support is unavailable before the private path exists, verify the local Support Agent, and enroll the pod VM as a Cloudflare Mesh node.
+
+## Architecture Context
+
+```text
+Before
+
+Seven Hills Worker ----X----> Support Agent
+                    no private path
+
+After
+
+Cloudflare Mesh <-----------> Support Agent VM
+                Mesh IP       127.0.0.1:8080
+```
+
+Mesh gives the VM a private address in Cloudflare One. It does not yet connect Seven Hills or authorize the Worker.
+
+## Steps
+
+### 1. Capture the disconnected baseline
+
+Open `https://<your-lab-domain>`, open chat, and send the provided support prompt:
+
+> Get specialist support: My Aurora Buds Pro stopped connecting over Bluetooth after a firmware update.
+
+Expected result:
+
+```text
+Specialist support is not connected yet. No support task was created.
+```
+
+The deterministic router fails closed. It does not ask Sofia to invent troubleshooting instructions when the specialist path is unavailable.
+
+Run the corresponding status check:
+
+```bash
+curl -s https://<your-lab-domain>/api/a2a/status
+```
+
+Expected fields:
+
+```json
+{
+  "configured": false,
+  "connected": false,
+  "code": "A2A_NOT_CONFIGURED"
+}
+```
+
+> **Screenshot placeholder:** Seven Hills specialist-support response before A2A is connected.
+
+### 2. Verify the Support Agent on the VM
+
+Connect to your pod VM using the method provided by the facilitator. Verify the prebuilt service locally:
+
+```bash
+curl -s http://127.0.0.1:8080/.well-known/agent-card.json
+```
+
+Confirm that the card includes:
+
+- Name: `Seven Hills Support Agent`
+- Protocol binding: `JSONRPC`
+- Protocol version: `1.0`
+- Skill: `diagnose_product_issue`
+- Interface URL ending in `/rpc`
+
+Confirm that the service accepts connections on the VM's network interfaces:
+
+```bash
+sudo ss -ltnp | grep ':8080'
+```
+
+Expected listener: `0.0.0.0:8080`, `[::]:8080`, or the VM's assigned interface address on port `8080`. A listener only on `127.0.0.1:8080` passes the local check but cannot accept requests sent to the Mesh IP.
+
+The local result proves that the agent is healthy, but it is not evidence that the Worker can reach it.
+
+### 3. Create the Mesh node
+
+1. In the Cloudflare dashboard, go to **Networking** > **Mesh**.
+2. Select **Add a node**.
+3. Enter `seven-hills-support-<pod>` as the node name.
+4. Select **Create node**.
+5. Keep the generated installation page open.
+
+:::warning Protect the node token
+The generated command contains a node enrollment token. Run it only on your assigned VM. Do not paste it into the guide, chat, screenshots, or shared notes.
+:::
+
+### 4. Install the node on Ubuntu
+
+Copy the Ubuntu installation commands shown by the Mesh wizard and run them on the pod VM. The commands install the Cloudflare One Client, enable forwarding, enroll the node, and connect it.
+
+When installation finishes, verify the client:
+
+```bash
+sudo warp-cli status
+```
+
+Expected result includes:
+
+```text
+Status update: Connected
+```
+
+Return to **Networking** > **Mesh**. Confirm that `seven-hills-support-<pod>` is **Online**, then record its assigned **Mesh IP** on your worksheet.
+
+> **Screenshot placeholder:** Online support Mesh node with the token and unrelated nodes obscured.
+
+## Expected Result
+
+The Seven Hills support route initially reports `A2A_NOT_CONFIGURED`. The local Support Agent is healthy, and the pod VM is now an online Mesh node with a private Mesh IP.
+
+## Troubleshooting
+
+<details>
+<summary>The local Agent Card does not load</summary>
+
+- Confirm that you used port `8080` and `/.well-known/agent-card.json`.
+- Ask the facilitator to confirm that the Support Agent service is running.
+- Do not continue until the local card is healthy; Mesh cannot repair the application itself.
+
+</details>
+
+<details>
+<summary>The Mesh node remains offline</summary>
+
+- Run `sudo warp-cli status`, then `sudo warp-cli connect` if disconnected.
+- Confirm that the complete dashboard-provided enrollment command ran successfully.
+- Ask the facilitator to verify outbound WARP ports and the account's Mesh device profile.
+
+</details>
+
+<details>
+<summary>The enrollment token was exposed or used on the wrong VM</summary>
+
+Delete the incorrect node, create a replacement, and enroll only the assigned pod VM with the new token. Do not reuse the exposed token.
+
+</details>
+
+## Checkpoint
+
+The Support Agent has a private path into Cloudflare One, but Seven Hills is not connected to it. Continue to [Connect Seven Hills to the Support Agent](/secure-a2a/connect-worker).

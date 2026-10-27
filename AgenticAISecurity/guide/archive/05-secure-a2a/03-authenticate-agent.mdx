@@ -1,0 +1,157 @@
+---
+sidebar_position: 3
+title: Authenticate the Agent With Access
+slug: /secure-a2a/authenticate-agent
+custom_edit_url: null
+---
+
+# Authenticate the Agent With Access
+
+## Purpose
+
+Place the private Support Agent behind Access, require the existing Seven Hills workload identity, and prove that network reachability does not equal authorization.
+
+## Architecture Context
+
+```text
+No credentials ----------------X---> Access private application
+
+Seven Hills Worker
+    | CF-Access-Client-Id
+    | CF-Access-Client-Secret
+    v
+Access Service Auth ----------------> Support Agent
+```
+
+A2A does not carry identity inside its JSON-RPC payload. The Worker authenticates at the HTTP layer, as recommended by the A2A specification.
+
+## Steps
+
+### 1. Create the private Access application
+
+1. Go to **Zero Trust** > **Access controls** > **Applications**.
+2. Select **Create new application**.
+3. Select **Self-hosted and private**.
+4. Set **Application name** to `Seven Hills Support Agent`.
+5. Select **Add private IP**.
+6. Configure:
+
+| Field | Value |
+| --- | --- |
+| IP address | `<mesh-ip>` |
+| Port | `8080` |
+
+7. Under **Access policies**, add the reusable `Allow Seven Hills agent` policy created in Module 02.
+8. Confirm that its action is **Service Auth** and its Include rule selects the `seven-hills-agent` service token.
+9. Create the application.
+
+Access applications are deny by default. Do not add a Bypass policy for the Mesh range.
+
+> **Screenshot placeholder:** Private Access application targeting the support Mesh IP and port `8080`.
+
+### 2. Add the Access private-app routing rule
+
+Gateway Network policies are evaluated before the Access application by default. Add the documented routing rule so a general private-network block cannot prevent Access from making the identity decision:
+
+1. Go to **Zero Trust** > **Traffic policies** > **Firewall policies** > **Network**.
+2. Select **Add a policy**.
+3. Set **Policy name** to `Route Access private applications`.
+4. Configure:
+
+| Selector | Operator | Value | Action |
+| --- | --- | --- | --- |
+| Access Private App | is | Present | Allow |
+
+5. Save the policy above any general private-network block.
+
+This rule provides routing for destinations represented by Access private applications. It does not authorize the caller; the Service Auth policy still must pass.
+
+### 3. Confirm the Worker credentials
+
+Open **Workers & Pages** > your `seven-hills-agent` Worker > **Settings** > **Variables and Secrets**.
+
+Confirm that the encrypted Client ID and Client Secret bindings created in Module 02 are present. Do not reveal or replace their values. The prebuilt A2A client maps those server-side secrets to:
+
+```text
+CF-Access-Client-Id
+CF-Access-Client-Secret
+```
+
+on requests to the Support Agent.
+
+### 4. Prove that an unauthenticated workload is denied
+
+The following safe probe uses the VPC binding but deliberately omits both Access headers:
+
+```bash
+curl -s -X POST https://<your-lab-domain>/api/a2a/probe \
+  -H 'content-type: application/json' \
+  -d '{"case":"unauthenticated"}'
+```
+
+Expected normalized result:
+
+```json
+{
+  "ok": true,
+  "blocked": true,
+  "code": "ACCESS_DENIED"
+}
+```
+
+The probe normalizes the Access response so validation does not depend on whether the account returns a redirect or an HTTP `401` for missing service credentials.
+
+### 5. Prove that Seven Hills is authorized
+
+Rerun the authenticated Agent Card probe:
+
+```bash
+curl -s -X POST https://<your-lab-domain>/api/a2a/probe \
+  -H 'content-type: application/json' \
+  -d '{"case":"agent-card"}'
+```
+
+Expected result: `ok: true`, with the same agent, protocol, and skill fields as before Access was enabled.
+
+Then check status:
+
+```bash
+curl -s https://<your-lab-domain>/api/a2a/status
+```
+
+Expected fields include `connected: true`, `authenticated: true`, and `path: mesh`.
+
+## Expected Result
+
+The Support Agent remains reachable only through the private network, but Access now makes an independent authorization decision. The no-credentials probe is blocked and the approved Seven Hills workload continues to discover the Agent Card.
+
+## Troubleshooting
+
+<details>
+<summary>Both authenticated and unauthenticated probes succeed</summary>
+
+- Confirm that the Access application destination exactly matches the Mesh IP and port `8080`.
+- Remove any Bypass policy covering the application.
+- Generate fresh probes after saving the application; do not rely on earlier results.
+
+</details>
+
+<details>
+<summary>Both probes are denied</summary>
+
+- Confirm the attached policy action is **Service Auth**, not Allow.
+- Confirm the policy selects the same `seven-hills-agent` token stored by the Worker.
+- If the Client Secret was rotated, update the Worker secret with the new value.
+
+</details>
+
+<details>
+<summary>Gateway blocks the request before Access evaluates it</summary>
+
+Check higher-precedence Gateway Network policies and confirm that `Route Access private applications` is above the conflicting block. The rule provides connectivity; Access still decides identity.
+
+</details>
+
+## Checkpoint
+
+Private connectivity and workload authentication are complete. Continue to [Delegate Support and Inspect the A2A Traffic](/secure-a2a/validate-handoff).

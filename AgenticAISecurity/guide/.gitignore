@@ -1,0 +1,5 @@
+.docusaurus/
+.wrangler/
+build/
+node_modules/
+screenshots/inbox/
