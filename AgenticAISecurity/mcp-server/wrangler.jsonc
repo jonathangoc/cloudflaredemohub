@@ -23,7 +23,6 @@
       "tag": "v1",
       "new_sqlite_classes": ["SevenHillsOperationsMCP"]
     }
-  ]
-  // Optional: add a custom domain after the first deploy, for example
-  // "routes": [{ "pattern": "mcp.example.com", "custom_domain": true }]
+  ],
+  "routes": [{ "pattern": "seven-hills-operations-mcp.jonathangoc.com", "custom_domain": true }]
 }
