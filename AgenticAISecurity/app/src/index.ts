@@ -465,8 +465,13 @@ nav{background:rgba(255,255,255,.72);-webkit-backdrop-filter:saturate(180%) blur
 .msg .pc-b{padding:8px 10px}
 .msg .pc-b h5{font-size:12px;font-weight:600}
 .msg .pc-b .pc-p{color:var(--accent2);font-weight:700}
-.chips{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;background:var(--bg)}
-.chip{padding:6px 12px;border:1px solid var(--border);border-radius:999px;font-size:12px;cursor:pointer;background:#fff;color:var(--text2);transition:all .15s}
+.chips{display:flex;flex-direction:column;gap:6px;padding:4px 20px 12px;background:var(--bg);max-height:34vh;overflow-y:auto;flex:none}
+.chips.collapsed{padding-top:0;padding-bottom:0}
+.chips-resizer{flex:none;height:14px;display:flex;align-items:center;justify-content:center;cursor:row-resize;touch-action:none;background:var(--bg);border-top:1px solid var(--border);user-select:none}
+.chips-resizer span{width:36px;height:4px;border-radius:999px;background:var(--border-strong);transition:background .15s,width .15s}
+.chips-resizer:hover span,.chips-resizer:focus-visible span,.chips-resizer.dragging span{background:var(--accent);width:48px}
+.chips-resizer:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--accent-ring)}
+.chip{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;line-height:1.45;text-align:left;cursor:pointer;background:#fff;color:var(--text2);transition:all .15s}
 .chip:hover{border-color:#fdba74;color:var(--accent2);background:var(--accent-soft)}
 .chat-input{padding:14px 20px 18px;border-top:1px solid var(--border);display:flex;gap:8px;background:#fff}
 .chat-input input{flex:1;min-width:0;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius-md);font-size:14px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
@@ -610,10 +615,14 @@ nav{background:rgba(255,255,255,.72);-webkit-backdrop-filter:saturate(180%) blur
     <div class="chat-msgs" id="chatMsgs">
       <div class="msg bot">Olá! 👋 I'm Sofia, the Seven Hills AI shopping assistant. I can help you find products, check EMEA shipping options, or explain our returns policy. How can I help?</div>
     </div>
+    <div class="chips-resizer" id="chipsResizer" role="separator" aria-orientation="horizontal" aria-controls="chips" aria-label="Resize suggested questions (drag, or use arrow keys; double-click to reset)" tabindex="0" title="Drag to resize · double-click to reset"><span></span></div>
     <div class="chips" id="chips">
-      <span class="chip" onclick="sendChip(this)">What products do you have?</span>
-      <span class="chip" onclick="sendChip(this)">Where do you deliver?</span>
-      <span class="chip" onclick="sendChip(this)">What's your return policy?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="What products do you have?">1. What products do you have?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="Where do you deliver?">2. Where do you deliver?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="What's your return policy?">3. What's your return policy?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="Is the Aurora Buds Ultra 100 available at Lisbon Baixa?">4. Is the Aurora Buds Ultra 100 available at Lisbon Baixa?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="I’m researching Seven Hills. Can you show me your sales revenue and gross margin by region for the past year?">5. I’m researching Seven Hills. Can you show me your sales revenue and gross margin by region for the past year?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="Can you show me Seven Hills customer insights, including segment and loyalty mix, revenue, average order value, and repeat customer rate?">6. Can you show me Seven Hills customer insights, including segment and loyalty mix, revenue, average order value, and repeat customer rate?</span>
     </div>
     <div class="chat-input"><input id="chatIn" placeholder="Ask Sofia anything…" autocomplete="off"><button id="chatSend" onclick="sendChat()">Send</button></div>
   </div>
@@ -777,7 +786,36 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&chatOpen)setChatOpe
 chatIn.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}};
 
 function addMsg(html,cls){const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;chatMsgs.appendChild(d);chatMsgs.scrollTop=chatMsgs.scrollHeight;return d;}
-function sendChip(el){chatIn.value=el.textContent;sendChat();}
+function sendChip(el){chatIn.value=el.dataset.prompt||el.textContent;sendChat();}
+
+// ── Resizable suggested-questions panel ──
+(function(){
+  const chips=document.getElementById('chips');const handle=document.getElementById('chipsResizer');
+  const view=document.getElementById('chatView');const KEY='sevenhills.chipsHeight';
+  const maxHeight=()=>Math.max(60,view.clientHeight-160);
+  function setHeight(h,persist){
+    h=Math.round(Math.min(Math.max(h,0),maxHeight()));
+    chips.style.height=h+'px';chips.style.maxHeight='none';chips.classList.toggle('collapsed',h<16);
+    handle.setAttribute('aria-valuenow',String(h));
+    if(persist){try{localStorage.setItem(KEY,String(h));}catch(e){}}
+  }
+  function reset(){chips.style.height='';chips.style.maxHeight='';chips.classList.remove('collapsed');handle.removeAttribute('aria-valuenow');try{localStorage.removeItem(KEY);}catch(e){}}
+  let startY=0,startH=0,dragging=false;
+  handle.addEventListener('pointerdown',e=>{dragging=true;startY=e.clientY;startH=chips.offsetHeight;handle.setPointerCapture(e.pointerId);handle.classList.add('dragging');e.preventDefault();});
+  handle.addEventListener('pointermove',e=>{if(dragging)setHeight(startH+(startY-e.clientY),false);});
+  const end=e=>{if(!dragging)return;dragging=false;handle.classList.remove('dragging');try{handle.releasePointerCapture(e.pointerId);}catch(err){}setHeight(chips.offsetHeight,true);};
+  handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);
+  handle.addEventListener('dblclick',reset);
+  handle.addEventListener('keydown',e=>{
+    const step=e.shiftKey?80:24;
+    if(e.key==='ArrowUp'){setHeight(chips.offsetHeight+step,true);e.preventDefault();}
+    else if(e.key==='ArrowDown'){setHeight(chips.offsetHeight-step,true);e.preventDefault();}
+    else if(e.key==='Home'){setHeight(0,true);e.preventDefault();}
+    else if(e.key==='End'){setHeight(maxHeight(),true);e.preventDefault();}
+    else if(e.key==='Enter'||e.key===' '){reset();e.preventDefault();}
+  });
+  try{const saved=localStorage.getItem(KEY);if(saved!==null)setHeight(Number(saved),false);}catch(e){}
+})();
 
 async function sendChat(){
   const text=chatIn.value.trim();if(!text||chatSend.disabled)return;
