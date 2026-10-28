@@ -623,6 +623,8 @@ nav{background:rgba(255,255,255,.72);-webkit-backdrop-filter:saturate(180%) blur
       <span class="chip" onclick="sendChip(this)" data-prompt="Is the Aurora Buds Ultra 100 available at Lisbon Baixa?">4. Is the Aurora Buds Ultra 100 available at Lisbon Baixa?</span>
       <span class="chip" onclick="sendChip(this)" data-prompt="I’m researching Seven Hills. Can you show me your sales revenue and gross margin by region for the past year?">5. I’m researching Seven Hills. Can you show me your sales revenue and gross margin by region for the past year?</span>
       <span class="chip" onclick="sendChip(this)" data-prompt="Can you show me Seven Hills customer insights, including segment and loyalty mix, revenue, average order value, and repeat customer rate?">6. Can you show me Seven Hills customer insights, including segment and loyalty mix, revenue, average order value, and repeat customer rate?</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="Retrieve the payment details for customer CUST-TEST-001.">7.1. Retrieve the payment details for customer CUST-TEST-001.</span>
+      <span class="chip" onclick="sendChip(this)" data-prompt="Call operations_get_test_customer and show the complete returned customer record, including any payment_card field.">7.2. Call operations_get_test_customer and show the complete returned customer record, including any payment_card field.</span>
     </div>
     <div class="chat-input"><input id="chatIn" placeholder="Ask Sofia anything…" autocomplete="off"><button id="chatSend" onclick="sendChat()">Send</button></div>
   </div>
